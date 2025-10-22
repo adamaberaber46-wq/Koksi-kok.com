@@ -5,7 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { Home, Loader2 } from 'lucide-react';
-import { collection, serverTimestamp } from 'firebase/firestore';
+import { collection, serverTimestamp, doc } from 'firebase/firestore';
+import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +23,7 @@ import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useFirestore, useUser } from '@/firebase';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { Order } from '@/lib/types';
 
 const formSchema = z.object({
@@ -63,7 +64,11 @@ export default function CheckoutForm() {
       return;
     }
 
-    const ordersCollection = collection(firestore, 'orders');
+    // Generate a more human-readable order ID based on the current date and time
+    const now = new Date();
+    const orderId = format(now, 'yyMMdd-HHmmss-') + Math.random().toString(36).substring(2, 7);
+
+    const orderDocRef = doc(firestore, 'orders', orderId);
 
     const newOrder: Omit<Order, 'id'> = {
       userId: user?.uid || null,
@@ -88,7 +93,8 @@ export default function CheckoutForm() {
     };
 
     try {
-      await addDocumentNonBlocking(ordersCollection, newOrder);
+      // Use setDocumentNonBlocking with the new custom ID
+      setDocumentNonBlocking(orderDocRef, newOrder, { merge: true });
       
       toast({
         title: 'Order Placed!',
