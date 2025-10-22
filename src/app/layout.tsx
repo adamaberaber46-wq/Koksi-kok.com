@@ -7,7 +7,7 @@ import Header from '@/components/header';
 import Footer from '@/components/footer';
 
 export const metadata: Metadata = {
-  title: 'Style Store',
+  title: 'Asoo Kooky Cook',
   description: 'Your one-stop shop for the latest fashion trends.',
 };
 
