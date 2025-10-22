@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/lib/types';
@@ -12,6 +14,7 @@ import { formatPrice } from '@/lib/utils';
 import placeholderImages from '@/lib/placeholder-images.json';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import { AddToCartDialog } from './add-to-cart-dialog';
 
 export default function ProductCard({ product }: { product: Product }) {
   const image = placeholderImages.find((img) => img.id === product.imageId);
@@ -22,7 +25,7 @@ export default function ProductCard({ product }: { product: Product }) {
     : 0;
 
   return (
-    <Card className="flex flex-col overflow-hidden rounded-none group">
+    <Card className="flex flex-col overflow-hidden rounded-none group h-full">
         <CardHeader className="p-0">
           <Link href={`/products/${product.id}`} className="block relative">
              {isDiscounted && (
@@ -62,7 +65,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </Link>
           </CardTitle>
         </CardContent>
-        <CardFooter className="p-4 pt-0 flex-col items-start">
+        <CardFooter className="p-4 pt-0 flex-col items-start mt-auto">
             <div className="flex items-baseline gap-2">
                  <p className="text-base font-semibold text-destructive">{formatPrice(product.price)}</p>
                 {isDiscounted && (
@@ -70,9 +73,11 @@ export default function ProductCard({ product }: { product: Product }) {
                 )}
             </div>
           <p className="text-sm text-muted-foreground mt-2 truncate w-full">{product.description}</p>
-          <Button asChild variant="outline" className="w-full mt-4 rounded-full">
-            <Link href={`/products/${product.id}`}>Add to Cart</Link>
-          </Button>
+          <AddToCartDialog product={product}>
+            <Button variant="outline" className="w-full mt-4 rounded-full">
+              Add to Cart
+            </Button>
+          </AddToCartDialog>
         </CardFooter>
     </Card>
   );
