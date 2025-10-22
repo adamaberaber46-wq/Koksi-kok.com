@@ -11,15 +11,25 @@ import {
 import { formatPrice } from '@/lib/utils';
 import placeholderImages from '@/lib/placeholder-images.json';
 import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 
 export default function ProductCard({ product }: { product: Product }) {
   const image = placeholderImages.find((img) => img.id === product.imageId);
   const hoverImage = placeholderImages.find((img) => img.id === product.hoverImageId);
+  const isDiscounted = product.originalPrice && product.originalPrice > product.price;
+  const discountPercentage = isDiscounted
+    ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
+    : 0;
 
   return (
     <Card className="flex flex-col overflow-hidden rounded-none group">
         <CardHeader className="p-0">
           <Link href={`/products/${product.id}`} className="block relative">
+             {isDiscounted && (
+                <Badge variant="destructive" className="absolute top-2 left-2 z-10">
+                    {`خصم ${discountPercentage}%`}
+                </Badge>
+             )}
             <div className="relative aspect-square w-full">
               {image && (
                 <Image
@@ -53,7 +63,12 @@ export default function ProductCard({ product }: { product: Product }) {
           </CardTitle>
         </CardContent>
         <CardFooter className="p-4 pt-0 flex-col items-start">
-          <p className="text-base font-semibold text-destructive">{formatPrice(product.price)}</p>
+            <div className="flex items-baseline gap-2">
+                 <p className="text-base font-semibold text-destructive">{formatPrice(product.price)}</p>
+                {isDiscounted && (
+                    <p className="text-sm text-muted-foreground line-through">{formatPrice(product.originalPrice!)}</p>
+                )}
+            </div>
           <p className="text-sm text-muted-foreground mt-2 truncate">{product.description}</p>
           <Button asChild variant="outline" className="w-full mt-4 rounded-full">
             <Link href={`/products/${product.id}`}>Add to Cart</Link>

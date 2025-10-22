@@ -4,6 +4,7 @@ export type Product = {
   brand: string;
   description: string;
   price: number;
+  originalPrice?: number;
   sizes: string[];
   category: 'Clothing' | 'Shoes';
   imageId: string;
