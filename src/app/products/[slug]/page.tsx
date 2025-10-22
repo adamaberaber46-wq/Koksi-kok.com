@@ -61,18 +61,20 @@ export default function ProductDetailPage({
     notFound();
   }
 
-  const productImages = product.imageIds.map(id => 
-    placeholderImages.find(img => img.id === id)
-  ).filter(Boolean);
+  const productImages = product.imageIds && product.imageIds.length > 0 
+    ? product.imageIds.map(id => placeholderImages.find(img => img.id === id)).filter(Boolean)
+    : [];
 
-  const selectedImage = placeholderImages.find(img => img.id === (selectedImageId || product.imageIds[0]));
+  const selectedImage = productImages.length > 0 
+    ? placeholderImages.find(img => img.id === (selectedImageId || product.imageIds[0]))
+    : null;
 
   return (
     <div className="container mx-auto px-4 py-8 sm:py-16">
       <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-start">
         <div className="flex flex-col gap-4">
           <div className="relative aspect-square w-full overflow-hidden rounded-lg">
-            {selectedImage && (
+            {selectedImage ? (
                <Image
                   src={selectedImage.imageUrl}
                   alt={product.name}
@@ -82,6 +84,10 @@ export default function ProductDetailPage({
                   priority
                   data-ai-hint={selectedImage.imageHint}
                 />
+            ) : (
+              <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <span className="text-muted-foreground text-sm">No Image</span>
+              </div>
             )}
           </div>
           <div className="grid grid-cols-4 gap-2">
@@ -90,8 +96,8 @@ export default function ProductDetailPage({
                 key={image.id}
                 onClick={() => setSelectedImageId(image.id)}
                 className={cn("relative aspect-square w-full overflow-hidden rounded-md border-2", {
-                  'border-primary': selectedImageId === image.id || (!selectedImageId && image.id === product.imageIds[0]),
-                  'border-transparent': selectedImageId !== image.id && (selectedImageId || image.id !== product.imageIds[0])
+                  'border-primary': selectedImageId === image.id || (!selectedImageId && product.imageIds && image.id === product.imageIds[0]),
+                  'border-transparent': selectedImageId !== image.id && (!selectedImageId || (product.imageIds && image.id !== product.imageIds[0]))
                 })}
               >
                 <Image 
@@ -106,7 +112,7 @@ export default function ProductDetailPage({
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <Badge variant="secondary" className="w-fit">{product.category}</Badge>
+          {product.category && <Badge variant="secondary" className="w-fit">{product.category}</Badge>}
           <h1 className="text-xl font-bold font-headline">
             {product.name}
           </h1>
@@ -115,11 +121,13 @@ export default function ProductDetailPage({
           <p className="text-muted-foreground leading-relaxed">
             {product.description}
           </p>
-          <div className="text-sm text-muted-foreground space-y-1">
-            <p><span className="font-semibold text-foreground">Brand:</span> {product.brand}</p>
-            <p><span className="font-semibold text-foreground">Material:</span> {product.material}</p>
-            <p><span className="font-semibold text-foreground">Made in:</span> {product.countryOfOrigin}</p>
-          </div>
+          {(product.brand || product.material || product.countryOfOrigin) && (
+            <div className="text-sm text-muted-foreground space-y-1">
+              {product.brand && <p><span className="font-semibold text-foreground">Brand:</span> {product.brand}</p>}
+              {product.material && <p><span className="font-semibold text-foreground">Material:</span> {product.material}</p>}
+              {product.countryOfOrigin && <p><span className="font-semibold text-foreground">Made in:</span> {product.countryOfOrigin}</p>}
+            </div>
+          )}
           <Separator />
           <AddToCartForm product={product} />
         </div>
