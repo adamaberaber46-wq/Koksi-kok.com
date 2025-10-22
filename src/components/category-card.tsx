@@ -11,7 +11,7 @@ export default function CategoryCard({ category }: { category: Category }) {
   const image = placeholderImages.find((img) => img.id === category.imageId);
 
   return (
-    <Card className="overflow-hidden group">
+    <Card className="overflow-hidden group rounded-none">
       <Link href={`/products?category=${category.name}`} className="block relative">
         <div className="relative aspect-[4/3] w-full">
             {image && (
