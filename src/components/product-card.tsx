@@ -18,35 +18,38 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <Card className="flex flex-col overflow-hidden rounded-none group">
-      <Link href={`/products/${product.id}`} className="flex flex-col h-full">
         <CardHeader className="p-0">
-          <div className="relative aspect-square w-full">
-            {image && (
-               <Image
-                src={image.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover transition-opacity duration-300 opacity-100 group-hover:opacity-0"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                data-ai-hint={image.imageHint}
-              />
-            )}
-            {hoverImage && (
-               <Image
-                src={hoverImage.imageUrl}
-                alt={`${product.name} (hover)`}
-                fill
-                className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                data-ai-hint={hoverImage.imageHint}
-              />
-            )}
-          </div>
+          <Link href={`/products/${product.id}`} className="block relative">
+            <div className="relative aspect-square w-full">
+              {image && (
+                <Image
+                  src={image.imageUrl}
+                  alt={product.name}
+                  fill
+                  className="object-cover transition-opacity duration-300 opacity-100 group-hover:opacity-0"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  data-ai-hint={image.imageHint}
+                />
+              )}
+              {hoverImage && (
+                <Image
+                  src={hoverImage.imageUrl}
+                  alt={`${product.name} (hover)`}
+                  fill
+                  className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  data-ai-hint={hoverImage.imageHint}
+                />
+              )}
+            </div>
+          </Link>
         </CardHeader>
         <CardContent className="p-4 flex-grow">
           <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>
           <CardTitle className="text-lg font-semibold font-headline tracking-tight">
-            {product.name}
+            <Link href={`/products/${product.id}`} className="hover:underline">
+              {product.name}
+            </Link>
           </CardTitle>
         </CardContent>
         <CardFooter className="p-4 pt-0 flex-col items-start">
@@ -55,7 +58,6 @@ export default function ProductCard({ product }: { product: Product }) {
             <Link href={`/products/${product.id}`}>Add to Cart</Link>
           </Button>
         </CardFooter>
-      </Link>
     </Card>
   );
 }
