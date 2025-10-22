@@ -97,28 +97,31 @@ export default function OrdersPage() {
             <Accordion type="single" collapsible className="w-full">
               {orders.map((order) => (
                 <AccordionItem key={order.id} value={order.id}>
-                  <AccordionTrigger>
-                    <div className="flex justify-between w-full pr-4 items-center">
-                        <div className='flex items-center gap-4'>
-                            <div className='text-left'>
-                                <p className="font-semibold">{order.customerInfo.name}</p>
-                                <p className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</p>
+                    <div className="flex items-center w-full">
+                        <AccordionTrigger className="flex-1">
+                            <div className="flex justify-between w-full pr-4 items-center">
+                                <div className='flex items-center gap-4'>
+                                    <div className='text-left'>
+                                        <p className="font-semibold">{order.customerInfo.name}</p>
+                                        <p className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</p>
+                                    </div>
+                                    <Badge variant={getStatusBadgeVariant(order.orderStatus)} className="hidden sm:inline-flex capitalize">
+                                        {order.orderStatus}
+                                    </Badge>
+                                </div>
+                                <p className="font-semibold">{formatPrice(order.total)}</p>
                             </div>
-                             <Badge variant={getStatusBadgeVariant(order.orderStatus)} className="hidden sm:inline-flex capitalize">
-                                {order.orderStatus}
-                             </Badge>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <p className="font-semibold">{formatPrice(order.total)}</p>
-                            <DropdownMenu>
+                        </AccordionTrigger>
+                        <div className="px-2">
+                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
                                     <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                 {ORDER_STATUSES.map(status => (
-                                    <DropdownMenuItem key={status} onClick={(e) => { e.stopPropagation(); handleStatusChange(order.id, status)}}>
+                                    <DropdownMenuItem key={status} onClick={() => handleStatusChange(order.id, status)}>
                                     Mark as {status}
                                     </DropdownMenuItem>
                                 ))}
@@ -126,7 +129,6 @@ export default function OrdersPage() {
                             </DropdownMenu>
                         </div>
                     </div>
-                  </AccordionTrigger>
                   <AccordionContent>
                     <div className="p-4 bg-muted/50 rounded-md">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
