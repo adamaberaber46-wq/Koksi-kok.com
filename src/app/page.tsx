@@ -17,7 +17,6 @@ import { useCollection, useFirestore } from '@/firebase';
 import { collection, limit, query } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/provider';
 import type { Category, Product } from '@/lib/types';
-import { categories } from '@/lib/categories';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
@@ -33,6 +32,13 @@ export default function Home() {
   );
   const { data: featuredProducts, isLoading: productsLoading } =
     useCollection<Product>(productsQuery);
+
+  const categoriesQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'categories') : null),
+    [firestore]
+  );
+  const { data: categories, isLoading: categoriesLoading } =
+    useCollection<Category>(categoriesQuery);
 
   return (
     <div className="flex flex-col">
@@ -122,7 +128,14 @@ export default function Home() {
             className="w-full"
           >
             <CarouselContent>
-              {categories.map((category) => (
+              {categoriesLoading && Array.from({ length: 3 }).map((_, i) => (
+                <CarouselItem key={i} className="sm:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <Skeleton className="aspect-[4/3] w-full" />
+                  </div>
+                </CarouselItem>
+              ))}
+              {!categoriesLoading && categories && categories.map((category) => (
                 <CarouselItem
                   key={category.id}
                   className="sm:basis-1/2 lg:basis-1/3"

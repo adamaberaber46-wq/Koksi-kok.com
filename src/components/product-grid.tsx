@@ -1,16 +1,26 @@
 'use client';
 
 import { useState } from 'react';
-import type { Product } from '@/lib/types';
+import type { Product, Category } from '@/lib/types';
 import ProductCard from './product-card';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import { categories as allCategoriesData } from '@/lib/categories';
-
-const categories = ['All', ...allCategoriesData.map(c => c.name)];
+import { useCollection, useFirestore } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/provider';
+import { Skeleton } from './ui/skeleton';
 
 export default function ProductGrid({ allProducts, initialCategory = 'All' }: { allProducts: Product[], initialCategory?: string }) {
   const [filter, setFilter] = useState(initialCategory);
+  const firestore = useFirestore();
+
+  const categoriesQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'categories') : null),
+    [firestore]
+  );
+  const { data: categoriesData, isLoading: categoriesLoading } = useCollection<Category>(categoriesQuery);
+
+  const categories = ['All', ...(categoriesData?.map(c => c.name) ?? [])];
 
   const filteredProducts =
     filter === 'All'
@@ -19,8 +29,9 @@ export default function ProductGrid({ allProducts, initialCategory = 'All' }: { 
 
   return (
     <div>
-      <div className="flex justify-center gap-2 mb-8">
-        {categories.map((category) => (
+      <div className="flex flex-wrap justify-center gap-2 mb-8">
+        {categoriesLoading && Array.from({length: 4}).map((_, i) => <Skeleton key={i} className="h-10 w-24" />)}
+        {!categoriesLoading && categories.map((category) => (
           <Button
             key={category}
             variant={filter === category ? 'default' : 'outline'}
