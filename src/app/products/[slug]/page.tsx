@@ -29,7 +29,7 @@ export default function ProductDetailPage({
   return (
     <div className="container mx-auto px-4 py-8 sm:py-16">
       <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-start">
-        <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-lg">
+        <div className="relative aspect-square w-full overflow-hidden rounded-lg">
           {image && (
              <Image
                 src={image.imageUrl}

@@ -8,7 +8,7 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 py-16">
             <h1 className="text-4xl font-bold font-headline text-center mb-12">About Koksi Kok</h1>
             <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg shadow-lg">
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
                     {aboutImage && (
                         <Image 
                             src={aboutImage.imageUrl}
