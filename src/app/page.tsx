@@ -55,7 +55,7 @@ export default function Home() {
           />
         )}
         <div className="absolute inset-0 bg-black/60" />
-        <div className="container mx-auto px-4 z-10">
+        <div className="container mx-auto px-4 z-10 pt-20">
           {heroLoading ? (
             <div className='flex flex-col items-center gap-4'>
                 <Skeleton className="h-16 w-3/4 max-w-2xl" />
