@@ -27,7 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useFirestore } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
@@ -44,7 +44,7 @@ const formSchema = z.object({
   countryOfOrigin: z.string().min(2, { message: 'Country of origin is required.' }),
 });
 
-export default function AddProductPage() {
+export default function DashboardPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -61,6 +61,7 @@ export default function AddProductPage() {
       imageIds: '',
       material: '',
       countryOfOrigin: '',
+      originalPrice: undefined,
     },
   });
 
@@ -87,19 +88,16 @@ export default function AddProductPage() {
     };
 
     try {
-        const docRef = await addDocumentNonBlocking(productsCollection, newProductData);
+      const docRef = await addDoc(productsCollection, newProductData);
+      
+      toast({
+          title: 'Product Added!',
+          description: `${values.name} has been successfully added to the store.`,
+      });
 
-        toast({
-            title: 'Product Added!',
-            description: `${values.name} has been successfully added to the store.`,
-        });
-
-        router.push(`/products/${docRef.id}`);
+      router.push(`/products/${docRef.id}`);
 
     } catch (error: any) {
-        // This catch block will now likely only catch client-side errors,
-        // as permission errors are handled by the non-blocking function's catch internally.
-        // We still keep it to handle unexpected issues.
         toast({
             title: 'Error adding product',
             description: error.message || 'An unexpected client-side error occurred.',
@@ -114,7 +112,7 @@ export default function AddProductPage() {
     <div className="container mx-auto px-4 py-16">
       <Card className="max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Add New Product</CardTitle>
+          <CardTitle className="text-2xl font-headline">Dashboard</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -275,5 +273,4 @@ export default function AddProductPage() {
       </Card>
     </div>
   );
-
-    
+}
