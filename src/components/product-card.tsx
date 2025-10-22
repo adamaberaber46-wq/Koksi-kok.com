@@ -14,10 +14,14 @@ import { formatPrice } from '@/lib/utils';
 import placeholderImages from '@/lib/placeholder-images.json';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import { AddToCartDialog } from './add-to-cart-dialog';
 
 export default function ProductCard({ product }: { product: Product }) {
-  const image = placeholderImages.find((img) => img.id === product.imageIds[0]);
-  const hoverImage = placeholderImages.find((img) => img.id === product.imageIds[1]);
+  const hasImages = product.imageIds && product.imageIds.length > 0;
+  const image = hasImages ? placeholderImages.find((img) => img.id === product.imageIds[0]) : null;
+  const hoverImage = product.imageIds && product.imageIds.length > 1
+    ? placeholderImages.find((img) => img.id === product.imageIds[1])
+    : null;
   const isDiscounted = product.originalPrice && product.originalPrice > product.price;
   const discountPercentage = isDiscounted
     ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
@@ -33,25 +37,31 @@ export default function ProductCard({ product }: { product: Product }) {
                 </Badge>
              )}
             <div className="relative aspect-square w-full">
-              {image && (
-                <Image
-                  src={image.imageUrl}
-                  alt={product.name}
-                  fill
-                  className="object-cover transition-opacity duration-300 opacity-100 group-hover:opacity-0"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  data-ai-hint={image.imageHint}
-                />
-              )}
-              {hoverImage && (
-                <Image
-                  src={hoverImage.imageUrl}
-                  alt={`${product.name} (hover)`}
-                  fill
-                  className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  data-ai-hint={hoverImage.imageHint}
-                />
+              {image ? (
+                <>
+                  <Image
+                    src={image.imageUrl}
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-opacity duration-300 opacity-100 group-hover:opacity-0"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    data-ai-hint={image.imageHint}
+                  />
+                  {hoverImage && (
+                    <Image
+                      src={hoverImage.imageUrl}
+                      alt={`${product.name} (hover)`}
+                      fill
+                      className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      data-ai-hint={hoverImage.imageHint}
+                    />
+                  )}
+                </>
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                    <span className="text-muted-foreground text-sm">No Image</span>
+                </div>
               )}
             </div>
           </Link>
@@ -72,11 +82,11 @@ export default function ProductCard({ product }: { product: Product }) {
                 )}
             </div>
           <p className="text-sm text-muted-foreground mt-2 truncate w-full">{product.description}</p>
-          <Button asChild variant="outline" className="w-full mt-4 rounded-full">
-            <Link href={`/products/${product.id}`}>
-              View Product
-            </Link>
-          </Button>
+          <AddToCartDialog product={product}>
+            <Button variant="outline" className="w-full mt-4 rounded-full">
+                Add to Cart
+            </Button>
+          </AddToCartDialog>
         </CardFooter>
     </Card>
   );
