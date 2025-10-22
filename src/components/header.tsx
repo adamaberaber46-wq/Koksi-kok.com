@@ -35,6 +35,8 @@ export default function Header() {
   const pathname = usePathname();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  
+  const isAdmin = user?.email === 'adamaber50@gmail.com';
 
   const isHomePage = pathname === '/';
 
@@ -134,13 +136,14 @@ export default function Header() {
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin/dashboard">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    {isAdmin && (
+                       <DropdownMenuItem asChild>
+                        <Link href="/admin/dashboard">
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={() => signOut(auth)}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Logout</span>

@@ -82,12 +82,15 @@ export default function DashboardPage() {
   const firestore = useFirestore();
   const router = useRouter();
   const { user, isUserLoading } = useUser();
+  const isAdmin = user?.email === 'adamaber50@gmail.com';
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login');
+    if (!isUserLoading) {
+      if (!user || !isAdmin) {
+        router.push('/login');
+      }
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, isAdmin, router]);
 
   const categoriesQuery = useMemoFirebase(
     () => (firestore ? collection(firestore, 'categories') : null),
@@ -259,16 +262,12 @@ export default function DashboardPage() {
     setIsHeroSubmitting(false);
   }
 
-  if (isUserLoading) {
+  if (isUserLoading || !isAdmin) {
     return (
         <div className="min-h-screen flex items-center justify-center">
             <Loader2 className="h-16 w-16 animate-spin" />
         </div>
     );
-  }
-
-  if (!user) {
-    return null; // The useEffect above will handle redirection
   }
 
   return (
