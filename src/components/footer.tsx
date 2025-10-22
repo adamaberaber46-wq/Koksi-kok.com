@@ -1,6 +1,27 @@
 import Link from 'next/link';
-import { Shirt, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Shirt, Facebook, Instagram } from 'lucide-react';
 import { Button } from './ui/button';
+
+// Custom TikTok icon component
+const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M16.5 8.5a4.5 4.5 0 1 0-9 0v7a4.5 4.5 0 1 0 9 0" />
+      <path d="M12 15.5V4" />
+      <path d="M16.5 4H12" />
+    </svg>
+);
+
 
 export default function Footer() {
   return (
@@ -68,8 +89,8 @@ export default function Footer() {
               </Link>
             </Button>
             <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
-              <Link href="#" aria-label="Twitter">
-                <Twitter className="h-5 w-5" />
+              <Link href="#" aria-label="TikTok">
+                <TikTokIcon className="h-5 w-5" />
               </Link>
             </Button>
             <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
