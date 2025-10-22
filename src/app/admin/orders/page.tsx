@@ -1,9 +1,10 @@
 'use client';
 
 import { useCollection, useFirestore } from '@/firebase';
-import { collection, orderBy, query } from 'firebase/firestore';
+import { collection, orderBy, query, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/provider';
-import type { Order } from '@/lib/types';
+import type { Order, OrderStatus } from '@/lib/types';
+import { ORDER_STATUSES } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -23,9 +24,21 @@ import {
 } from '@/components/ui/accordion';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal } from 'lucide-react';
+import { updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export default function OrdersPage() {
   const firestore = useFirestore();
+  const { toast } = useToast();
 
   const ordersQuery = useMemoFirebase(
     () => (firestore ? query(collection(firestore, 'orders'), orderBy('createdAt', 'desc')) : null),
@@ -38,6 +51,29 @@ export default function OrdersPage() {
     if (!timestamp) return 'N/A';
     return new Date(timestamp.seconds * 1000).toLocaleString();
   };
+
+  const handleStatusChange = (orderId: string, status: OrderStatus) => {
+    if (!firestore) return;
+    const orderDocRef = doc(firestore, 'orders', orderId);
+    updateDocumentNonBlocking(orderDocRef, { orderStatus: status });
+    toast({
+        title: "Order Updated",
+        description: `Order ${orderId} has been marked as ${status}.`
+    });
+  };
+
+  const getStatusBadgeVariant = (status: OrderStatus): "default" | "secondary" | "destructive" => {
+    switch (status) {
+        case 'Shipped':
+        case 'Delivered':
+            return 'default';
+        case 'Cancelled':
+            return 'destructive';
+        case 'Pending':
+        default:
+            return 'secondary';
+    }
+  }
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -62,14 +98,32 @@ export default function OrdersPage() {
               {orders.map((order) => (
                 <AccordionItem key={order.id} value={order.id}>
                   <AccordionTrigger>
-                    <div className="flex justify-between w-full pr-4">
-                        <div>
-                            <p className="font-semibold text-left">{order.customerInfo.name}</p>
-                            <p className="text-sm text-muted-foreground text-left">{formatDate(order.createdAt)}</p>
+                    <div className="flex justify-between w-full pr-4 items-center">
+                        <div className='flex items-center gap-4'>
+                            <div className='text-left'>
+                                <p className="font-semibold">{order.customerInfo.name}</p>
+                                <p className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</p>
+                            </div>
+                             <Badge variant={getStatusBadgeVariant(order.orderStatus)} className="hidden sm:inline-flex capitalize">
+                                {order.orderStatus}
+                             </Badge>
                         </div>
                         <div className="flex items-center gap-4">
-                            <Badge variant="secondary" className="hidden sm:inline-flex">{order.items.length} items</Badge>
                             <p className="font-semibold">{formatPrice(order.total)}</p>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                {ORDER_STATUSES.map(status => (
+                                    <DropdownMenuItem key={status} onClick={(e) => { e.stopPropagation(); handleStatusChange(order.id, status)}}>
+                                    Mark as {status}
+                                    </DropdownMenuItem>
+                                ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </div>
                   </AccordionTrigger>
@@ -87,6 +141,12 @@ export default function OrdersPage() {
                                 <h4 className="font-semibold mb-2">Order Details</h4>
                                 <p className="text-sm text-muted-foreground">Order ID: {order.id}</p>
                                 <p className="text-sm text-muted-foreground">User ID: {order.userId || "Guest"}</p>
+                                 <div className="mt-2 flex items-center gap-2">
+                                    <span className="font-medium text-sm">Status:</span>
+                                    <Badge variant={getStatusBadgeVariant(order.orderStatus)} className="capitalize">
+                                        {order.orderStatus}
+                                    </Badge>
+                                </div>
                             </div>
                         </div>
 

@@ -90,6 +90,7 @@ export default function CheckoutForm() {
       })),
       total: cartTotal,
       createdAt: serverTimestamp(),
+      orderStatus: 'Pending',
     };
 
     try {

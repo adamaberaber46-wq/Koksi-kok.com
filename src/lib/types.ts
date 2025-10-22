@@ -1,4 +1,8 @@
 
+
+export const ORDER_STATUSES = ['Pending', 'Shipped', 'Delivered', 'Cancelled'] as const;
+export type OrderStatus = typeof ORDER_STATUSES[number];
+
 export type Product = {
   id: string;
   name: string;
@@ -56,5 +60,6 @@ export type Order = {
     }[];
     total: number;
     createdAt: any; // Firestore Timestamp
+    orderStatus: OrderStatus;
 };
     
