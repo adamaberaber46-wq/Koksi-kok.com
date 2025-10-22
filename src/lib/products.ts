@@ -9,6 +9,7 @@ export const products: Product[] = [
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     category: 'Clothing',
     imageId: 'classic-white-tee',
+    hoverImageId: 'classic-white-tee-hover',
   },
   {
     id: 'slim-fit-jeans',
@@ -18,6 +19,7 @@ export const products: Product[] = [
     sizes: ['28', '30', '32', '34', '36'],
     category: 'Clothing',
     imageId: 'slim-fit-jeans',
+    hoverImageId: 'slim-fit-jeans-hover',
   },
   {
     id: 'leather-biker-jacket',
@@ -27,6 +29,7 @@ export const products: Product[] = [
     sizes: ['S', 'M', 'L'],
     category: 'Clothing',
     imageId: 'leather-biker-jacket',
+    hoverImageId: 'leather-biker-jacket-hover',
   },
   {
     id: 'cashmere-sweater',
@@ -36,6 +39,7 @@ export const products: Product[] = [
     sizes: ['S', 'M', 'L', 'XL'],
     category: 'Clothing',
     imageId: 'cashmere-sweater',
+    hoverImageId: 'cashmere-sweater-hover',
   },
   {
     id: 'suede-chelsea-boots',
@@ -45,6 +49,7 @@ export const products: Product[] = [
     sizes: ['8', '9', '10', '11', '12'],
     category: 'Shoes',
     imageId: 'suede-chelsea-boots',
+    hoverImageId: 'suede-chelsea-boots-hover',
   },
   {
     id: 'minimalist-sneakers',
@@ -54,6 +59,7 @@ export const products: Product[] = [
     sizes: ['7', '8', '9', '10', '11', '12'],
     category: 'Shoes',
     imageId: 'minimalist-sneakers',
+    hoverImageId: 'minimalist-sneakers-hover',
   },
   {
     id: 'tailored-chino-shorts',
@@ -63,6 +69,7 @@ export const products: Product[] = [
     sizes: ['30', '32', '34', '36'],
     category: 'Clothing',
     imageId: 'tailored-chino-shorts',
+    hoverImageId: 'tailored-chino-shorts-hover',
   },
   {
     id: 'linen-button-down',
@@ -72,6 +79,7 @@ export const products: Product[] = [
     sizes: ['S', 'M', 'L', 'XL'],
     category: 'Clothing',
     imageId: 'linen-button-down',
+    hoverImageId: 'linen-button-down-hover',
   },
   {
     id: 'wool-overcoat',
@@ -81,6 +89,7 @@ export const products: Product[] = [
     sizes: ['S', 'M', 'L', 'XL'],
     category: 'Clothing',
     imageId: 'wool-overcoat',
+    hoverImageId: 'wool-overcoat-hover',
   },
   {
     id: 'leather-loafers',
@@ -90,6 +99,7 @@ export const products: Product[] = [
     sizes: ['8', '9', '10', '11'],
     category: 'Shoes',
     imageId: 'leather-loafers',
+    hoverImageId: 'leather-loafers-hover',
   },
   {
     id: 'silk-blend-blouse',
@@ -99,6 +109,7 @@ export const products: Product[] = [
     sizes: ['XS', 'S', 'M', 'L'],
     category: 'Clothing',
     imageId: 'silk-blend-blouse',
+    hoverImageId: 'silk-blend-blouse-hover',
   },
   {
     id: 'high-waisted-trousers',
@@ -108,5 +119,6 @@ export const products: Product[] = [
     sizes: ['XS', 'S', 'M', 'L'],
     category: 'Clothing',
     imageId: 'high-waisted-trousers',
+    hoverImageId: 'high-waisted-trousers-hover',
   },
 ];

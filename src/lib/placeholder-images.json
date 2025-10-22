@@ -12,10 +12,22 @@
     "imageHint": "white t-shirt"
   },
   {
+    "id": "classic-white-tee-hover",
+    "description": "A classic white t-shirt on a model",
+    "imageUrl": "https://picsum.photos/seed/whitetee2/800/800",
+    "imageHint": "white t-shirt model"
+  },
+  {
     "id": "slim-fit-jeans",
     "description": "A pair of slim fit jeans",
     "imageUrl": "https://picsum.photos/seed/jeans/800/800",
     "imageHint": "denim jeans"
+  },
+  {
+    "id": "slim-fit-jeans-hover",
+    "description": "A pair of slim fit jeans on a model",
+    "imageUrl": "https://picsum.photos/seed/jeans2/800/800",
+    "imageHint": "jeans model"
   },
   {
     "id": "leather-biker-jacket",
@@ -24,10 +36,22 @@
     "imageHint": "leather jacket"
   },
   {
+    "id": "leather-biker-jacket-hover",
+    "description": "A black leather biker jacket on a model",
+    "imageUrl": "https://picsum.photos/seed/jacket2/800/800",
+    "imageHint": "leather jacket model"
+  },
+  {
     "id": "cashmere-sweater",
     "description": "A soft cashmere sweater",
     "imageUrl": "https://picsum.photos/seed/sweater/800/800",
     "imageHint": "gray sweater"
+  },
+  {
+    "id": "cashmere-sweater-hover",
+    "description": "A soft cashmere sweater on a model",
+    "imageUrl": "https://picsum.photos/seed/sweater2/800/800",
+    "imageHint": "sweater model"
   },
   {
     "id": "suede-chelsea-boots",
@@ -36,10 +60,22 @@
     "imageHint": "suede boots"
   },
   {
+    "id": "suede-chelsea-boots-hover",
+    "description": "A pair of suede Chelsea boots on feet",
+    "imageUrl": "https://picsum.photos/seed/chelseaboots2/800/800",
+    "imageHint": "boots model"
+  },
+  {
     "id": "minimalist-sneakers",
     "description": "A pair of white minimalist sneakers",
     "imageUrl": "https://picsum.photos/seed/sneakers/800/800",
     "imageHint": "white sneakers"
+  },
+  {
+    "id": "minimalist-sneakers-hover",
+    "description": "A pair of white minimalist sneakers on feet",
+    "imageUrl": "https://picsum.photos/seed/sneakers2/800/800",
+    "imageHint": "sneakers model"
   },
   {
     "id": "tailored-chino-shorts",
@@ -48,10 +84,22 @@
     "imageHint": "khaki shorts"
   },
   {
+    "id": "tailored-chino-shorts-hover",
+    "description": "A pair of tailored chino shorts on a model",
+    "imageUrl": "https://picsum.photos/seed/shorts2/800/800",
+    "imageHint": "shorts model"
+  },
+  {
     "id": "linen-button-down",
     "description": "A light blue linen button-down shirt",
     "imageUrl": "https://picsum.photos/seed/linenshirt/800/800",
     "imageHint": "linen shirt"
+  },
+  {
+    "id": "linen-button-down-hover",
+    "description": "A light blue linen button-down shirt on a model",
+    "imageUrl": "https://picsum.photos/seed/linenshirt2/800/800",
+    "imageHint": "shirt model"
   },
   {
     "id": "wool-overcoat",
@@ -60,10 +108,22 @@
     "imageHint": "wool coat"
   },
   {
+    "id": "wool-overcoat-hover",
+    "description": "A charcoal wool overcoat on a model",
+    "imageUrl": "https://picsum.photos/seed/overcoat2/800/800",
+    "imageHint": "coat model"
+  },
+  {
     "id": "leather-loafers",
     "description": "A pair of brown leather loafers",
     "imageUrl": "https://picsum.photos/seed/loafers/800/800",
     "imageHint": "leather loafers"
+  },
+  {
+    "id": "leather-loafers-hover",
+    "description": "A pair of brown leather loafers on feet",
+    "imageUrl": "https://picsum.photos/seed/loafers2/800/800",
+    "imageHint": "loafers model"
   },
   {
     "id": "silk-blend-blouse",
@@ -72,10 +132,22 @@
     "imageHint": "silk blouse"
   },
   {
+    "id": "silk-blend-blouse-hover",
+    "description": "An elegant silk-blend blouse on a model",
+    "imageUrl": "https://picsum.photos/seed/blouse2/800/800",
+    "imageHint": "blouse model"
+  },
+  {
     "id": "high-waisted-trousers",
     "description": "A pair of black high-waisted trousers",
     "imageUrl": "https://picsum.photos/seed/trousers/800/800",
     "imageHint": "black trousers"
+  },
+  {
+    "id": "high-waisted-trousers-hover",
+    "description": "A pair of black high-waisted trousers on a model",
+    "imageUrl": "https://picsum.photos/seed/trousers2/800/800",
+    "imageHint": "trousers model"
   },
   {
     "id": "category-clothing",

@@ -6,6 +6,7 @@ export type Product = {
   sizes: string[];
   category: 'Clothing' | 'Shoes';
   imageId: string;
+  hoverImageId: string;
 };
 
 export type CartItem = {

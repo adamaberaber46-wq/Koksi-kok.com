@@ -13,9 +13,10 @@ import placeholderImages from '@/lib/placeholder-images.json';
 
 export default function ProductCard({ product }: { product: Product }) {
   const image = placeholderImages.find((img) => img.id === product.imageId);
+  const hoverImage = placeholderImages.find((img) => img.id === product.hoverImageId);
 
   return (
-    <Card className="flex flex-col overflow-hidden rounded-none">
+    <Card className="flex flex-col overflow-hidden rounded-none group">
       <Link href={`/products/${product.id}`} className="flex flex-col h-full">
         <CardHeader className="p-0">
           <div className="relative aspect-square w-full">
@@ -24,9 +25,19 @@ export default function ProductCard({ product }: { product: Product }) {
                 src={image.imageUrl}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className="object-cover transition-opacity duration-300 opacity-100 group-hover:opacity-0"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 data-ai-hint={image.imageHint}
+              />
+            )}
+            {hoverImage && (
+               <Image
+                src={hoverImage.imageUrl}
+                alt={`${product.name} (hover)`}
+                fill
+                className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                data-ai-hint={hoverImage.imageHint}
               />
             )}
           </div>
