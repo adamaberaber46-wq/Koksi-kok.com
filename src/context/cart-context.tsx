@@ -74,7 +74,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             price: product.price,
             quantity,
             size,
-            imageId: product.imageIds[0],
+            imageId: product.imageIds && product.imageIds.length > 0 ? product.imageIds[0] : '',
           }, { merge: true });
     }
 

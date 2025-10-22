@@ -35,11 +35,11 @@ export default function CartSheet() {
           <ScrollArea className="flex-1">
             <div className="flex flex-col gap-6 p-6">
               {cartItems.map((item) => {
-                const image = placeholderImages.find((img) => img.id === item.imageId);
+                const image = item.imageId ? placeholderImages.find((img) => img.id === item.imageId) : null;
                 return (
                   <div key={item.id} className="flex items-start gap-4">
                     <div className="relative h-24 w-24 overflow-hidden rounded-md">
-                      {image && (
+                      {image ? (
                          <Image
                             src={image.imageUrl}
                             alt={item.name}
@@ -47,6 +47,10 @@ export default function CartSheet() {
                             className="object-cover"
                             data-ai-hint={image.imageHint}
                           />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <span className="text-muted-foreground text-sm">No Image</span>
+                        </div>
                       )}
                     </div>
                     <div className="flex-1">

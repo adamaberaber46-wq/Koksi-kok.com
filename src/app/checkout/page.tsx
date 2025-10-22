@@ -38,11 +38,11 @@ export default function CheckoutPage() {
             <ScrollArea className="h-full max-h-[400px]">
               <div className="space-y-4 pr-6">
                 {cartItems.map((item) => {
-                  const image = placeholderImages.find((img) => img.id === item.imageId);
+                  const image = item.imageId ? placeholderImages.find((img) => img.id === item.imageId) : null;
                   return (
                     <div key={item.id} className="flex items-center gap-4">
                       <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border">
-                         {image && (
+                         {image ? (
                             <Image
                                 src={image.imageUrl}
                                 alt={item.name}
@@ -50,6 +50,10 @@ export default function CheckoutPage() {
                                 className="object-cover"
                                 data-ai-hint={image.imageHint}
                               />
+                         ) : (
+                          <div className="w-full h-full bg-muted flex items-center justify-center">
+                            <span className="text-muted-foreground text-sm">No Image</span>
+                          </div>
                          )}
                          <div className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
                             {item.quantity}
