@@ -24,18 +24,31 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { useFirestore, useCollection } from '@/firebase';
-import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Separator } from '@/components/ui/separator';
-import type { Category } from '@/lib/types';
+import type { Category, Product } from '@/lib/types';
 import { useMemoFirebase } from '@/firebase/provider';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { formatPrice } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const productFormSchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(2, { message: 'Product name must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   price: z.coerce.number().positive({ message: 'Price must be a positive number.' }),
@@ -57,6 +70,7 @@ const categoryFormSchema = z.object({
 export default function DashboardPage() {
   const [isProductSubmitting, setIsProductSubmitting] = useState(false);
   const [isCategorySubmitting, setIsCategorySubmitting] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
   const router = useRouter();
@@ -66,6 +80,12 @@ export default function DashboardPage() {
     [firestore]
   );
   const { data: categories, isLoading: categoriesLoading } = useCollection<Category>(categoriesQuery);
+
+  const productsQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'products') : null),
+    [firestore]
+  );
+  const { data: products, isLoading: productsLoading } = useCollection<Product>(productsQuery);
 
   const productForm = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
@@ -78,7 +98,6 @@ export default function DashboardPage() {
       imageIds: '',
       material: '',
       countryOfOrigin: '',
-      originalPrice: undefined,
     },
   });
 
@@ -104,7 +123,6 @@ export default function DashboardPage() {
         return;
     }
 
-    const productsCollection = collection(firestore, 'products');
     const newProductData = {
         ...values,
         sizes: values.sizes.split(',').map((s) => s.trim()),
@@ -112,23 +130,56 @@ export default function DashboardPage() {
         price: Number(values.price),
         ...(values.originalPrice && { originalPrice: Number(values.originalPrice) }),
     };
-
-    const docRefPromise = addDocumentNonBlocking(productsCollection, newProductData);
-
-    toast({
-        title: 'Product Added!',
-        description: `${values.name} has been successfully added to the store.`,
-    });
-
-    const docRef = await docRefPromise;
-
-    if (docRef) {
-        router.push(`/products/${docRef.id}`);
-    }
     
+    delete (newProductData as any).id; // Don't save the form's 'id' field in Firestore
+
+    if (editingProductId) {
+        const productDocRef = doc(firestore, 'products', editingProductId);
+        setDocumentNonBlocking(productDocRef, newProductData, { merge: true });
+        toast({
+            title: 'Product Updated!',
+            description: `${values.name} has been successfully updated.`,
+        });
+    } else {
+        const productsCollection = collection(firestore, 'products');
+        addDocumentNonBlocking(productsCollection, newProductData);
+        toast({
+            title: 'Product Added!',
+            description: `${values.name} has been successfully added to the store.`,
+        });
+    }
+
     setIsProductSubmitting(false);
     productForm.reset();
+    setEditingProductId(null);
   }
+
+  function handleEditProduct(product: Product) {
+    setEditingProductId(product.id);
+    productForm.reset({
+        ...product,
+        sizes: product.sizes.join(', '),
+        imageIds: product.imageIds.join(', '),
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function handleCancelEdit() {
+    setEditingProductId(null);
+    productForm.reset();
+  }
+
+  function handleDeleteProduct(productId: string) {
+    if (!firestore) return;
+    const productDocRef = doc(firestore, 'products', productId);
+    deleteDocumentNonBlocking(productDocRef);
+    toast({
+        title: 'Product Deleted',
+        description: 'The product has been successfully removed.',
+        variant: 'destructive',
+    });
+  }
+
 
   async function onCategorySubmit(values: z.infer<typeof categoryFormSchema>) {
     setIsCategorySubmitting(true);
@@ -163,7 +214,7 @@ export default function DashboardPage() {
 
             <Card>
                 <CardHeader>
-                <CardTitle className="text-xl font-headline">Add New Product</CardTitle>
+                    <CardTitle className="text-xl font-headline">{editingProductId ? "Edit Product" : "Add New Product"}</CardTitle>
                 </CardHeader>
                 <CardContent>
                 <Form {...productForm}>
@@ -314,12 +365,66 @@ export default function DashboardPage() {
                         />
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={isProductSubmitting}>
-                        {isProductSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Add Product
-                    </Button>
+                    <div className="flex gap-2">
+                        {editingProductId && (
+                            <Button type="button" variant="outline" onClick={handleCancelEdit}>
+                                Cancel
+                            </Button>
+                        )}
+                        <Button type="submit" className="w-full" disabled={isProductSubmitting}>
+                            {isProductSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {editingProductId ? "Save Changes" : "Add Product"}
+                        </Button>
+                    </div>
                     </form>
                 </Form>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl font-headline">Manage Products</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        {productsLoading && <p>Loading products...</p>}
+                        {products && products.map(product => (
+                            <div key={product.id} className="flex items-center justify-between p-4 border rounded-md gap-4">
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-semibold truncate">{product.name}</p>
+                                    <p className="text-sm text-muted-foreground">{formatPrice(product.price)}</p>
+                                </div>
+                                <div className="flex gap-2 shrink-0">
+                                    <Button variant="outline" size="sm" onClick={() => handleEditProduct(product)}>Edit</Button>
+                                     <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                             <Button variant="destructive" size="icon">
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete the product
+                                                "{product.name}".
+                                            </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
+                                                Delete
+                                            </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                            </div>
+                        ))}
+                         {products?.length === 0 && !productsLoading && (
+                            <p className="text-muted-foreground text-center py-4">No products found.</p>
+                         )}
+                    </div>
                 </CardContent>
             </Card>
 
@@ -398,4 +503,5 @@ export default function DashboardPage() {
         </div>
     </div>
   );
-}
+
+    
