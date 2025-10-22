@@ -54,7 +54,7 @@ export default function Header() {
   return (
     <header className={cn(
       "sticky top-0 z-40 w-full transition-colors duration-300",
-      isTransparent ? 'bg-transparent text-primary-foreground' : 'bg-card border-b text-foreground'
+      isTransparent ? 'bg-transparent text-primary-foreground' : 'bg-card border-b text-foreground shadow-sm'
     )}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
