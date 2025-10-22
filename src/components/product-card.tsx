@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { formatPrice } from '@/lib/utils';
-import placeholderImages from '@/lib/placeholder-images.json';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { AddToCartDialog } from './add-to-cart-dialog';
@@ -19,11 +18,10 @@ import { Sheet, SheetTrigger } from './ui/sheet';
 import ProductDetailSheet from './product-detail-sheet';
 
 export default function ProductCard({ product }: { product: Product }) {
-  const hasImages = product.imageIds && product.imageIds.length > 0;
-  const image = hasImages ? placeholderImages.find((img) => img.id === product.imageIds[0]) : null;
-  const hoverImage = product.imageIds && product.imageIds.length > 1
-    ? placeholderImages.find((img) => img.id === product.imageIds[1])
-    : null;
+  const hasImages = product.imageUrls && product.imageUrls.length > 0;
+  const imageUrl = hasImages ? product.imageUrls[0] : '/placeholder.svg';
+  const hoverImageUrl = product.imageUrls && product.imageUrls.length > 1 ? product.imageUrls[1] : imageUrl;
+  
   const isDiscounted = product.originalPrice && product.originalPrice > product.price;
   const discountPercentage = isDiscounted
     ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
@@ -41,24 +39,22 @@ export default function ProductCard({ product }: { product: Product }) {
                     </Badge>
                 )}
                 <div className="relative aspect-square w-full">
-                  {image ? (
+                  {hasImages ? (
                     <>
                       <Image
-                        src={image.imageUrl}
+                        src={imageUrl}
                         alt={product.name}
                         fill
                         className="object-cover transition-opacity duration-300 opacity-100 group-hover:opacity-0"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        data-ai-hint={image.imageHint}
                       />
-                      {hoverImage && (
+                      {hoverImageUrl && (
                         <Image
-                          src={hoverImage.imageUrl}
+                          src={hoverImageUrl}
                           alt={`${product.name} (hover)`}
                           fill
                           className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          data-ai-hint={hoverImage.imageHint}
                         />
                       )}
                     </>

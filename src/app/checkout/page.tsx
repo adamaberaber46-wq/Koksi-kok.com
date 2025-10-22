@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import placeholderImages from '@/lib/placeholder-images.json';
 import CheckoutForm from '@/components/checkout-form';
 
 export default function CheckoutPage() {
@@ -38,17 +37,15 @@ export default function CheckoutPage() {
             <ScrollArea className="h-full max-h-[400px]">
               <div className="space-y-4 pr-6">
                 {cartItems.map((item) => {
-                  const image = item.imageId ? placeholderImages.find((img) => img.id === item.imageId) : null;
                   return (
                     <div key={item.id} className="flex items-center gap-4">
                       <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border">
-                         {image ? (
+                         {item.imageUrl ? (
                             <Image
-                                src={image.imageUrl}
+                                src={item.imageUrl}
                                 alt={item.name}
                                 fill
                                 className="object-cover"
-                                data-ai-hint={image.imageHint}
                               />
                          ) : (
                           <div className="w-full h-full bg-muted flex items-center justify-center">

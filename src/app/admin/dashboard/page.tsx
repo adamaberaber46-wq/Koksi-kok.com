@@ -55,7 +55,7 @@ const productFormSchema = z.object({
   brand: z.string().min(2, { message: 'Brand is required.' }),
   category: z.string().min(1, { message: 'Category is required.' }),
   sizes: z.string().min(1, { message: 'At least one size is required.' }),
-  imageIds: z.string().min(1, { message: 'At least one image ID is required.' }),
+  imageUrls: z.string().min(1, { message: 'At least one image URL is required.' }),
   material: z.string().min(2, { message: 'Material is required.' }),
   countryOfOrigin: z.string().min(2, { message: 'Country of origin is required.' }),
 });
@@ -63,13 +63,13 @@ const productFormSchema = z.object({
 const categoryFormSchema = z.object({
     id: z.string().min(2, { message: 'Category ID must be at least 2 characters.'}),
     name: z.string().min(2, { message: 'Category name must be at least 2 characters.' }),
-    imageId: z.string().min(1, { message: 'Image ID is required.' }),
+    imageUrl: z.string().url({ message: 'Please enter a valid URL.' }),
 });
 
 const heroSectionFormSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters."}),
   subtitle: z.string().min(10, { message: "Subtitle must be at least 10 characters."}),
-  imageId: z.string().min(1, { message: "Image ID is required."}),
+  imageUrl: z.string().url({ message: "Please enter a valid URL."}),
 });
 
 export default function DashboardPage() {
@@ -104,7 +104,7 @@ export default function DashboardPage() {
       brand: '',
       category: '',
       sizes: '',
-      imageIds: '',
+      imageUrls: '',
       material: '',
       countryOfOrigin: '',
     },
@@ -115,7 +115,7 @@ export default function DashboardPage() {
     defaultValues: {
       id: '',
       name: '',
-      imageId: '',
+      imageUrl: '',
     },
   });
 
@@ -124,7 +124,7 @@ export default function DashboardPage() {
     defaultValues: {
       title: '',
       subtitle: '',
-      imageId: '',
+      imageUrl: '',
     },
   });
 
@@ -150,7 +150,7 @@ export default function DashboardPage() {
     const newProductData = {
         ...values,
         sizes: values.sizes.split(',').map((s) => s.trim()),
-        imageIds: values.imageIds.split(',').map((id) => id.trim()),
+        imageUrls: values.imageUrls.split(',').map((url) => url.trim()),
         price: Number(values.price),
         ...(values.originalPrice && { originalPrice: Number(values.originalPrice) }),
     };
@@ -183,7 +183,7 @@ export default function DashboardPage() {
     productForm.reset({
         ...product,
         sizes: product.sizes ? product.sizes.join(', ') : '',
-        imageIds: product.imageIds ? product.imageIds.join(', ') : '',
+        imageUrls: product.imageUrls ? product.imageUrls.join(', ') : '',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -215,7 +215,7 @@ export default function DashboardPage() {
 
     const categoryDocRef = doc(firestore, 'categories', values.id);
     
-    setDocumentNonBlocking(categoryDocRef, { name: values.name, imageId: values.imageId, id: values.id }, { merge: true });
+    setDocumentNonBlocking(categoryDocRef, { name: values.name, imageUrl: values.imageUrl, id: values.id }, { merge: true });
 
     toast({
       title: 'Category Saved!',
@@ -290,12 +290,12 @@ export default function DashboardPage() {
                             />
                              <FormField
                                 control={heroSectionForm.control}
-                                name="imageId"
+                                name="imageUrl"
                                 render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Image ID</FormLabel>
+                                    <FormLabel>Image URL</FormLabel>
                                     <FormControl>
-                                    <Input placeholder="e.g., hero" {...field} />
+                                    <Input placeholder="e.g., https://example.com/image.jpg" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -423,12 +423,12 @@ export default function DashboardPage() {
                     />
                     <FormField
                         control={productForm.control}
-                        name="imageIds"
+                        name="imageUrls"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Image IDs</FormLabel>
+                            <FormLabel>Image URLs</FormLabel>
                             <FormControl>
-                            <Input placeholder="image-id-1, image-id-2 (comma-separated)" {...field} />
+                            <Input placeholder="https://.../img1.jpg, https://.../img2.jpg" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -563,12 +563,12 @@ export default function DashboardPage() {
                                 />
                                 <FormField
                                     control={categoryForm.control}
-                                    name="imageId"
+                                    name="imageUrl"
                                     render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Image ID</FormLabel>
+                                        <FormLabel>Image URL</FormLabel>
                                         <FormControl>
-                                        <Input placeholder="e.g., category-clothing" {...field} />
+                                        <Input placeholder="e.g., https://example.com/image.jpg" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -590,7 +590,7 @@ export default function DashboardPage() {
                                 <div>
                                     <p className="font-semibold">{cat.name}</p>
                                     <p className="text-sm text-muted-foreground">ID: {cat.id}</p>
-                                    <p className="text-sm text-muted-foreground">Image ID: {cat.imageId}</p>
+                                    <p className="text-sm text-muted-foreground truncate">Image URL: {cat.imageUrl}</p>
                                 </div>
                                 <Button variant="ghost" size="sm" onClick={() => categoryForm.reset(cat)}>Edit</Button>
                             </div>

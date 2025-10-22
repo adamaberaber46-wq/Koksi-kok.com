@@ -7,7 +7,7 @@ export type Product = {
   originalPrice?: number;
   sizes: string[];
   category: 'Clothing' | 'Shoes' | 'Accessories';
-  imageIds: string[];
+  imageUrls: string[];
   material: string;
   countryOfOrigin: string;
 };
@@ -19,19 +19,19 @@ export type CartItem = {
   price: number;
   quantity: number;
   size: string;
-  imageId: string;
+  imageUrl: string;
 };
 
 export type Category = {
   id: string;
   name: string;
-  imageId: string;
+  imageUrl: string;
 };
 
 export type HeroSection = {
   title: string;
   subtitle: string;
-  imageId: string;
+  imageUrl: string;
 };
 
     

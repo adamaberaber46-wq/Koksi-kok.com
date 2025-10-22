@@ -74,7 +74,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             price: product.price,
             quantity,
             size,
-            imageId: product.imageIds && product.imageIds.length > 0 ? product.imageIds[0] : '',
+            imageUrl: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '',
           }, { merge: true });
     }
 

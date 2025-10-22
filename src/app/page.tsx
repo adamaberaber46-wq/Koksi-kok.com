@@ -5,7 +5,6 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/product-card';
 import CategoryCard from '@/components/category-card';
-import placeholderImages from '@/lib/placeholder-images.json';
 import {
   Carousel,
   CarouselContent,
@@ -42,20 +41,17 @@ export default function Home() {
   const heroSectionDocRef = useMemoFirebase(() => (firestore ? doc(firestore, 'site_settings', 'hero') : null), [firestore]);
   const { data: heroData, isLoading: heroLoading } = useDoc<HeroSection>(heroSectionDocRef);
 
-  const heroImage = heroData ? placeholderImages.find((img) => img.id === heroData.imageId) : null;
-
   return (
     <div className="flex flex-col">
       <section className="relative w-full h-screen flex items-center justify-center text-center text-primary-foreground">
         {heroLoading && <Skeleton className="absolute inset-0" />}
-        {heroImage && (
+        {heroData && heroData.imageUrl && (
           <Image
-            src={heroImage.imageUrl}
-            alt={heroImage.description}
+            src={heroData.imageUrl}
+            alt={heroData.title}
             fill
             className="object-cover"
             priority
-            data-ai-hint={heroImage.imageHint}
           />
         )}
         <div className="absolute inset-0 bg-black/60" />
@@ -83,7 +79,7 @@ export default function Home() {
           ) : (
             <div className='text-center'>
               <h2 className='text-2xl font-bold'>Hero section not configured.</h2>
-              <p className='text-primary-foreground/80'>Please set the title, subtitle, and image ID in the admin dashboard.</p>
+              <p className='text-primary-foreground/80'>Please set the title, subtitle, and image URL in the admin dashboard.</p>
             </div>
           )
           
@@ -176,5 +172,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
