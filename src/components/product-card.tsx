@@ -69,7 +69,7 @@ export default function ProductCard({ product }: { product: Product }) {
                     <p className="text-sm text-muted-foreground line-through">{formatPrice(product.originalPrice!)}</p>
                 )}
             </div>
-          <p className="text-sm text-muted-foreground mt-2 truncate">{product.description}</p>
+          <p className="text-sm text-muted-foreground mt-2 truncate w-full">{product.description}</p>
           <Button asChild variant="outline" className="w-full mt-4 rounded-full">
             <Link href={`/products/${product.id}`}>Add to Cart</Link>
           </Button>
