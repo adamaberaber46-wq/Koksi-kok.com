@@ -62,11 +62,11 @@ export default function Header() {
         <div className="flex items-center gap-6">
           <Link href="/" className={cn("flex items-center gap-2 text-xl font-bold font-headline")}>
             <Shirt className="h-6 w-6" />
-            <span className="text-black">Koksi Kok</span>
+            <span className={cn(isTransparent ? "text-white" : "text-black")}>Koksi Kok</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
-              <Button key={item.href} asChild variant="link" className={cn('text-sm font-semibold text-black/80 hover:text-black' )}>
+              <Button key={item.href} asChild variant="link" className={cn('text-sm font-semibold', isTransparent ? 'text-white/80 hover:text-white' : 'text-black/80 hover:text-black' )}>
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
@@ -76,7 +76,7 @@ export default function Header() {
         <div className={cn("flex items-center gap-1")}>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn("relative text-black", isTransparent ? 'hover:bg-white/20' : 'hover:bg-accent' )}>
+              <Button variant="ghost" size="icon" className={cn("relative", isTransparent ? 'text-white hover:bg-white/20' : 'text-black hover:bg-accent' )}>
                 <ShoppingCart />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -92,7 +92,7 @@ export default function Header() {
           {!isUserLoading && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn("text-black", isTransparent ? 'hover:bg-white/20' : 'hover:bg-accent' )}>
+                <Button variant="ghost" size="icon" className={cn(isTransparent ? 'text-white hover:bg-white/20' : 'text-black hover:bg-accent' )}>
                   <User />
                   <span className="sr-only">User menu</span>
                 </Button>
@@ -106,7 +106,7 @@ export default function Header() {
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                     {isAdmin && (
+                     {!isAdminLoading && isAdmin && (
                         <>
                             <DropdownMenuItem asChild>
                             <Link href="/admin/dashboard">
@@ -151,7 +151,7 @@ export default function Header() {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn("text-black", isTransparent ? 'hover:bg-white/20' : 'hover:bg-accent' )}>
+                <Button variant="ghost" size="icon" className={cn(isTransparent ? 'text-white hover:bg-white/20' : 'text-black hover:bg-accent' )}>
                   <Menu />
                   <span className="sr-only">Open menu</span>
                 </Button>
