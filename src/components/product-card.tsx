@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/card';
 import { formatPrice } from '@/lib/utils';
 import placeholderImages from '@/lib/placeholder-images.json';
+import { Button } from './ui/button';
 
 export default function ProductCard({ product }: { product: Product }) {
   const image = placeholderImages.find((img) => img.id === product.imageId);
@@ -48,8 +49,11 @@ export default function ProductCard({ product }: { product: Product }) {
             {product.name}
           </CardTitle>
         </CardContent>
-        <CardFooter className="p-4 pt-0">
+        <CardFooter className="p-4 pt-0 flex-col items-start">
           <p className="text-base font-semibold">{formatPrice(product.price)}</p>
+          <Button asChild variant="outline" className="w-full mt-2">
+            <Link href={`/products/${product.id}`}>Add to Cart</Link>
+          </Button>
         </CardFooter>
       </Link>
     </Card>
