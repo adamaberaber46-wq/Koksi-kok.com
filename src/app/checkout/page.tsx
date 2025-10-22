@@ -85,6 +85,7 @@ export default function CheckoutPage() {
                     <span>Total</span>
                     <span>{formatPrice(cartTotal)}</span>
                 </div>
+                 <p className="text-sm text-destructive text-center pt-2">الشحن من 3 الى سبع ايام</p>
             </div>
           </CardContent>
         </Card>
