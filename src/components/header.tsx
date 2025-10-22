@@ -34,49 +34,34 @@ export default function Header() {
   const { user, isUserLoading } = useUser();
   const { isAdmin, isAdminLoading } = useAdmin();
   const auth = useAuth();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
+  
   const handleLogout = async () => {
     if (auth) {
       await signOut(auth);
     }
   };
 
-  const isHomePage = pathname === '/';
-  const isTransparent = isHomePage && !scrolled;
-
   return (
-    <header className={cn(
-      "fixed top-0 z-40 w-full transition-colors duration-300",
-      isTransparent ? 'bg-transparent text-primary-foreground' : 'bg-card border-b shadow-sm text-foreground'
-    )}>
+    <header className="bg-card border-b shadow-sm text-foreground">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className={cn("flex items-center gap-2 text-xl font-bold font-headline")}>
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold font-headline">
             <Shirt className="h-6 w-6" />
-            <span className={cn(isTransparent ? "text-white" : "")}>Koksi Kok</span>
+            <span>Koksi Kok</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
-              <Button key={item.href} asChild variant="link" className={cn('text-sm font-semibold', isTransparent ? 'text-white/80 hover:text-white' : 'text-foreground/80 hover:text-foreground' )}>
+              <Button key={item.href} asChild variant="link" className='text-foreground/80 hover:text-foreground'>
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
           </nav>
         </div>
 
-        <div className={cn("flex items-center gap-1")}>
+        <div className="flex items-center gap-1">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn("relative", isTransparent ? 'text-white hover:bg-white/20' : 'text-foreground hover:bg-accent' )}>
+              <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-accent">
                 <ShoppingCart />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -92,7 +77,7 @@ export default function Header() {
           {!isUserLoading && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn(isTransparent ? 'text-white hover:bg-white/20' : 'text-foreground hover:bg-accent' )}>
+                <Button variant="ghost" size="icon" className='text-foreground hover:bg-accent'>
                   <User />
                   <span className="sr-only">User menu</span>
                 </Button>
@@ -151,7 +136,7 @@ export default function Header() {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn(isTransparent ? 'text-white hover:bg-white/20' : 'text-foreground hover:bg-accent' )}>
+                <Button variant="ghost" size="icon" className='text-foreground hover:bg-accent'>
                   <Menu />
                   <span className="sr-only">Open menu</span>
                 </Button>
