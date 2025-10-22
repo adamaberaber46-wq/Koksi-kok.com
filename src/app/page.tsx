@@ -74,11 +74,6 @@ export default function Home() {
             <CarouselPrevious className="hidden md:flex" />
             <CarouselNext className="hidden md:flex" />
           </Carousel>
-          <div className="text-center mt-12">
-            <Button asChild variant="outline">
-              <Link href="/products">View All Products</Link>
-            </Button>
-          </div>
         </div>
       </section>
     </div>
