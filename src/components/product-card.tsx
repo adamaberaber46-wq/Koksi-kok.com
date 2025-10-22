@@ -73,11 +73,11 @@ export default function ProductCard({ product }: { product: Product }) {
                 )}
             </div>
           <p className="text-sm text-muted-foreground mt-2 truncate w-full">{product.description}</p>
-          <AddToCartDialog product={product}>
-            <Button variant="outline" className="w-full mt-4 rounded-full">
+          <Button asChild variant="outline" className="w-full mt-4 rounded-full">
+            <Link href={`/products/${product.id}`}>
               Add to Cart
-            </Button>
-          </AddToCartDialog>
+            </Link>
+          </Button>
         </CardFooter>
     </Card>
   );
