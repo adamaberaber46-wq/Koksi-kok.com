@@ -43,7 +43,9 @@ export default function Header() {
   }, []);
 
   const handleLogout = async () => {
-    await signOut(auth);
+    if (auth) {
+      await signOut(auth);
+    }
   };
 
   const isHomePage = pathname === '/';
@@ -51,27 +53,27 @@ export default function Header() {
   return (
     <header className={cn(
       "sticky top-0 z-40 w-full transition-colors duration-300",
-       isHomePage ? (scrolled ? 'bg-card border-b shadow-sm' : 'bg-transparent') : 'bg-card border-b'
+       isHomePage ? (scrolled ? 'bg-card border-b shadow-sm text-foreground' : 'bg-transparent text-primary-foreground') : 'bg-card border-b text-foreground'
     )}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className={cn("flex items-center gap-2 text-xl font-bold font-headline", isHomePage && !scrolled ? 'text-primary-foreground' : 'text-foreground')}>
+          <Link href="/" className={cn("flex items-center gap-2 text-xl font-bold font-headline")}>
             <Shirt className="h-6 w-6" />
             <span>Koksi Kok</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
-              <Button key={item.href} asChild variant="link" className={cn(isHomePage && !scrolled ? 'text-primary-foreground/80 hover:text-primary-foreground' : 'text-foreground/80 hover:text-foreground')}>
+              <Button key={item.href} asChild variant="link" className={cn('text-current/80 hover:text-current')}>
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
           </nav>
         </div>
 
-        <div className={cn("flex items-center gap-4", isHomePage && !scrolled ? 'text-primary-foreground' : 'text-foreground')}>
+        <div className={cn("flex items-center gap-4")}>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn("relative", isHomePage && !scrolled && "hover:bg-black/10")}>
+              <Button variant="ghost" size="icon" className={cn("relative hover:bg-current/10")}>
                 <ShoppingCart />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -87,7 +89,7 @@ export default function Header() {
           {!isUserLoading && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn(isHomePage && !scrolled && "hover:bg-black/10")}>
+                <Button variant="ghost" size="icon" className={cn("hover:bg-current/10")}>
                   <User />
                   <span className="sr-only">User menu</span>
                 </Button>
@@ -129,7 +131,7 @@ export default function Header() {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn(isHomePage && !scrolled && "hover:bg-black/10")}>
+                <Button variant="ghost" size="icon" className={cn("hover:bg-current/10")}>
                   <Menu />
                   <span className="sr-only">Open menu</span>
                 </Button>
