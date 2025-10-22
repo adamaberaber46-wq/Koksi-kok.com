@@ -13,22 +13,22 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative w-full h-screen flex items-center justify-center text-center text-white bg-black/30">
+      <section className="relative w-full h-screen flex items-center justify-center text-center bg-card">
         {heroImage && (
           <Image
             src={heroImage.imageUrl}
             alt={heroImage.description}
             fill
-            className="object-cover -z-10"
+            className="object-cover -z-10 opacity-20"
             priority
             data-ai-hint={heroImage.imageHint}
           />
         )}
-        <div className="container mx-auto px-4 z-10 bg-black/50 py-8 rounded-xl">
-          <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 drop-shadow-lg">
+        <div className="container mx-auto px-4 z-10">
+          <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 drop-shadow-lg text-foreground">
             Find Your Signature Style
           </h1>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 drop-shadow-md">
+          <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 drop-shadow-md text-muted-foreground">
             Discover curated collections of the latest fashion trends.
           </p>
           <Button asChild size="lg" className="font-bold">
