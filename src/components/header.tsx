@@ -34,7 +34,8 @@ export default function Header() {
   const { user, isUserLoading } = useUser();
   const { isAdmin, isAdminLoading } = useAdmin();
   const auth = useAuth();
-  
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+
   const handleLogout = async () => {
     if (auth) {
       await signOut(auth);
@@ -43,13 +44,39 @@ export default function Header() {
 
   const isHomePage = pathname === '/';
 
+  useEffect(() => {
+    if (!isHomePage) {
+      setIsHeaderVisible(true);
+      return;
+    }
+
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsHeaderVisible(true);
+      } else {
+        setIsHeaderVisible(false);
+      }
+    };
+    
+    // Set initial state based on scroll position
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isHomePage]);
+  
+  const headerClasses = cn(
+    'w-full z-20 fixed top-0 left-0 transition-all duration-300',
+    isHomePage
+      ? {
+          'bg-transparent text-white': !isHeaderVisible,
+          'bg-card border-b shadow-sm text-foreground': isHeaderVisible,
+        }
+      : 'bg-card border-b shadow-sm text-foreground'
+  );
+
   return (
-    <header
-      className={cn(
-        'w-full z-20 transition-colors duration-300',
-        isHomePage ? 'absolute top-0 left-0 bg-transparent text-white' : 'bg-card border-b shadow-sm text-foreground'
-      )}
-    >
+    <header className={headerClasses}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 text-xl font-bold font-headline">
@@ -58,7 +85,10 @@ export default function Header() {
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
-              <Button key={item.href} asChild variant="link" className={cn('hover:text-current', isHomePage ? 'text-white/80 hover:text-white' : 'text-foreground/80 hover:text-foreground')}>
+              <Button key={item.href} asChild variant="link" className={cn(
+                'hover:text-current text-foreground/80 hover:text-foreground',
+                isHomePage && !isHeaderVisible && 'text-white/80 hover:text-white'
+              )}>
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
@@ -68,7 +98,7 @@ export default function Header() {
         <div className="flex items-center gap-1">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn('relative hover:bg-black/10', isHomePage ? 'text-white' : 'text-foreground hover:bg-accent')}>
+              <Button variant="ghost" size="icon" className={cn('relative', isHomePage && !isHeaderVisible ? 'text-white hover:bg-white/10' : 'text-foreground hover:bg-accent')}>
                 <ShoppingCart />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -84,7 +114,7 @@ export default function Header() {
           {!isUserLoading && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn('hover:bg-black/10', isHomePage ? 'text-white' : 'text-foreground hover:bg-accent')}>
+                <Button variant="ghost" size="icon" className={cn( isHomePage && !isHeaderVisible ? 'text-white hover:bg-white/10' : 'text-foreground hover:bg-accent')}>
                   <User />
                   <span className="sr-only">User menu</span>
                 </Button>
@@ -143,7 +173,7 @@ export default function Header() {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn('hover:bg-black/10', isHomePage ? 'text-white' : 'text-foreground hover:bg-accent')}>
+                <Button variant="ghost" size="icon" className={cn(isHomePage && !isHeaderVisible ? 'text-white hover:bg-white/10' : 'text-foreground hover:bg-accent')}>
                   <Menu />
                   <span className="sr-only">Open menu</span>
                 </Button>
