@@ -9,7 +9,7 @@ import placeholderImages from '@/lib/placeholder-images.json';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/lib/types';
-import { SheetContent } from './ui/sheet';
+import { SheetContent, SheetHeader, SheetTitle, SheetDescription } from './ui/sheet';
 import { ScrollArea } from './ui/scroll-area';
 
 
@@ -30,6 +30,10 @@ export default function ProductDetailSheet({
 
   return (
     <SheetContent side="right" className="w-full sm:max-w-2xl p-0">
+        <SheetHeader className="sr-only">
+          <SheetTitle>{product.name}</SheetTitle>
+          <SheetDescription>{product.description}</SheetDescription>
+        </SheetHeader>
         <ScrollArea className="h-full">
             <div className="grid md:grid-cols-2 items-start">
                 <div className="p-6 lg:p-8 flex flex-col gap-4">
