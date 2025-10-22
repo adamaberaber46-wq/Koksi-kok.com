@@ -29,7 +29,7 @@ export default function Home() {
             Find Your Signature Style
           </h1>
           <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 drop-shadow-md">
-            Discover curated collections and get AI-powered outfit suggestions tailored just for you.
+            Discover curated collections of the latest fashion trends.
           </p>
           <Button asChild size="lg" className="font-bold">
             <Link href="/products">

@@ -1,14 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { Bot, LogIn, Menu, ShoppingCart, User, UserPlus, Shirt } from 'lucide-react';
+import { LogIn, Menu, ShoppingCart, User, UserPlus, Shirt } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetTrigger } from '@/components/ui/sheet';
@@ -17,7 +16,6 @@ import { useCart } from '@/hooks/use-cart';
 
 const mainNav = [
   { href: '/products', label: 'Products' },
-  { href: '/outfit-generator', label: 'AI Stylist' },
 ];
 
 export default function Header() {
@@ -74,13 +72,6 @@ export default function Header() {
                 <Link href="/signup">
                   <UserPlus className="mr-2 h-4 w-4" />
                   <span>Sign Up</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/outfit-generator">
-                  <Bot className="mr-2 h-4 w-4" />
-                  <span>AI Stylist</span>
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
