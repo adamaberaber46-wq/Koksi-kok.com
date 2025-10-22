@@ -42,7 +42,7 @@ export default function Home() {
   const { data: heroData, isLoading: heroLoading } = useDoc<HeroSection>(heroSectionDocRef);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-h-screen">
       <section className="relative w-full h-screen flex items-center justify-center text-center text-primary-foreground">
         {heroLoading && <Skeleton className="absolute inset-0" />}
         {heroData && heroData.imageUrl && (
