@@ -290,6 +290,22 @@
         "subtitle",
         "imageId"
       ]
+    },
+     "UserRole": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserRole",
+      "description": "Defines the role of a user.",
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["admin", "customer"]
+          }
+        }
+      },
+      "required": ["roles"]
     }
   },
   "auth": {
@@ -419,9 +435,26 @@
             }
           ]
         }
+      },
+       {
+        "path": "roles/{userId}",
+        "definition": {
+          "entityName": "UserRole",
+          "schema": {
+            "$ref": "#/backend/entities/UserRole"
+          },
+          "description": "Stores user roles. The document ID is the user's UID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The UID of the user."
+            }
+          ]
+        }
       }
     ],
     "reasoning": "The Firestore structure is designed to support the Style Store application's core features. Orders are stored in a top-level collection to allow admins to easily query and list all orders. User-specific data (shopping carts, profiles) remains nested under the user's document to enforce ownership-based security rules."
   }
 }
+
     
