@@ -29,14 +29,12 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import { useAdmin } from '@/hooks/use-admin';
 import { useMemo } from 'react';
 
 export default function Header() {
   const { itemCount } = useCart();
   const pathname = usePathname();
   const { user, isUserLoading } = useUser();
-  const { isAdmin, isAdminLoading } = useAdmin();
   const auth = useAuth();
 
   const isHomePage = pathname === '/';
@@ -48,8 +46,6 @@ export default function Header() {
       : 'bg-card border-b shadow-sm text-foreground'
   );
 
-  const isLoading = isUserLoading || isAdminLoading;
-
   const mainNav = useMemo(() => {
     const nav = [
       { href: '/', label: 'Home' },
@@ -57,11 +53,11 @@ export default function Header() {
       { href: '/offers', label: 'Offers' },
       { href: '/about', label: 'About Us' },
     ];
-    if (isAdmin) {
+    if (user) {
       nav.push({ href: '/admin/dashboard', label: 'Dashboard' });
     }
     return nav;
-  }, [isAdmin]);
+  }, [user]);
 
   return (
     <header className={headerClasses}>
@@ -114,7 +110,7 @@ export default function Header() {
             <CartSheet />
           </Sheet>
 
-          {isLoading ? (
+          {isUserLoading ? (
             <div className="h-10 w-10 flex items-center justify-center">
               <Loader2 className="h-5 w-5 animate-spin" />
             </div>
@@ -142,23 +138,19 @@ export default function Header() {
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link href="/admin/dashboard">
-                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                            <span>Dashboard</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/admin/orders">
-                            <Package className="mr-2 h-4 w-4" />
-                            <span>Orders</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/dashboard">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/orders">
+                        <Package className="mr-2 h-4 w-4" />
+                        <span>Orders</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => signOut(auth)}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Logout</span>

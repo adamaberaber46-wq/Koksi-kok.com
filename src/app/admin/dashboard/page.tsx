@@ -25,7 +25,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { Loader2, Trash2 } from 'lucide-react';
-import { useFirestore, useCollection, useDoc } from '@/firebase';
+import { useFirestore, useCollection, useDoc, useUser } from '@/firebase';
 import { collection, addDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
@@ -46,7 +46,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useAdmin } from '@/hooks/use-admin';
 
 const productFormSchema = z.object({
   id: z.string().optional(),
@@ -82,13 +81,13 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const router = useRouter();
-  const { isAdmin, isAdminLoading } = useAdmin();
+  const { user, isUserLoading } = useUser();
 
   useEffect(() => {
-    if (!isAdminLoading && !isAdmin) {
-      router.push('/');
+    if (!isUserLoading && !user) {
+      router.push('/login');
     }
-  }, [isAdmin, isAdminLoading, router]);
+  }, [user, isUserLoading, router]);
 
   const categoriesQuery = useMemoFirebase(
     () => (firestore ? collection(firestore, 'categories') : null),
@@ -260,7 +259,7 @@ export default function DashboardPage() {
     setIsHeroSubmitting(false);
   }
 
-  if (isAdminLoading) {
+  if (isUserLoading) {
     return (
         <div className="min-h-screen flex items-center justify-center">
             <Loader2 className="h-16 w-16 animate-spin" />
@@ -268,8 +267,8 @@ export default function DashboardPage() {
     );
   }
 
-  if (!isAdmin) {
-    return null; // or a custom "access denied" component
+  if (!user) {
+    return null; // The useEffect above will handle redirection
   }
 
   return (

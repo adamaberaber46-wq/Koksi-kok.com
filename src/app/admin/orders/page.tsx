@@ -1,6 +1,6 @@
 'use client';
 
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useUser } from '@/firebase';
 import { collection, orderBy, query, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/provider';
 import type { Order, OrderStatus } from '@/lib/types';
@@ -35,7 +35,6 @@ import { Loader2, MoreHorizontal } from 'lucide-react';
 import { updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { useAdmin } from '@/hooks/use-admin';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -43,13 +42,13 @@ export default function OrdersPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
-  const { isAdmin, isAdminLoading } = useAdmin();
+  const { user, isUserLoading } = useUser();
 
   useEffect(() => {
-    if (!isAdminLoading && !isAdmin) {
-      router.push('/');
+    if (!isUserLoading && !user) {
+      router.push('/login');
     }
-  }, [isAdmin, isAdminLoading, router]);
+  }, [user, isUserLoading, router]);
 
   const ordersQuery = useMemoFirebase(
     () => (firestore ? query(collection(firestore, 'orders'), orderBy('createdAt', 'desc')) : null),
@@ -86,7 +85,7 @@ export default function OrdersPage() {
     }
   }
 
-  if (isAdminLoading) {
+  if (isUserLoading) {
     return (
         <div className="min-h-screen flex items-center justify-center">
             <Loader2 className="h-16 w-16 animate-spin" />
@@ -94,7 +93,7 @@ export default function OrdersPage() {
     );
   }
 
-  if (!isAdmin) {
+  if (!user) {
     return null;
   }
 
