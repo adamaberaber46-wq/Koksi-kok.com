@@ -54,7 +54,8 @@ export default function ProductCard({ product }: { product: Product }) {
         </CardContent>
         <CardFooter className="p-4 pt-0 flex-col items-start">
           <p className="text-base font-semibold text-destructive">{formatPrice(product.price)}</p>
-          <Button asChild variant="outline" className="w-full mt-2 rounded-full">
+          <p className="text-sm text-muted-foreground mt-2 truncate">{product.description}</p>
+          <Button asChild variant="outline" className="w-full mt-4 rounded-full">
             <Link href={`/products/${product.id}`}>Add to Cart</Link>
           </Button>
         </CardFooter>
