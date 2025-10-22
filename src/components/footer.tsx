@@ -91,7 +91,7 @@ export default function Footer() {
                 <li>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Link href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                      <Link href="/privacy-policy" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
                         Privacy Policy
                       </Link>
                     </TooltipTrigger>
@@ -103,7 +103,7 @@ export default function Footer() {
                 <li>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Link href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                      <Link href="/terms-of-service" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
                         Terms of Service
                       </Link>
                     </TooltipTrigger>
