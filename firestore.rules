@@ -2,22 +2,27 @@
  * @fileoverview Firestore Security Rules for the Style Store application.
  *
  * Core Philosophy:
- * This ruleset prioritizes a secure, owner-centric access model for user-specific data while allowing open read access to public content.
+ * This ruleset enforces a user-ownership model for user-specific data,
+ * while allowing public read access to products and categories.
+ * Administrative roles are used to control access to sensitive data like user roles.
  *
  * Data Structure:
- * - User profiles and associated data (shopping carts, AI outfit suggestions) are nested under `/users/{userId}`.
- * - Products, categories, orders, and site settings are stored in top-level collections.
+ * - Products and categories are stored in top-level collections with public read access.
+ * - User-specific data (profiles, shopping carts, AI outfit suggestions)
+ *   is nested under the /users/{userId} document, where {userId} matches
+ *   the Firebase Auth UID.
+ * - Orders are stored in a top-level collection but require authentication for access.
+ * - User roles are stored in the `/roles/{userId}` collection, accessible only to admins.
+ * - Site settings are stored in the `/site_settings/{settingId}` collection, accessible only to admins.
  *
  * Key Security Decisions:
- * - Orders can be read and written by anyone for now.
- * - User listing is disallowed to prevent data harvesting.
- * - Read-only collections like 'categories' and 'products' are publicly accessible.
+ * - Listing of users is explicitly denied to prevent unauthorized data access.
+ * - Write access to user profiles is restricted to the owning user.
+ * - Orders can be created by authenticated users.
+ * - Administrative access is granted based on the 'admin' role stored in the `/roles/{userId}` document.
  *
  * Denormalization for Authorization:
- *  None.
- *
- * Structural Segregation:
- *  Private user data is stored under the `/users/{userId}` collection, while public data is in top-level collections.
+ * - User roles are stored in a separate `/roles/{userId}` document to simplify admin role checks.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -25,107 +30,175 @@ service cloud.firestore {
 
     /**
      * @description Checks if the user is signed in.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Authentication is required for certain operations.
      */
     function isSignedIn() {
       return request.auth != null;
     }
 
     /**
-     * @description Checks if the authenticated user's UID matches the provided userId.
+     * @description Checks if the user is the owner of the document.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Enforces document ownership.
      */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
     /**
-     * @description Checks if the authenticated user is the owner of the existing document.
+     * @description Checks if the user is the existing owner of the document (for updates/deletes).
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Enforces document ownership and existence for updates/deletes.
      */
     function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
     }
 
     /**
-     * @description Rules for the 'categories' collection.
-     * @path /databases/{database}/documents/categories/{categoryId}
+     * @description Checks if the user has the 'admin' role.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Enforces administrative access based on roles.
+     */
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.roles.hasAny(['admin']);
+    }
+
+    /**
+     * @description Rules for the categories collection.
+     * @path /categories/{categoryId}
      * @allow (get, list): Any user can read category information.
-     * @deny (create, update, delete): No user can create, update, or delete categories through the client.
-     * @principle Public read access, admin-only writes (backend managed).
+     * @allow (create, update, delete): Only admins can modify category information.
+     * @deny (create) if the user is not an admin.
+     * @principle Public read, admin-only write access.
      */
     match /categories/{categoryId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
     }
 
     /**
-     * @description Rules for the 'products' collection.
-     * @path /databases/{database}/documents/products/{productId}
+     * @description Rules for the products collection.
+     * @path /products/{productId}
      * @allow (get, list): Any user can read product information.
-     * @deny (create, update, delete): No user can create, update, or delete products through the client.
-     * @principle Public read access, admin-only writes (backend managed).
+     * @allow (create, update, delete): Only admins can modify product information.
+     * @deny (create) if the user is not an admin.
+     * @principle Public read, admin-only write access.
      */
     match /products/{productId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
     }
 
     /**
-     * @description Rules for the 'users' collection.
-     * @path /databases/{database}/documents/users/{userId}
-     * @allow (create): A user can create their own profile using their UID as the document ID.
-     * @allow (get, update, delete): A user can read, update, and delete their own profile.
-     * @deny (list): Listing all users is not allowed.
-     * @deny (create): A user cannot create a profile with an ID that doesn't match their UID.
-     * @principle Enforces user-ownership; only the user can manage their own profile.
+     * @description Rules for the users collection.
+     * @path /users/{userId}
+     * @allow (get): Any user can read their own profile.
+     * @allow (create): A user can create their own profile if the userId matches their auth UID.
+     * @allow (update, delete): A user can update or delete their own profile.
+     * @deny (list): Listing users is not allowed.
+     * @deny (create) if the userId does not match the auth UID.
+     * @deny (update, delete) if the user is not the owner of the profile.
+     * @principle Owner-only access to user profiles.
      */
     match /users/{userId} {
-      allow get, update, delete: if isExistingOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow get: if isOwner(userId);
       allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Rules for the shopping_cart_items subcollection.
+       * @path /users/{userId}/shopping_cart_items/{cartItemId}
+       * @allow (get, list): The owner can read their own shopping cart items.
+       * @allow (create, update, delete): The owner can modify their own shopping cart items.
+       * @deny (create, update, delete) if the user is not the owner of the shopping cart items.
+       * @principle Owner-only access to shopping cart items.
+       */
+      match /shopping_cart_items/{cartItemId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Rules for the ai_outfit_suggestions subcollection.
+       * @path /users/{userId}/ai_outfit_suggestions/{suggestionId}
+       * @allow (get, list): The owner can read their own AI outfit suggestions.
+       * @allow (create, update, delete): The owner can modify their own AI outfit suggestions.
+       * @deny (create, update, delete) if the user is not the owner of the AI outfit suggestions.
+       * @principle Owner-only access to AI outfit suggestions.
+       */
+      match /ai_outfit_suggestions/{suggestionId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+        allow delete: if isExistingOwner(userId);
+      }
     }
 
     /**
-     * @description Rules for the 'shopping_cart_items' subcollection under a user.
-     * @path /databases/{database}/documents/users/{userId}/shopping_cart_items/{cartItemId}
-     * @allow (get, list, create, update, delete): A user can manage their own shopping cart items.
-     * @deny (create, update): A user cannot create or update items with a userId that doesn't match their UID.
-     * @principle Enforces user-ownership; only the user can manage their own shopping cart.
-     */
-    match /users/{userId}/shopping_cart_items/{cartItemId} {
-      allow get, list, create, update, delete: if isOwner(userId);
-    }
-
-    /**
-     * @description Rules for the 'orders' collection.
-     * @path /databases/{database}/documents/orders/{orderId}
-     * @allow (get, list): Any user can read any order.
-     * @allow (create, update, delete): Any user can create, update and delete any order.
+     * @description Rules for the orders collection.
+     * @path /orders/{orderId}
+     * @allow (get): Authenticated users can read their own orders.
+     * @allow (create): Authenticated users can create orders.
+     * @allow (list): Authenticated users can list orders.
+     * @allow (update, delete): Only admins can modify or delete orders.
+     * @deny (create) if the user is not authenticated.
+     * @deny (update, delete) if the user is not an admin.
+     * @principle Authenticated access to orders, admin-only modification.
      */
     match /orders/{orderId} {
-        allow get, list: if true;
-        allow create, update, delete: if true; // TODO: Add security, maybe using a roles-based approach to allow only admins to make changes
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
     }
 
     /**
-     * @description Rules for the 'ai_outfit_suggestions' subcollection under a user.
-     * @path /databases/{database}/documents/users/{userId}/ai_outfit_suggestions/{suggestionId}
-     * @allow (get, list, create, update, delete): A user can manage their own AI outfit suggestions.
-     * @deny (create, update): A user cannot create or update suggestions with a userId that doesn't match their UID.
-     * @principle Enforces user-ownership; only the user can manage their own suggestions.
-     */
-    match /users/{userId}/ai_outfit_suggestions/{suggestionId} {
-      allow get, list, create, update, delete: if isOwner(userId);
-    }
-
-    /**
-     * @description Rules for the 'site_settings' collection.
-     * @path /databases/{database}/documents/site_settings/{settingId}
+     * @description Rules for the site_settings collection.
+     * @path /site_settings/{settingId}
      * @allow (get, list): Any user can read site settings.
-     * @deny (create, update, delete): No user can create, update, or delete site settings through the client.
-     * @principle Public read access, admin-only writes (backend managed).
+     * @allow (create, update, delete): Only admins can modify site settings.
+     * @deny (create) if the user is not an admin.
+     * @principle Admin-only access to site settings.
      */
     match /site_settings/{settingId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Rules for the roles collection.
+     * @path /roles/{userId}
+     * @allow (get): Only admins can read user roles.
+     * @allow (create, update): Only admins can create or update user roles.
+     * @deny (list, delete): Listing and deleting user roles is not allowed.
+     * @deny (create, update) if the user is not an admin.
+     * @principle Admin-only access to user roles.
+     */
+    match /roles/{userId} {
+      allow get: if isAdmin();
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if false;
     }
   }
 }
