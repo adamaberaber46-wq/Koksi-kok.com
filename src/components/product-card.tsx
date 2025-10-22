@@ -74,7 +74,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <CardContent className="p-4 flex-grow">
             <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>
             <SheetTrigger asChild>
-              <CardTitle className="text-lg font-semibold font-headline tracking-tight">
+              <CardTitle className="text-lg font-semibold font-headline tracking-tight truncate">
                 <span className="hover:underline cursor-pointer">
                   {product.name}
                 </span>
