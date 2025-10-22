@@ -26,7 +26,7 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
-          <main className="pt-16">{children}</main>
+          <main>{children}</main>
           <Footer />
           <Toaster />
         </Providers>
