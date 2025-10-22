@@ -79,7 +79,7 @@ export default function Header() {
             <CartSheet />
           </Sheet>
 
-          {!isUserLoading && (
+          {(!isUserLoading && !isAdminLoading) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn('hover:bg-current/10', !isHomePage && 'text-foreground hover:bg-accent' )}>
