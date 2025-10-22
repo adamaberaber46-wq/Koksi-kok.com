@@ -1,3 +1,80 @@
-{
-  "placeholderImages": []
-}
+[
+  {
+    "id": "hero",
+    "description": "Stylish person walking in a city",
+    "imageUrl": "https://picsum.photos/seed/hero/1800/1200",
+    "imageHint": "fashion model"
+  },
+  {
+    "id": "classic-white-tee",
+    "description": "A classic white t-shirt",
+    "imageUrl": "https://picsum.photos/seed/whitetee/800/800",
+    "imageHint": "white t-shirt"
+  },
+  {
+    "id": "slim-fit-jeans",
+    "description": "A pair of slim fit jeans",
+    "imageUrl": "https://picsum.photos/seed/jeans/800/800",
+    "imageHint": "denim jeans"
+  },
+  {
+    "id": "leather-biker-jacket",
+    "description": "A black leather biker jacket",
+    "imageUrl": "https://picsum.photos/seed/jacket/800/800",
+    "imageHint": "leather jacket"
+  },
+  {
+    "id": "cashmere-sweater",
+    "description": "A soft cashmere sweater",
+    "imageUrl": "https://picsum.photos/seed/sweater/800/800",
+    "imageHint": "gray sweater"
+  },
+  {
+    "id": "suede-chelsea-boots",
+    "description": "A pair of suede Chelsea boots",
+    "imageUrl": "https://picsum.photos/seed/chelseaboots/800/800",
+    "imageHint": "suede boots"
+  },
+  {
+    "id": "minimalist-sneakers",
+    "description": "A pair of white minimalist sneakers",
+    "imageUrl": "https://picsum.photos/seed/sneakers/800/800",
+    "imageHint": "white sneakers"
+  },
+  {
+    "id": "tailored-chino-shorts",
+    "description": "A pair of tailored chino shorts",
+    "imageUrl": "https://picsum.photos/seed/shorts/800/800",
+    "imageHint": "khaki shorts"
+  },
+  {
+    "id": "linen-button-down",
+    "description": "A light blue linen button-down shirt",
+    "imageUrl": "https://picsum.photos/seed/linenshirt/800/800",
+    "imageHint": "linen shirt"
+  },
+  {
+    "id": "wool-overcoat",
+    "description": "A charcoal wool overcoat",
+    "imageUrl": "https://picsum.photos/seed/overcoat/800/800",
+    "imageHint": "wool coat"
+  },
+  {
+    "id": "leather-loafers",
+    "description": "A pair of brown leather loafers",
+    "imageUrl": "https://picsum.photos/seed/loafers/800/800",
+    "imageHint": "leather loafers"
+  },
+  {
+    "id": "silk-blend-blouse",
+    "description": "An elegant silk-blend blouse",
+    "imageUrl": "https://picsum.photos/seed/blouse/800/800",
+    "imageHint": "silk blouse"
+  },
+  {
+    "id": "high-waisted-trousers",
+    "description": "A pair of black high-waisted trousers",
+    "imageUrl": "https://picsum.photos/seed/trousers/800/800",
+    "imageHint": "black trousers"
+  }
+]
