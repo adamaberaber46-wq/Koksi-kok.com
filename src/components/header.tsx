@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogIn, Menu, ShoppingCart, User, UserPlus, Shirt, LogOut, LayoutDashboard } from 'lucide-react';
+import { LogIn, Menu, ShoppingCart, User, UserPlus, Shirt, LogOut, LayoutDashboard, Package } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -108,6 +108,12 @@ export default function Header() {
                       <Link href="/admin/dashboard">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         <span>Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                      <Link href="/admin/orders">
+                        <Package className="mr-2 h-4 w-4" />
+                        <span>Orders</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />

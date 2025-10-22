@@ -34,6 +34,7 @@ import type { Category, Product, HeroSection } from '@/lib/types';
 import { useMemoFirebase } from '@/firebase/provider';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { formatPrice } from '@/lib/utils';
+import Link from 'next/link';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -259,6 +260,11 @@ export default function DashboardPage() {
                 <CardTitle className="text-2xl font-headline">Dashboard</CardTitle>
                 <CardDescription>Manage your store's products, categories, and site settings.</CardDescription>
                 </CardHeader>
+                <CardContent>
+                    <Button asChild>
+                        <Link href="/admin/orders">View Orders</Link>
+                    </Button>
+                </CardContent>
             </Card>
 
             <Card>
@@ -610,3 +616,4 @@ export default function DashboardPage() {
   );
 
     
+

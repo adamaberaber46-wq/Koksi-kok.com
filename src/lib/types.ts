@@ -1,3 +1,4 @@
+
 export type Product = {
   id: string;
   name: string;
@@ -34,4 +35,26 @@ export type HeroSection = {
   imageUrl: string;
 };
 
+export type Order = {
+    id: string;
+    userId: string | null;
+    customerInfo: {
+        name: string;
+        email: string;
+        phone: string;
+        address: string;
+        city: string;
+        zip: string;
+    };
+    items: {
+        id: string;
+        name: string;
+        quantity: number;
+        price: number;
+        size: string;
+        imageUrl: string;
+    }[];
+    total: number;
+    createdAt: any; // Firestore Timestamp
+};
     

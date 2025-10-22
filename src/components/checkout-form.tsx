@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { Home, Loader2 } from 'lucide-react';
+import { collection, serverTimestamp } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -20,7 +21,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import { useUser } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import type { Order } from '@/lib/types';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -33,10 +36,11 @@ const formSchema = z.object({
 
 export default function CheckoutForm() {
   const [isProcessing, setIsProcessing] = useState(false);
-  const { clearCart } = useCart();
+  const { cartItems, cartTotal, clearCart } = useCart();
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useUser();
+  const firestore = useFirestore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,19 +54,57 @@ export default function CheckoutForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsProcessing(true);
     
-    // Simulate order placement
-    setTimeout(() => {
+    if (!firestore) {
+      toast({ title: 'Error', description: 'Could not connect to the database.', variant: 'destructive'});
+      setIsProcessing(false);
+      return;
+    }
+
+    const ordersCollection = collection(firestore, 'orders');
+
+    const newOrder: Omit<Order, 'id'> = {
+      userId: user?.uid || null,
+      customerInfo: {
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        city: values.city,
+        zip: values.zip,
+      },
+      items: cartItems.map(item => ({
+        id: item.productId,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        size: item.size,
+        imageUrl: item.imageUrl,
+      })),
+      total: cartTotal,
+      createdAt: serverTimestamp(),
+    };
+
+    try {
+      await addDocumentNonBlocking(ordersCollection, newOrder);
+      
       toast({
         title: 'Order Placed!',
         description: 'Your order has been successfully placed. We will contact you for delivery.',
       });
       clearCart();
       router.push('/');
-      setIsProcessing(false);
-    }, 2000);
+    } catch (error) {
+       toast({
+        title: 'Error Placing Order',
+        description: 'There was a problem placing your order. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+       setIsProcessing(false);
+    }
   }
 
   return (
@@ -158,7 +200,7 @@ export default function CheckoutForm() {
                 />
               </div>
             </div>
-            <Button type="submit" className="w-full" size="lg" disabled={isProcessing}>
+            <Button type="submit" className="w-full" size="lg" disabled={isProcessing || cartItems.length === 0}>
                {isProcessing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
