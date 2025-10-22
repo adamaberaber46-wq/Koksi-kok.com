@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { CreditCard, Loader2 } from 'lucide-react';
+import { Home, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -25,13 +25,10 @@ import { useUser } from '@/firebase';
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  phone: z.string().min(10, { message: 'A valid phone number is required.'}),
   address: z.string().min(5, { message: 'Address is required.' }),
   city: z.string().min(2, { message: 'City is required.' }),
   zip: z.string().min(5, { message: 'A valid ZIP code is required.' }),
-  cardName: z.string().min(2, { message: 'Name on card is required.' }),
-  cardNumber: z.string().regex(/^\d{16}$/, { message: 'Card number must be 16 digits.' }),
-  cardExpiry: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, { message: 'Use MM/YY format.' }),
-  cardCVC: z.string().regex(/^\d{3}$/, { message: 'CVC must be 3 digits.' }),
 });
 
 export default function CheckoutForm() {
@@ -46,24 +43,21 @@ export default function CheckoutForm() {
     defaultValues: {
       email: user?.email || '',
       name: '',
+      phone: '',
       address: '',
       city: '',
       zip: '',
-      cardName: '',
-      cardNumber: '',
-      cardExpiry: '',
-      cardCVC: '',
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsProcessing(true);
     
-    // Simulate payment processing
+    // Simulate order placement
     setTimeout(() => {
       toast({
-        title: 'Payment Successful!',
-        description: 'Your order has been placed. Thank you for shopping!',
+        title: 'Order Placed!',
+        description: 'Your order has been successfully placed. We will contact you for delivery.',
       });
       clearCart();
       router.push('/');
@@ -74,7 +68,8 @@ export default function CheckoutForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl font-semibold font-headline">Shipping & Payment</CardTitle>
+        <CardTitle className="text-2xl font-semibold font-headline">Shipping Information</CardTitle>
+        <CardDescription>Payment will be made upon delivery.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -89,6 +84,19 @@ export default function CheckoutForm() {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input placeholder="you@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. 01xxxxxxxxx" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -129,7 +137,7 @@ export default function CheckoutForm() {
                     <FormItem>
                       <FormLabel>City</FormLabel>
                       <FormControl>
-                        <Input placeholder="New York" {...field} />
+                        <Input placeholder="Cairo" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -142,62 +150,7 @@ export default function CheckoutForm() {
                     <FormItem>
                       <FormLabel>ZIP Code</FormLabel>
                       <FormControl>
-                        <Input placeholder="10001" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <h3 className="font-semibold text-lg pt-4">Payment Details</h3>
-              <FormField
-                control={form.control}
-                name="cardName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name on Card</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Jane Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="cardNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Card Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="0000 0000 0000 0000" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="cardExpiry"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Expiry (MM/YY)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="MM/YY" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="cardCVC"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CVC</FormLabel>
-                      <FormControl>
-                        <Input placeholder="123" {...field} />
+                        <Input placeholder="e.g. 11511" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -209,12 +162,12 @@ export default function CheckoutForm() {
                {isProcessing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
+                  Placing Order...
                 </>
               ) : (
                 <>
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Pay Now
+                  <Home className="mr-2 h-4 w-4" />
+                  Place Order (Cash on Delivery)
                 </>
               )}
             </Button>
