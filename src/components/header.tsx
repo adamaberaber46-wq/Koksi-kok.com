@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Bot, LogIn, Menu, ShoppingCart, User, UserPlus } from 'lucide-react';
+import { Bot, LogIn, Menu, ShoppingCart, User, UserPlus, Shirt } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -27,8 +27,9 @@ export default function Header() {
     <header className="sticky top-0 z-40 w-full border-b bg-card">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-xl font-bold font-headline">
-            Koksi Kok
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold font-headline">
+            <Shirt className="h-6 w-6" />
+            <span>Koksi Kok</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
