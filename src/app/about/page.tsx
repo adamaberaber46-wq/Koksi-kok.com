@@ -1,24 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
-import placeholderImages from "@/lib/placeholder-images.json";
 
 export default function AboutPage() {
-    const aboutImage = placeholderImages.find(img => img.id === 'hero');
     return (
         <div className="container mx-auto px-4 py-16">
             <h1 className="text-4xl font-bold font-headline text-center mb-12">About Koksi Kok</h1>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
-                    {aboutImage && (
-                        <Image 
-                            src={aboutImage.imageUrl}
-                            alt="About Koksi Kok"
-                            fill
-                            className="object-cover"
-                            data-ai-hint="fashion store interior"
-                        />
-                    )}
-                </div>
+            <div className="max-w-2xl mx-auto">
                 <div className="space-y-6">
                     <Card>
                         <CardHeader>
