@@ -44,7 +44,7 @@ export default function ProductDetailPage({
         </div>
         <div className="flex flex-col gap-4">
           <Badge variant="secondary" className="w-fit">{product.category}</Badge>
-          <h1 className="text-3xl md:text-4xl font-bold font-headline">
+          <h1 className="text-2xl md:text-3xl font-bold font-headline">
             {product.name}
           </h1>
           <p className="text-2xl font-semibold">{formatPrice(product.price)}</p>
