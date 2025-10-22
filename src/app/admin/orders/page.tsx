@@ -98,7 +98,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-16">
+    <div className="container mx-auto px-4 py-8 md:py-16">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-headline">Customer Orders</CardTitle>
@@ -121,17 +121,15 @@ export default function OrdersPage() {
                 <AccordionItem key={order.id} value={order.id}>
                     <div className="flex items-center w-full">
                         <AccordionTrigger className="flex-1">
-                            <div className="flex justify-between w-full pr-4 items-center">
-                                <div className='flex items-center gap-4'>
-                                    <div className='text-left'>
-                                        <p className="font-semibold">{order.customerInfo.name}</p>
-                                        <p className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</p>
-                                    </div>
-                                    <Badge variant={getStatusBadgeVariant(order.orderStatus)} className="hidden sm:inline-flex capitalize">
-                                        {order.orderStatus}
-                                    </Badge>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 w-full pr-4 items-center text-left">
+                                <div className='flex flex-col sm:flex-row sm:items-center sm:gap-4'>
+                                    <p className="font-semibold truncate">{order.customerInfo.name}</p>
+                                    <p className="text-sm text-muted-foreground hidden sm:block">{formatDate(order.createdAt)}</p>
                                 </div>
-                                <p className="font-semibold">{formatPrice(order.total)}</p>
+                                <Badge variant={getStatusBadgeVariant(order.orderStatus)} className="w-fit capitalize">
+                                    {order.orderStatus}
+                                </Badge>
+                                <p className="font-semibold text-right">{formatPrice(order.total)}</p>
                             </div>
                         </AccordionTrigger>
                         <div className="px-2">

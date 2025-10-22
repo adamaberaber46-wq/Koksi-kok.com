@@ -344,7 +344,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-16">
+    <div className="container mx-auto px-4 py-8 md:py-16">
         <div className="max-w-3xl mx-auto space-y-12">
             <Card>
                 <CardHeader>
@@ -424,12 +424,12 @@ export default function DashboardPage() {
                         <form onSubmit={footerForm.handleSubmit(onFooterSubmit)} className="space-y-8">
                             <div className="space-y-4">
                             {fields.map((field, index) => (
-                                <div key={field.id} className="flex items-end gap-4 p-4 border rounded-md">
+                                <div key={field.id} className="flex flex-col sm:flex-row items-end gap-4 p-4 border rounded-md">
                                     <FormField
                                         control={footerForm.control}
                                         name={`socialLinks.${index}.name`}
                                         render={({ field }) => (
-                                            <FormItem className="flex-1">
+                                            <FormItem className="flex-1 w-full">
                                             <FormLabel>Name</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="e.g., Facebook" {...field} />
@@ -442,7 +442,7 @@ export default function DashboardPage() {
                                         control={footerForm.control}
                                         name={`socialLinks.${index}.url`}
                                         render={({ field }) => (
-                                            <FormItem className="flex-1">
+                                            <FormItem className="flex-1 w-full">
                                             <FormLabel>URL</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="https://facebook.com/..." {...field} />
@@ -451,13 +451,13 @@ export default function DashboardPage() {
                                             </FormItem>
                                         )}
                                     />
-                                    <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                                    <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} className='w-full sm:w-10'>
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>
                             ))}
                             </div>
-                            <div className='flex gap-2'>
+                            <div className='flex flex-col sm:flex-row gap-2'>
                                 <Button
                                     type="button"
                                     variant="outline"
@@ -697,7 +697,7 @@ export default function DashboardPage() {
                     </Collapsible>
 
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                         {editingProductId && (
                             <Button type="button" variant="outline" onClick={handleCancelEdit}>
                                 Cancel

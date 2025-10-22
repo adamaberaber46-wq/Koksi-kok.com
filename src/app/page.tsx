@@ -58,7 +58,7 @@ export default function Home() {
         <div className="container mx-auto px-4 z-10">
           {heroLoading ? (
             <div className='flex flex-col items-center gap-4'>
-                <Skeleton className="h-16 w-3/4 max-w-2xl" />
+                <Skeleton className="h-12 md:h-16 w-3/4 max-w-2xl" />
                 <Skeleton className="h-6 w-1/2 max-w-lg" />
                 <Skeleton className="h-12 w-48" />
             </div>
@@ -156,7 +156,7 @@ export default function Home() {
               {!categoriesLoading && categories && categories.map((category) => (
                 <CarouselItem
                   key={category.id}
-                  className="sm:basis-1/2 lg.basis-1/3"
+                  className="sm:basis-1/2 lg:basis-1/3"
                 >
                   <div className="p-1">
                     <CategoryCard category={category} />
