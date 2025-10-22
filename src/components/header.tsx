@@ -33,24 +33,24 @@ export default function Header() {
   return (
     <header className={cn(
       "absolute top-0 z-40 w-full transition-colors duration-300",
-      isHomePage ? 'bg-transparent' : 'bg-card border-b'
+       isHomePage ? 'bg-transparent' : 'bg-card border-b'
     )}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className={cn("flex items-center gap-2 text-xl font-bold font-headline", isHomePage ? 'text-primary-foreground' : 'text-foreground')}>
+          <Link href="/" className={cn("flex items-center gap-2 text-xl font-bold font-headline", isHomePage ? 'text-foreground' : 'text-foreground')}>
             <Shirt className="h-6 w-6" />
             <span>Koksi Kok</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
-              <Button key={item.href} asChild variant="link" className={cn(isHomePage ? 'text-primary-foreground/80 hover:text-primary-foreground' : 'text-foreground/80 hover:text-foreground')}>
+              <Button key={item.href} asChild variant="link" className={cn(isHomePage ? 'text-foreground/80 hover:text-foreground' : 'text-foreground/80 hover:text-foreground')}>
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
           </nav>
         </div>
 
-        <div className={cn("flex items-center gap-4", isHomePage ? 'text-primary-foreground' : 'text-foreground')}>
+        <div className={cn("flex items-center gap-4", isHomePage ? 'text-foreground' : 'text-foreground')}>
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="relative hover:bg-black/10">
