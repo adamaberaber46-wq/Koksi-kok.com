@@ -274,6 +274,18 @@ export default function DashboardPage() {
     categoryForm.reset();
   }
 
+  function handleDeleteCategory(categoryId: string) {
+    if (!firestore) return;
+    const categoryDocRef = doc(firestore, 'categories', categoryId);
+    deleteDocumentNonBlocking(categoryDocRef);
+    toast({
+      title: 'Category Deleted',
+      description: 'The category has been successfully removed.',
+      variant: 'destructive',
+    });
+  }
+
+
   async function onHeroSubmit(values: z.infer<typeof heroSectionFormSchema>) {
     setIsHeroSubmitting(true);
     if (!heroSectionDocRef) {
@@ -728,12 +740,36 @@ export default function DashboardPage() {
                         {categoriesLoading && <p>Loading categories...</p>}
                         {categories && categories.map(cat => (
                             <div key={cat.id} className="flex items-center justify-between p-2 border rounded-md">
-                                <div>
+                                <div className="flex-1 min-w-0">
                                     <p className="font-semibold">{cat.name}</p>
                                     <p className="text-sm text-muted-foreground">ID: {cat.id}</p>
                                     <p className="text-sm text-muted-foreground truncate">Image URL: {cat.imageUrl}</p>
                                 </div>
-                                <Button variant="ghost" size="sm" onClick={() => categoryForm.reset(cat)}>Edit</Button>
+                                <div className="flex gap-2">
+                                    <Button variant="ghost" size="sm" onClick={() => categoryForm.reset(cat)}>Edit</Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="destructive" size="icon">
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete the category
+                                                "{cat.name}".
+                                            </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteCategory(cat.id)}>
+                                                Delete
+                                            </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
                             </div>
                         ))}
                     </div>
