@@ -14,11 +14,10 @@ import { formatPrice } from '@/lib/utils';
 import placeholderImages from '@/lib/placeholder-images.json';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { AddToCartDialog } from './add-to-cart-dialog';
 
 export default function ProductCard({ product }: { product: Product }) {
-  const image = placeholderImages.find((img) => img.id === product.imageId);
-  const hoverImage = placeholderImages.find((img) => img.id === product.hoverImageId);
+  const image = placeholderImages.find((img) => img.id === product.imageIds[0]);
+  const hoverImage = placeholderImages.find((img) => img.id === product.imageIds[1]);
   const isDiscounted = product.originalPrice && product.originalPrice > product.price;
   const discountPercentage = isDiscounted
     ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
@@ -75,7 +74,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <p className="text-sm text-muted-foreground mt-2 truncate w-full">{product.description}</p>
           <Button asChild variant="outline" className="w-full mt-4 rounded-full">
             <Link href={`/products/${product.id}`}>
-              Add to Cart
+              View Product
             </Link>
           </Button>
         </CardFooter>

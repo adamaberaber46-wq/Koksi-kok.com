@@ -7,8 +7,7 @@ export type Product = {
   originalPrice?: number;
   sizes: string[];
   category: 'Clothing' | 'Shoes' | 'Accessories';
-  imageId: string;
-  hoverImageId: string;
+  imageIds: string[];
   material: string;
   countryOfOrigin: string;
 };

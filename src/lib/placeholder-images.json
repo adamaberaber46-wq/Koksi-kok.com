@@ -18,6 +18,18 @@
     "imageHint": "white t-shirt model"
   },
   {
+    "id": "classic-white-tee-2",
+    "description": "A classic white t-shirt, side view",
+    "imageUrl": "https://picsum.photos/seed/whitetee3/800/800",
+    "imageHint": "white t-shirt"
+  },
+  {
+    "id": "classic-white-tee-3",
+    "description": "A classic white t-shirt, back view",
+    "imageUrl": "https://picsum.photos/seed/whitetee4/800/800",
+    "imageHint": "t-shirt back"
+  },
+  {
     "id": "slim-fit-jeans",
     "description": "A pair of slim fit jeans",
     "imageUrl": "https://picsum.photos/seed/jeans/800/800",
@@ -28,6 +40,12 @@
     "description": "A pair of slim fit jeans on a model",
     "imageUrl": "https://picsum.photos/seed/jeans2/800/800",
     "imageHint": "jeans model"
+  },
+  {
+    "id": "slim-fit-jeans-2",
+    "description": "A pair of slim fit jeans, close-up",
+    "imageUrl": "https://picsum.photos/seed/jeans3/800/800",
+    "imageHint": "jeans detail"
   },
   {
     "id": "leather-biker-jacket",
