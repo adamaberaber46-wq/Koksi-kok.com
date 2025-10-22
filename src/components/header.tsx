@@ -1,7 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { LogIn, Menu, ShoppingCart, User, UserPlus, Shirt, LogOut, LayoutDashboard, Package, Loader2 } from 'lucide-react';
+import {
+  LogIn,
+  Menu,
+  ShoppingCart,
+  User,
+  UserPlus,
+  Shirt,
+  LogOut,
+  LayoutDashboard,
+  Package,
+  Loader2,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,13 +30,7 @@ import { cn } from '@/lib/utils';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useAdmin } from '@/hooks/use-admin';
-
-const mainNav = [
-  { href: '/', label: 'Home' },
-  { href: '/products', label: 'Products' },
-  { href: '/offers', label: 'Offers' },
-  { href: '/about', label: 'About Us' },
-];
+import { useMemo } from 'react';
 
 export default function Header() {
   const { itemCount } = useCart();
@@ -33,32 +38,53 @@ export default function Header() {
   const { user, isUserLoading } = useUser();
   const { isAdmin, isAdminLoading } = useAdmin();
   const auth = useAuth();
-  
+
   const isHomePage = pathname === '/';
 
   const headerClasses = cn(
-    'w-full z-20',
+    'relative w-full z-20',
     isHomePage
       ? 'absolute top-0 left-0 bg-transparent text-white'
-      : 'relative bg-card border-b shadow-sm text-foreground'
+      : 'bg-card border-b shadow-sm text-foreground'
   );
 
   const isLoading = isUserLoading || isAdminLoading;
+
+  const mainNav = useMemo(() => {
+    const nav = [
+      { href: '/', label: 'Home' },
+      { href: '/products', label: 'Products' },
+      { href: '/offers', label: 'Offers' },
+      { href: '/about', label: 'About Us' },
+    ];
+    if (isAdmin) {
+      nav.push({ href: '/admin/dashboard', label: 'Dashboard' });
+    }
+    return nav;
+  }, [isAdmin]);
 
   return (
     <header className={headerClasses}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold font-headline">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-xl font-bold font-headline"
+          >
             <Shirt className="h-6 w-6" />
             <span>Koksi Kok</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
-              <Button key={item.href} asChild variant="link" className={cn(
-                'text-current/80 hover:text-current',
-                 !isHomePage && 'text-foreground/80 hover:text-foreground'
-              )}>
+              <Button
+                key={item.href}
+                asChild
+                variant="link"
+                className={cn(
+                  'text-current/80 hover:text-current',
+                  !isHomePage && 'text-foreground/80 hover:text-foreground'
+                )}
+              >
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
@@ -68,7 +94,14 @@ export default function Header() {
         <div className="flex items-center gap-1">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn('relative hover:bg-current/10', !isHomePage && 'text-foreground hover:bg-accent' )}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  'relative hover:bg-current/10',
+                  !isHomePage && 'text-foreground hover:bg-accent'
+                )}
+              >
                 <ShoppingCart />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -82,43 +115,50 @@ export default function Header() {
           </Sheet>
 
           {isLoading ? (
-             <div className="h-10 w-10 flex items-center justify-center">
-                 <Loader2 className="h-5 w-5 animate-spin" />
-             </div>
-          ): (
+            <div className="h-10 w-10 flex items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </div>
+          ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn('hover:bg-current/10', !isHomePage && 'text-foreground hover:bg-accent' )}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    'hover:bg-current/10',
+                    !isHomePage && 'text-foreground hover:bg-accent'
+                  )}
+                >
                   <User />
                   <span className="sr-only">User menu</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {user ? (
-                   <>
+                  <>
                     <DropdownMenuItem disabled>
                       <div className="flex flex-col">
-                        <span className='font-medium'>{user.email}</span>
+                        <span className="font-medium">{user.email}</span>
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                     {isAdmin && (
-                        <>
-                            <DropdownMenuItem asChild>
-                            <Link href="/admin/dashboard">
-                                <LayoutDashboard className="mr-2 h-4 w-4" />
-                                <span>Dashboard</span>
-                            </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                            <Link href="/admin/orders">
-                                <Package className="mr-2 h-4 w-4" />
-                                <span>Orders</span>
-                            </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                        </>
-                     )}
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin/dashboard">
+                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            <span>Dashboard</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin/orders">
+                            <Package className="mr-2 h-4 w-4" />
+                            <span>Orders</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem onClick={() => signOut(auth)}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Logout</span>
@@ -147,7 +187,14 @@ export default function Header() {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn('hover:bg-current/10', !isHomePage && 'text-foreground hover:bg-accent' )}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    'hover:bg-current/10',
+                    !isHomePage && 'text-foreground hover:bg-accent'
+                  )}
+                >
                   <Menu />
                   <span className="sr-only">Open menu</span>
                 </Button>
