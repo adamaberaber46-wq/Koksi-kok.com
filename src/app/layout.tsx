@@ -25,11 +25,9 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <div className="relative flex min-h-dvh flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+          <Header />
+          <main>{children}</main>
+          <Footer />
           <Toaster />
         </Providers>
       </body>

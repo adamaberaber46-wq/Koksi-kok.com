@@ -13,6 +13,9 @@ import {
 import { Sheet, SheetTrigger } from '@/components/ui/sheet';
 import CartSheet from './cart-sheet';
 import { useCart } from '@/hooks/use-cart';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 
 const mainNav = [
   { href: '/', label: 'Home' },
@@ -23,28 +26,43 @@ const mainNav = [
 
 export default function Header() {
   const { itemCount } = useCart();
+  const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const isHomePage = pathname === '/';
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-card">
+    <header className={cn(
+      "sticky top-0 z-40 w-full transition-colors duration-300",
+      isHomePage ? (isScrolled ? 'bg-card/80 backdrop-blur-sm border-b' : 'bg-transparent border-b border-transparent') : 'bg-card border-b'
+    )}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold font-headline">
+          <Link href="/" className={cn("flex items-center gap-2 text-xl font-bold font-headline", isHomePage && !isScrolled ? 'text-primary-foreground' : 'text-foreground')}>
             <Shirt className="h-6 w-6" />
             <span>Koksi Kok</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
-              <Button key={item.href} asChild variant="link" className="text-foreground">
+              <Button key={item.href} asChild variant="link" className={cn(isHomePage && !isScrolled ? 'text-primary-foreground/80 hover:text-primary-foreground' : 'text-foreground')}>
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className={cn("flex items-center gap-4", isHomePage && !isScrolled ? 'text-primary-foreground' : 'text-foreground')}>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative hover:bg-white/20">
                 <ShoppingCart />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -59,7 +77,7 @@ export default function Header() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="hover:bg-white/20">
                 <User />
                 <span className="sr-only">User menu</span>
               </Button>
@@ -83,7 +101,7 @@ export default function Header() {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="hover:bg-white/20">
                   <Menu />
                   <span className="sr-only">Open menu</span>
                 </Button>
