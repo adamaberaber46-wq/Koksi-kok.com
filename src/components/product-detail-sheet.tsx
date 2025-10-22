@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import type { Product } from '@/lib/types';
 import { SheetContent, SheetHeader, SheetTitle, SheetDescription } from './ui/sheet';
 import { ScrollArea } from './ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
+import { Tag, Weight, Shirt, Scale } from 'lucide-react';
 
 
 export default function ProductDetailSheet({
@@ -79,11 +81,37 @@ export default function ProductDetailSheet({
                         <p className="text-muted-foreground leading-relaxed">
                             {product.description}
                         </p>
-                        {(product.brand || product.material || product.countryOfOrigin) && (
-                            <div className="text-sm text-muted-foreground space-y-1 mt-4">
-                            {product.brand && <p><span className="font-semibold text-foreground">Brand:</span> {product.brand}</p>}
-                            {product.material && <p><span className="font-semibold text-foreground">Material:</span> {product.material}</p>}
-                            {product.countryOfOrigin && <p><span className="font-semibold text-foreground">Made in:</span> {product.countryOfOrigin}</p>}
+                        
+                        <Accordion type="single" collapsible className="w-full mt-4" defaultValue='item-1'>
+                            <AccordionItem value="item-1">
+                                <AccordionTrigger>Product Details</AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="text-sm text-muted-foreground space-y-2">
+                                        {product.brand && <p className='flex items-center gap-2'><Shirt className='w-4 h-4' /> <span className="font-semibold text-foreground">Brand:</span> {product.brand}</p>}
+                                        {product.material && <p className='flex items-center gap-2'><Scale className='w-4 h-4' /> <span className="font-semibold text-foreground">Material:</span> {product.material}</p>}
+                                        {product.countryOfOrigin && <p className='flex items-center gap-2'><Scale className='w-4 h-4' /> <span className="font-semibold text-foreground">Made in:</span> {product.countryOfOrigin}</p>}
+                                        {product.sku && <p><span className="font-semibold text-foreground">SKU:</span> {product.sku}</p>}
+                                        {product.weightGrams && <p className='flex items-center gap-2'><Weight className='w-4 h-4' /> <span className="font-semibold text-foreground">Weight:</span> {product.weightGrams}g</p>}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                             {product.careInstructions && (
+                                <AccordionItem value="item-2">
+                                    <AccordionTrigger>Care Instructions</AccordionTrigger>
+                                    <AccordionContent>
+                                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{product.careInstructions}</p>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            )}
+                        </Accordion>
+                        
+                        {product.tags && product.tags.length > 0 && (
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                {product.tags.map(tag => (
+                                    <Badge key={tag} variant="outline" className="flex items-center gap-1">
+                                       <Tag className="w-3 h-3" /> {tag}
+                                    </Badge>
+                                ))}
                             </div>
                         )}
                     </div>

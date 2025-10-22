@@ -46,6 +46,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const productFormSchema = z.object({
   id: z.string().optional(),
@@ -59,6 +60,11 @@ const productFormSchema = z.object({
   imageUrls: z.string().min(1, { message: 'At least one image URL is required.' }),
   material: z.string().min(2, { message: 'Material is required.' }),
   countryOfOrigin: z.string().min(2, { message: 'Country of origin is required.' }),
+  // Optional fields
+  tags: z.string().optional(),
+  sku: z.string().optional(),
+  weightGrams: z.coerce.number().optional(),
+  careInstructions: z.string().optional(),
 });
 
 const categoryFormSchema = z.object({
@@ -129,6 +135,9 @@ export default function DashboardPage() {
       imageUrls: '',
       material: '',
       countryOfOrigin: '',
+      tags: '',
+      sku: '',
+      careInstructions: '',
     },
   });
 
@@ -198,9 +207,12 @@ export default function DashboardPage() {
       imageUrls: values.imageUrls.split(',').map((url) => url.trim()),
       material: values.material,
       countryOfOrigin: values.countryOfOrigin,
+      ...(values.tags && { tags: values.tags.split(',').map(t => t.trim()) }),
+      ...(values.sku && { sku: values.sku }),
+      ...(values.weightGrams && { weightGrams: Number(values.weightGrams) }),
+      ...(values.careInstructions && { careInstructions: values.careInstructions }),
     };
     
-    // Only include originalPrice if it has a value
     if (values.originalPrice) {
       newProductData.originalPrice = Number(values.originalPrice);
     }
@@ -232,6 +244,7 @@ export default function DashboardPage() {
         ...product,
         sizes: product.sizes ? product.sizes.join(', ') : '',
         imageUrls: product.imageUrls ? product.imageUrls.join(', ') : '',
+        tags: product.tags ? product.tags.join(', ') : '',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -615,6 +628,74 @@ export default function DashboardPage() {
                             )}
                         />
                     </div>
+                    
+                    <Collapsible>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="link" className="p-0">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add More Details (Optional)
+                            </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                           <div className="space-y-8 pt-6">
+                                <FormField
+                                    control={productForm.control}
+                                    name="tags"
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tags</FormLabel>
+                                        <FormControl>
+                                        <Input placeholder="e.g. summer, casual, sale" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <FormField
+                                        control={productForm.control}
+                                        name="sku"
+                                        render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>SKU</FormLabel>
+                                            <FormControl>
+                                            <Input placeholder="e.g. TSHIRT-WHT-LG" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={productForm.control}
+                                        name="weightGrams"
+                                        render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Weight (grams)</FormLabel>
+                                            <FormControl>
+                                            <Input type="number" placeholder="e.g. 250" {...field} value={field.value ?? ''} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <FormField
+                                    control={productForm.control}
+                                    name="careInstructions"
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Care Instructions</FormLabel>
+                                        <FormControl>
+                                        <Textarea placeholder="e.g. Machine wash cold, tumble dry low" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                           </div>
+                        </CollapsibleContent>
+                    </Collapsible>
+
 
                     <div className="flex gap-2">
                         {editingProductId && (

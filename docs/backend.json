@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Product": {
@@ -22,10 +23,18 @@
           "type": "number",
           "description": "Price of the product."
         },
-        "imageUrl": {
-          "type": "string",
-          "description": "URL of the product image.",
-          "format": "uri"
+        "originalPrice": {
+          "type": "number",
+          "description": "The original price of the product, for showing discounts."
+        },
+        "brand": {
+            "type": "string",
+            "description": "The brand of the product."
+        },
+        "imageUrls": {
+          "type": "array",
+          "description": "URLs of the product images.",
+          "items": { "type": "string", "format": "uri" }
         },
         "availableSizes": {
           "type": "array",
@@ -37,6 +46,31 @@
         "categoryId": {
           "type": "string",
           "description": "Reference to Category. (Relationship: Category 1:N Product)"
+        },
+        "material": {
+            "type": "string",
+            "description": "The material the product is made of."
+        },
+        "countryOfOrigin": {
+            "type": "string",
+            "description": "The country where the product was manufactured."
+        },
+        "tags": {
+            "type": "array",
+            "description": "Optional tags for product filtering and searching.",
+            "items": { "type": "string" }
+        },
+        "sku": {
+            "type": "string",
+            "description": "Optional Stock Keeping Unit for inventory management."
+        },
+        "weightGrams": {
+            "type": "number",
+            "description": "Optional weight of the product in grams."
+        },
+        "careInstructions": {
+            "type": "string",
+            "description": "Optional instructions for product care."
         }
       },
       "required": [
@@ -44,9 +78,12 @@
         "name",
         "description",
         "price",
-        "imageUrl",
+        "imageUrls",
         "availableSizes",
-        "categoryId"
+        "categoryId",
+        "brand",
+        "material",
+        "countryOfOrigin"
       ]
     },
     "Category": {

@@ -1,5 +1,4 @@
 
-
 export const ORDER_STATUSES = ['Pending', 'Shipped', 'Delivered', 'Cancelled'] as const;
 export type OrderStatus = typeof ORDER_STATUSES[number];
 
@@ -11,10 +10,14 @@ export type Product = {
   price: number;
   originalPrice?: number;
   sizes: string[];
-  category: 'Clothing' | 'Shoes' | 'Accessories';
+  category: string;
   imageUrls: string[];
   material: string;
   countryOfOrigin: string;
+  tags?: string[];
+  sku?: string;
+  weightGrams?: number;
+  careInstructions?: string;
 };
 
 export type CartItem = {
