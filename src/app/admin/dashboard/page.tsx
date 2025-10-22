@@ -147,15 +147,22 @@ export default function DashboardPage() {
         return;
     }
 
-    const newProductData = {
-        ...values,
-        sizes: values.sizes.split(',').map((s) => s.trim()),
-        imageUrls: values.imageUrls.split(',').map((url) => url.trim()),
-        price: Number(values.price),
-        ...(values.originalPrice && { originalPrice: Number(values.originalPrice) }),
+    const newProductData: Partial<Product> = {
+      name: values.name,
+      description: values.description,
+      price: Number(values.price),
+      brand: values.brand,
+      category: values.category as any,
+      sizes: values.sizes.split(',').map((s) => s.trim()),
+      imageUrls: values.imageUrls.split(',').map((url) => url.trim()),
+      material: values.material,
+      countryOfOrigin: values.countryOfOrigin,
     };
     
-    delete (newProductData as any).id; // Don't save the form's 'id' field in Firestore
+    // Only include originalPrice if it has a value
+    if (values.originalPrice) {
+      newProductData.originalPrice = Number(values.originalPrice);
+    }
 
     if (editingProductId) {
         const productDocRef = doc(firestore, 'products', editingProductId);
