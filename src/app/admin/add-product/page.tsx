@@ -61,6 +61,7 @@ export default function AddProductPage() {
       imageIds: '',
       material: '',
       countryOfOrigin: '',
+      price: undefined,
       originalPrice: undefined,
     },
   });
@@ -143,7 +144,7 @@ export default function AddProductPage() {
                     <FormItem>
                         <FormLabel>Price (EGP)</FormLabel>
                         <FormControl>
-                        <Input type="number" placeholder="e.g., 299.99" {...field} />
+                        <Input type="number" placeholder="e.g., 299.99" {...field} value={field.value ?? ''} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
