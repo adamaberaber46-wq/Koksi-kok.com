@@ -31,14 +31,25 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal } from 'lucide-react';
+import { Loader2, MoreHorizontal } from 'lucide-react';
 import { updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useAdmin } from '@/hooks/use-admin';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function OrdersPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
+  const router = useRouter();
+  const { isAdmin, isAdminLoading } = useAdmin();
+
+  useEffect(() => {
+    if (!isAdminLoading && !isAdmin) {
+      router.push('/');
+    }
+  }, [isAdmin, isAdminLoading, router]);
 
   const ordersQuery = useMemoFirebase(
     () => (firestore ? query(collection(firestore, 'orders'), orderBy('createdAt', 'desc')) : null),
@@ -58,7 +69,7 @@ export default function OrdersPage() {
     updateDocumentNonBlocking(orderDocRef, { orderStatus: status });
     toast({
         title: "Order Updated",
-        description: `Order ${orderId} has been marked as ${status}.`
+        description: `Order status has been marked as ${status}.`
     });
   };
 
@@ -73,6 +84,18 @@ export default function OrdersPage() {
         default:
             return 'secondary';
     }
+  }
+
+  if (isAdminLoading) {
+    return (
+        <div className="min-h-screen flex items-center justify-center">
+            <Loader2 className="h-16 w-16 animate-spin" />
+        </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
   }
 
   return (

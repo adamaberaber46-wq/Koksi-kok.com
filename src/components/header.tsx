@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
+import { useAdmin } from '@/hooks/use-admin';
 
 const mainNav = [
   { href: '/', label: 'Home' },
@@ -31,6 +32,7 @@ export default function Header() {
   const { itemCount } = useCart();
   const pathname = usePathname();
   const { user, isUserLoading } = useUser();
+  const { isAdmin, isAdminLoading } = useAdmin();
   const auth = useAuth();
   const [scrolled, setScrolled] = useState(false);
 
@@ -104,19 +106,23 @@ export default function Header() {
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                     <DropdownMenuItem asChild>
-                      <Link href="/admin/dashboard">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                     <DropdownMenuItem asChild>
-                      <Link href="/admin/orders">
-                        <Package className="mr-2 h-4 w-4" />
-                        <span>Orders</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                     {isAdmin && (
+                        <>
+                            <DropdownMenuItem asChild>
+                            <Link href="/admin/dashboard">
+                                <LayoutDashboard className="mr-2 h-4 w-4" />
+                                <span>Dashboard</span>
+                            </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                            <Link href="/admin/orders">
+                                <Package className="mr-2 h-4 w-4" />
+                                <span>Orders</span>
+                            </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                        </>
+                     )}
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Logout</span>

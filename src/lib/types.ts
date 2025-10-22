@@ -63,3 +63,6 @@ export type Order = {
     orderStatus: OrderStatus;
 };
     
+export type UserRole = {
+    roles: ('admin' | 'customer')[];
+}

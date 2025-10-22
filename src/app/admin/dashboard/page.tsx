@@ -45,7 +45,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { useAdmin } from '@/hooks/use-admin';
 
 const productFormSchema = z.object({
   id: z.string().optional(),
@@ -81,6 +82,13 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const router = useRouter();
+  const { isAdmin, isAdminLoading } = useAdmin();
+
+  useEffect(() => {
+    if (!isAdminLoading && !isAdmin) {
+      router.push('/');
+    }
+  }, [isAdmin, isAdminLoading, router]);
 
   const categoriesQuery = useMemoFirebase(
     () => (firestore ? collection(firestore, 'categories') : null),
@@ -250,6 +258,18 @@ export default function DashboardPage() {
     });
     
     setIsHeroSubmitting(false);
+  }
+
+  if (isAdminLoading) {
+    return (
+        <div className="min-h-screen flex items-center justify-center">
+            <Loader2 className="h-16 w-16 animate-spin" />
+        </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null; // or a custom "access denied" component
   }
 
   return (
@@ -614,6 +634,4 @@ export default function DashboardPage() {
         </div>
     </div>
   );
-
-    
-
+}
