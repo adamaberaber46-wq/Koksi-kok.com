@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogIn, Menu, ShoppingCart, User, UserPlus, Shirt, LogOut } from 'lucide-react';
+import { LogIn, Menu, ShoppingCart, User, UserPlus, Shirt, LogOut, PlusCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -63,17 +63,17 @@ export default function Header() {
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
-              <Button key={item.href} asChild variant="link" className={cn('text-current/80 hover:text-current')}>
+              <Button key={item.href} asChild variant="link" className={cn('text-sm font-semibold', isHomePage && !scrolled ? 'text-primary-foreground/80 hover:text-primary-foreground' : 'text-foreground/80 hover:text-foreground' )}>
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
           </nav>
         </div>
 
-        <div className={cn("flex items-center gap-4")}>
+        <div className={cn("flex items-center gap-1")}>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn("relative hover:bg-current/10")}>
+              <Button variant="ghost" size="icon" className={cn("relative", isHomePage && !scrolled ? 'hover:bg-white/10' : 'hover:bg-accent' )}>
                 <ShoppingCart />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -89,7 +89,7 @@ export default function Header() {
           {!isUserLoading && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn("hover:bg-current/10")}>
+                <Button variant="ghost" size="icon" className={cn(isHomePage && !scrolled ? 'hover:bg-white/10' : 'hover:bg-accent' )}>
                   <User />
                   <span className="sr-only">User menu</span>
                 </Button>
@@ -101,6 +101,13 @@ export default function Header() {
                       <div className="flex flex-col">
                         <span className='font-medium'>{user.email}</span>
                       </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                     <DropdownMenuItem asChild>
+                      <Link href="/admin/add-product">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        <span>Add Product</span>
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
@@ -131,7 +138,7 @@ export default function Header() {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn("hover:bg-current/10")}>
+                <Button variant="ghost" size="icon" className={cn(isHomePage && !scrolled ? 'hover:bg-white/10' : 'hover:bg-accent' )}>
                   <Menu />
                   <span className="sr-only">Open menu</span>
                 </Button>
