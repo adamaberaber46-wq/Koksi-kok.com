@@ -27,8 +27,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useFirestore } from '@/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Product name must be at least 2 characters.' }),
@@ -65,36 +66,47 @@ export default function AddProductPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    try {
-      if (!firestore) throw new Error('Firestore is not available');
 
-      const productsCollection = collection(firestore, 'products');
-      const newProductData = {
+    if (!firestore) {
+        toast({
+            title: 'Error',
+            description: 'Firestore is not available. Please try again later.',
+            variant: 'destructive',
+        });
+        setIsSubmitting(false);
+        return;
+    }
+
+    const productsCollection = collection(firestore, 'products');
+    const newProductData = {
         ...values,
         sizes: values.sizes.split(',').map((s) => s.trim()),
         imageIds: values.imageIds.split(',').map((id) => id.trim()),
         price: Number(values.price),
         ...(values.originalPrice && { originalPrice: Number(values.originalPrice) }),
-      };
+    };
 
-      const docRef = await addDoc(productsCollection, newProductData);
-      
-      toast({
-        title: 'Product Added!',
-        description: `${values.name} has been successfully added to the store.`,
-      });
+    try {
+        const docRef = await addDocumentNonBlocking(productsCollection, newProductData);
 
-      router.push(`/products/${docRef.id}`);
+        toast({
+            title: 'Product Added!',
+            description: `${values.name} has been successfully added to the store.`,
+        });
+
+        router.push(`/products/${docRef.id}`);
 
     } catch (error: any) {
-      console.error('Error adding product:', error);
-      toast({
-        title: 'Error adding product',
-        description: error.message || 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
+        // This catch block will now likely only catch client-side errors,
+        // as permission errors are handled by the non-blocking function's catch internally.
+        // We still keep it to handle unexpected issues.
+        toast({
+            title: 'Error adding product',
+            description: error.message || 'An unexpected client-side error occurred.',
+            variant: 'destructive',
+        });
     } finally {
-      setIsSubmitting(false);
+        setIsSubmitting(false);
     }
   }
 
@@ -263,3 +275,5 @@ export default function AddProductPage() {
       </Card>
     </div>
   );
+
+    
