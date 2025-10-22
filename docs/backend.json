@@ -290,6 +290,34 @@
         "subtitle",
         "imageId"
       ]
+    },
+    "FooterSettings": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FooterSettings",
+      "type": "object",
+      "description": "Represents the content for the footer, specifically social media links.",
+      "properties": {
+        "socialLinks": {
+          "type": "array",
+          "description": "A list of social media links to display in the footer.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name of the social media platform (e.g., Facebook, Instagram, TikTok)."
+              },
+              "url": {
+                "type": "string",
+                "description": "The full URL to the social media profile.",
+                "format": "uri"
+              }
+            },
+            "required": ["name", "url"]
+          }
+        }
+      },
+      "required": ["socialLinks"]
     }
   },
   "auth": {
@@ -411,16 +439,16 @@
           "schema": {
             "$ref": "#/backend/entities/HeroSection"
           },
-          "description": "Stores global site settings. Use specific document IDs like 'hero'.",
+          "description": "Stores global site settings. Use specific document IDs like 'hero' or 'footer'.",
           "params": [
             {
               "name": "settingId",
-              "description": "The ID for the setting, e.g., 'hero'."
+              "description": "The ID for the setting, e.g., 'hero' or 'footer'."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to support the Style Store application's core features. Orders are stored in a top-level collection to allow admins to easily query and list all orders. User-specific data (shopping carts, profiles) remains nested under the user's document to enforce ownership-based security rules."
+    "reasoning": "The Firestore structure is designed to support the Style Store application's core features. Orders are stored in a top-level collection to allow admins to easily query and list all orders. User-specific data (shopping carts, profiles) remains nested under the user's document to enforce ownership-based security rules. Global site settings like hero content and footer links are stored in a dedicated `site_settings` collection for easy management from the admin dashboard."
   }
 }

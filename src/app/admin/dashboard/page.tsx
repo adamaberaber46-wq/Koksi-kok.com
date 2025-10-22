@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -24,13 +24,13 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2, PlusCircle } from 'lucide-react';
 import { useFirestore, useCollection, useDoc, useUser } from '@/firebase';
 import { collection, addDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Separator } from '@/components/ui/separator';
-import type { Category, Product, HeroSection } from '@/lib/types';
+import type { Category, Product, HeroSection, FooterSettings } from '@/lib/types';
 import { useMemoFirebase } from '@/firebase/provider';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { formatPrice } from '@/lib/utils';
@@ -73,10 +73,18 @@ const heroSectionFormSchema = z.object({
   imageUrl: z.string().url({ message: "Please enter a valid URL."}),
 });
 
+const footerFormSchema = z.object({
+  socialLinks: z.array(z.object({
+    name: z.string().min(1, "Name is required"),
+    url: z.string().url("Invalid URL"),
+  })).optional(),
+});
+
 export default function DashboardPage() {
   const [isProductSubmitting, setIsProductSubmitting] = useState(false);
   const [isCategorySubmitting, setIsCategorySubmitting] = useState(false);
   const [isHeroSubmitting, setIsHeroSubmitting] = useState(false);
+  const [isFooterSubmitting, setIsFooterSubmitting] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -106,6 +114,9 @@ export default function DashboardPage() {
 
   const heroSectionDocRef = useMemoFirebase(() => (firestore ? doc(firestore, 'site_settings', 'hero') : null), [firestore]);
   const { data: heroSectionData } = useDoc<HeroSection>(heroSectionDocRef);
+
+  const footerSettingsDocRef = useMemoFirebase(() => (firestore ? doc(firestore, 'site_settings', 'footer') : null), [firestore]);
+  const { data: footerData } = useDoc<FooterSettings>(footerSettingsDocRef);
 
   const productForm = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
@@ -139,11 +150,30 @@ export default function DashboardPage() {
     },
   });
 
+  const footerForm = useForm<z.infer<typeof footerFormSchema>>({
+    resolver: zodResolver(footerFormSchema),
+    defaultValues: {
+      socialLinks: [],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    name: "socialLinks",
+    control: footerForm.control,
+  });
+
   useEffect(() => {
     if (heroSectionData) {
       heroSectionForm.reset(heroSectionData);
     }
   }, [heroSectionData, heroSectionForm]);
+  
+  useEffect(() => {
+    if (footerData) {
+      footerForm.reset({ socialLinks: footerData.socialLinks || [] });
+    }
+  }, [footerData, footerForm]);
+
 
   async function onProductSubmit(values: z.infer<typeof productFormSchema>) {
     setIsProductSubmitting(true);
@@ -262,6 +292,24 @@ export default function DashboardPage() {
     setIsHeroSubmitting(false);
   }
 
+  async function onFooterSubmit(values: z.infer<typeof footerFormSchema>) {
+    setIsFooterSubmitting(true);
+    if (!footerSettingsDocRef) {
+        toast({ title: 'Error', description: 'Firestore is not available.', variant: 'destructive' });
+        setIsFooterSubmitting(false);
+        return;
+    }
+
+    setDocumentNonBlocking(footerSettingsDocRef, values, { merge: true });
+
+    toast({
+        title: 'Footer Updated!',
+        description: 'The footer social links have been successfully updated.',
+    });
+
+    setIsFooterSubmitting(false);
+  }
+
   if (isUserLoading || !isAdmin) {
     return (
         <div className="min-h-screen flex items-center justify-center">
@@ -336,6 +384,68 @@ export default function DashboardPage() {
                                 {isHeroSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Save Hero Section
                             </Button>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl font-headline">Manage Footer</CardTitle>
+                    <CardDescription>Update the social media links in your site's footer.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...footerForm}>
+                        <form onSubmit={footerForm.handleSubmit(onFooterSubmit)} className="space-y-8">
+                            <div className="space-y-4">
+                            {fields.map((field, index) => (
+                                <div key={field.id} className="flex items-end gap-4 p-4 border rounded-md">
+                                    <FormField
+                                        control={footerForm.control}
+                                        name={`socialLinks.${index}.name`}
+                                        render={({ field }) => (
+                                            <FormItem className="flex-1">
+                                            <FormLabel>Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g., Facebook" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={footerForm.control}
+                                        name={`socialLinks.${index}.url`}
+                                        render={({ field }) => (
+                                            <FormItem className="flex-1">
+                                            <FormLabel>URL</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="https://facebook.com/..." {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                            </div>
+                            <div className='flex gap-2'>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => append({ name: '', url: '' })}
+                                >
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    Add Social Link
+                                </Button>
+                                <Button type="submit" disabled={isFooterSubmitting}>
+                                    {isFooterSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Save Footer Links
+                                </Button>
+                            </div>
                         </form>
                     </Form>
                 </CardContent>

@@ -1,30 +1,49 @@
+'use client';
 import Link from 'next/link';
-import { Shirt, Facebook, Instagram } from 'lucide-react';
+import { Shirt, Facebook, Instagram, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { useDoc, useFirestore } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/provider';
+import type { FooterSettings } from '@/lib/types';
+import { Skeleton } from './ui/skeleton';
 
 // Custom TikTok icon component
 const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M16.5 8.5a4.5 4.5 0 1 0-9 0v7a4.5 4.5 0 1 0 9 0" />
-      <path d="M12 15.5V4" />
-      <path d="M16.5 4H12" />
-    </svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M16.5 8.5a4.5 4.5 0 1 0-9 0v7a4.5 4.5 0 1 0 9 0" />
+    <path d="M12 15.5V4" />
+    <path d="M16.5 4H12" />
+  </svg>
 );
 
+const socialIcons: { [key: string]: React.ComponentType<any> } = {
+    facebook: Facebook,
+    instagram: Instagram,
+    tiktok: TikTokIcon,
+};
 
 export default function Footer() {
+  const firestore = useFirestore();
+  const footerSettingsRef = useMemoFirebase(
+    () => (firestore ? doc(firestore, 'site_settings', 'footer') : null),
+    [firestore]
+  );
+  const { data: footerData, isLoading } = useDoc<FooterSettings>(footerSettingsRef);
+
+
   return (
     <TooltipProvider>
       <footer className="border-t bg-primary text-primary-foreground">
@@ -120,42 +139,32 @@ export default function Footer() {
               &copy; {new Date().getFullYear()} Koksi Kok. All rights reserved.
             </p>
             <div className="flex items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
-                    <Link href="#" aria-label="Facebook">
-                      <Facebook className="h-5 w-5" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Follow us on Facebook</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
-                    <Link href="#" aria-label="TikTok">
-                      <TikTokIcon className="h-5 w-5" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Follow us on TikTok</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
-                    <Link href="#" aria-label="Instagram">
-                      <Instagram className="h-5 w-5" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Follow us on Instagram</p>
-                </TooltipContent>
-              </Tooltip>
+              {isLoading && (
+                  <>
+                    <Skeleton className="h-9 w-9 rounded-full" />
+                    <Skeleton className="h-9 w-9 rounded-full" />
+                    <Skeleton className="h-9 w-9 rounded-full" />
+                  </>
+              )}
+              {footerData?.socialLinks?.map((link, index) => {
+                const Icon = socialIcons[link.name.toLowerCase()];
+                return (
+                  Icon && (
+                    <Tooltip key={index}>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
+                          <Link href={link.url} aria-label={link.name} target="_blank" rel="noopener noreferrer">
+                            <Icon className="h-5 w-5" />
+                          </Link>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Follow us on {link.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )
+                );
+              })}
             </div>
           </div>
         </div>

@@ -39,6 +39,13 @@ export type HeroSection = {
   imageUrl: string;
 };
 
+export type FooterSettings = {
+    socialLinks: {
+        name: string;
+        url: string;
+    }[];
+};
+
 export type Order = {
     id: string;
     userId: string | null;
