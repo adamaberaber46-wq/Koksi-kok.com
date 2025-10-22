@@ -18,6 +18,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
+import { useEffect, useState } from 'react';
 
 const mainNav = [
   { href: '/', label: 'Home' },
@@ -31,6 +32,15 @@ export default function Header() {
   const pathname = usePathname();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -41,27 +51,27 @@ export default function Header() {
   return (
     <header className={cn(
       "sticky top-0 z-40 w-full transition-colors duration-300",
-       isHomePage ? 'bg-transparent' : 'bg-card border-b'
+       isHomePage ? (scrolled ? 'bg-card border-b shadow-sm' : 'bg-transparent') : 'bg-card border-b'
     )}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className={cn("flex items-center gap-2 text-xl font-bold font-headline", isHomePage ? 'text-primary-foreground' : 'text-foreground')}>
+          <Link href="/" className={cn("flex items-center gap-2 text-xl font-bold font-headline", isHomePage && !scrolled ? 'text-primary-foreground' : 'text-foreground')}>
             <Shirt className="h-6 w-6" />
             <span>Koksi Kok</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
-              <Button key={item.href} asChild variant="link" className={cn(isHomePage ? 'text-primary-foreground/80 hover:text-primary-foreground' : 'text-foreground/80 hover:text-foreground')}>
+              <Button key={item.href} asChild variant="link" className={cn(isHomePage && !scrolled ? 'text-primary-foreground/80 hover:text-primary-foreground' : 'text-foreground/80 hover:text-foreground')}>
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
           </nav>
         </div>
 
-        <div className={cn("flex items-center gap-4", isHomePage ? 'text-primary-foreground' : 'text-foreground')}>
+        <div className={cn("flex items-center gap-4", isHomePage && !scrolled ? 'text-primary-foreground' : 'text-foreground')}>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn("relative", isHomePage && "hover:bg-black/10")}>
+              <Button variant="ghost" size="icon" className={cn("relative", isHomePage && !scrolled && "hover:bg-black/10")}>
                 <ShoppingCart />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -77,7 +87,7 @@ export default function Header() {
           {!isUserLoading && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn(isHomePage && "hover:bg-black/10")}>
+                <Button variant="ghost" size="icon" className={cn(isHomePage && !scrolled && "hover:bg-black/10")}>
                   <User />
                   <span className="sr-only">User menu</span>
                 </Button>
@@ -119,7 +129,7 @@ export default function Header() {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn(isHomePage && "hover:bg-black/10")}>
+                <Button variant="ghost" size="icon" className={cn(isHomePage && !scrolled && "hover:bg-black/10")}>
                   <Menu />
                   <span className="sr-only">Open menu</span>
                 </Button>
