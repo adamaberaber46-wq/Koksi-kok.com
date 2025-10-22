@@ -15,7 +15,10 @@ import CartSheet from './cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 
 const mainNav = [
+  { href: '/', label: 'Home' },
   { href: '/products', label: 'Products' },
+  { href: '/offers', label: 'Offers' },
+  { href: '/about', label: 'About Us' },
 ];
 
 export default function Header() {
