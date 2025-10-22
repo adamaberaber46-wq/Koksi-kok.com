@@ -43,6 +43,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         </CardHeader>
         <CardContent className="p-4 flex-grow">
+          <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>
           <CardTitle className="text-lg font-semibold font-headline tracking-tight">
             {product.name}
           </CardTitle>

@@ -4,6 +4,7 @@ export const products: Product[] = [
   {
     id: 'classic-white-tee',
     name: 'Classic White Tee',
+    brand: 'Koksi Kok',
     description: 'A timeless wardrobe staple. Made from 100% premium cotton for a soft and comfortable fit.',
     price: 29.99,
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
@@ -14,6 +15,7 @@ export const products: Product[] = [
   {
     id: 'slim-fit-jeans',
     name: 'Slim Fit Jeans',
+    brand: 'Koksi Kok',
     description: 'Modern slim fit jeans crafted from stretch-denim for all-day comfort. A versatile piece for any occasion.',
     price: 89.99,
     sizes: ['28', '30', '32', '34', '36'],
@@ -24,6 +26,7 @@ export const products: Product[] = [
   {
     id: 'leather-biker-jacket',
     name: 'Leather Biker Jacket',
+    brand: 'Koksi Kok',
     description: 'An iconic biker jacket made from genuine sheepskin leather. Features asymmetrical zip and silver-tone hardware.',
     price: 299.99,
     sizes: ['S', 'M', 'L'],
@@ -34,6 +37,7 @@ export const products: Product[] = [
   {
     id: 'cashmere-sweater',
     name: 'Cashmere Sweater',
+    brand: 'Koksi Kok',
     description: 'Experience ultimate luxury with our 100% cashmere sweater. Incredibly soft, warm, and stylish.',
     price: 149.99,
     sizes: ['S', 'M', 'L', 'XL'],
@@ -44,6 +48,7 @@ export const products: Product[] = [
   {
     id: 'suede-chelsea-boots',
     name: 'Suede Chelsea Boots',
+    brand: 'Koksi Kok',
     description: 'Elegant and versatile Chelsea boots in a rich brown suede. Perfect for smart-casual looks.',
     price: 179.99,
     sizes: ['8', '9', '10', '11', '12'],
@@ -54,6 +59,7 @@ export const products: Product[] = [
   {
     id: 'minimalist-sneakers',
     name: 'Minimalist Sneakers',
+    brand: 'Koksi Kok',
     description: 'Clean and simple white leather sneakers. The perfect go-to shoe for any casual outfit.',
     price: 119.99,
     sizes: ['7', '8', '9', '10', '11', '12'],
@@ -64,6 +70,7 @@ export const products: Product[] = [
   {
     id: 'tailored-chino-shorts',
     name: 'Tailored Chino Shorts',
+    brand: 'Koksi Kok',
     description: 'Smart and comfortable chino shorts for warmer days. Made with a hint of stretch for the perfect fit.',
     price: 59.99,
     sizes: ['30', '32', '34', '36'],
@@ -74,6 +81,7 @@ export const products: Product[] = [
   {
     id: 'linen-button-down',
     name: 'Linen Button-Down',
+    brand: 'Koksi Kok',
     description: 'Stay cool and stylish with this breathable linen shirt. A summer essential.',
     price: 79.99,
     sizes: ['S', 'M', 'L', 'XL'],
@@ -84,6 +92,7 @@ export const products: Product[] = [
   {
     id: 'wool-overcoat',
     name: 'Wool Overcoat',
+    brand: 'Koksi Kok',
     description: 'A sophisticated single-breasted overcoat made from a rich wool blend. Perfect for layering in cold weather.',
     price: 349.99,
     sizes: ['S', 'M', 'L', 'XL'],
@@ -94,6 +103,7 @@ export const products: Product[] = [
   {
     id: 'leather-loafers',
     name: 'Leather Loafers',
+    brand: 'Koksi Kok',
     description: 'Classic penny loafers crafted from full-grain leather. A timeless addition to your formal footwear collection.',
     price: 199.99,
     sizes: ['8', '9', '10', '11'],
@@ -104,6 +114,7 @@ export const products: Product[] = [
   {
     id: 'silk-blend-blouse',
     name: 'Silk-Blend Blouse',
+    brand: 'Koksi Kok',
     description: 'An effortlessly chic blouse made from a luxurious silk blend. Features a relaxed fit and concealed buttons.',
     price: 129.99,
     sizes: ['XS', 'S', 'M', 'L'],
@@ -114,6 +125,7 @@ export const products: Product[] = [
   {
     id: 'high-waisted-trousers',
     name: 'High-Waisted Trousers',
+    brand: 'Koksi Kok',
     description: 'Flattering high-waisted trousers with a wide-leg silhouette. Creates a polished and elongated look.',
     price: 99.99,
     sizes: ['XS', 'S', 'M', 'L'],
