@@ -53,11 +53,8 @@ export default function Header() {
       { href: '/offers', label: 'Offers' },
       { href: '/about', label: 'About Us' },
     ];
-    if (user) {
-      nav.push({ href: '/admin/dashboard', label: 'Dashboard' });
-    }
     return nav;
-  }, [user]);
+  }, []);
 
   return (
     <header className={headerClasses}>
