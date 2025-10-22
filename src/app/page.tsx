@@ -43,7 +43,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <section className="relative w-full h-screen flex items-center justify-center text-center text-primary-foreground">
+      <section className="relative w-full h-[600px] lg:h-screen flex items-center justify-center text-center text-primary-foreground">
         {heroLoading && <Skeleton className="absolute inset-0" />}
         {heroData && heroData.imageUrl && (
           <Image
@@ -55,7 +55,7 @@ export default function Home() {
           />
         )}
         <div className="absolute inset-0 bg-black/60" />
-        <div className="container mx-auto px-4 z-10 pt-20">
+        <div className="container mx-auto px-4 z-10">
           {heroLoading ? (
             <div className='flex flex-col items-center gap-4'>
                 <Skeleton className="h-16 w-3/4 max-w-2xl" />

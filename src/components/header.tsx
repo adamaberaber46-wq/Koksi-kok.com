@@ -39,10 +39,10 @@ export default function Header() {
   const isHomePage = pathname === '/';
 
   const headerClasses = cn(
-    'sticky top-0 w-full z-20',
+    'top-0 w-full z-20',
     isHomePage
-      ? 'bg-transparent text-white'
-      : 'bg-card border-b shadow-sm text-foreground'
+      ? 'absolute bg-transparent text-white'
+      : 'sticky bg-card border-b shadow-sm text-foreground'
   );
 
   const mainNav = useMemo(() => {
