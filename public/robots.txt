@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://koksi-kok.vercel.app/sitemap.xml
