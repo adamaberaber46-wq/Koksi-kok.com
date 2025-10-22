@@ -8,7 +8,7 @@ import AddToCartForm from '@/components/add-to-cart-form';
 import { Separator } from '@/components/ui/separator';
 import placeholderImages from '@/lib/placeholder-images.json';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { cn } from '@/lib/utils';
 
 export default function ProductDetailPage({
