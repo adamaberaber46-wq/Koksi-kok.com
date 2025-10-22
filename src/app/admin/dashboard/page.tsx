@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -158,8 +159,8 @@ export default function DashboardPage() {
     setEditingProductId(product.id);
     productForm.reset({
         ...product,
-        sizes: product.sizes.join(', '),
-        imageIds: product.imageIds.join(', '),
+        sizes: product.sizes ? product.sizes.join(', ') : '',
+        imageIds: product.imageIds ? product.imageIds.join(', ') : '',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
