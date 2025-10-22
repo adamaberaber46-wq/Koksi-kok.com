@@ -1,9 +1,12 @@
-// To run this script:
-// 1. Make sure you are logged into your application in the browser.
+// HOW TO BECOME AN ADMIN:
+// 1. Log in to your application in the browser with the account you want to make an admin.
 // 2. Open the developer console in your browser.
-// 3. Copy and paste the entire content of this file into the console and press Enter.
+//    (On most browsers, you can right-click the page, select "Inspect," and then go to the "Console" tab).
+// 3. Copy the ENTIRE content of this file below this line.
+// 4. Paste it into the console and press Enter.
 //
 // This will grant your user the 'admin' role. You only need to do this once.
+// After it succeeds, refresh the page.
 
 import { initializeFirebase } from '../firebase/index';
 import { doc, setDoc } from 'firebase/firestore';
@@ -13,12 +16,9 @@ const setAdminRole = async () => {
   const currentUser = auth.currentUser;
 
   if (!currentUser) {
-    console.error(
-      'No user is currently logged in. Please log in to the application before running this script.'
-    );
-    alert(
-      'No user is currently logged in. Please log in to the application before running this script.'
-    );
+    const message = 'No user is currently logged in. Please log in to the application before running this script.';
+    console.error(message);
+    alert(message);
     return;
   }
 
@@ -26,28 +26,24 @@ const setAdminRole = async () => {
   const userId = currentUser.uid;
 
   console.log(`Attempting to set admin role for user: ${userEmail} (UID: ${userId})`);
+  alert(`Attempting to set admin role for user: ${userEmail}`);
 
   try {
     const roleDocRef = doc(firestore, 'roles', userId);
     await setDoc(roleDocRef, { roles: ['admin', 'customer'] }, { merge: true });
-    console.log(
-      `Successfully assigned 'admin' role to ${userEmail}. You may need to refresh the page for the changes to take effect.`
-    );
-    alert(
-      `Successfully assigned 'admin' role to ${userEmail}. You may need to refresh the page for the changes to take effect.`
-    );
-  } catch (error) {
+    
+    const successMessage = `Successfully assigned 'admin' role to ${userEmail}. Please refresh the page for the changes to take effect.`;
+    console.log(successMessage);
+    alert(successMessage);
+  } catch (error: any) {
     console.error('Error setting admin role:', error);
-    alert(
-      `An error occurred while setting the admin role. Check the console for details.
-      
-Error: ${error.message}
+    
+    const errorMessage = `An error occurred while setting the admin role. This might be because the security rules haven't been deployed yet. Please wait a minute and try running the script again.
 
-This might be because the security rules haven't updated yet. Please wait a minute and try again.`
-    );
+Error: ${error.message}`;
+    
+    alert(errorMessage);
   }
 };
 
 setAdminRole();
-
-    
