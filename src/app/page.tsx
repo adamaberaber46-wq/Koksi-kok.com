@@ -4,7 +4,9 @@ import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { products } from '@/lib/products';
+import { categories } from '@/lib/categories';
 import ProductCard from '@/components/product-card';
+import CategoryCard from '@/components/category-card';
 import placeholderImages from '@/lib/placeholder-images.json';
 import {
   Carousel,
@@ -67,6 +69,35 @@ export default function Home() {
                 >
                   <div className="p-1">
                     <ProductCard product={product} />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
+        </div>
+      </section>
+
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-headline font-bold text-center mb-12">
+            Shop by Category
+          </h2>
+          <Carousel
+            opts={{
+              align: 'start',
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {categories.map((category) => (
+                <CarouselItem
+                  key={category.id}
+                  className="sm:basis-1/2 lg:basis-1/3"
+                >
+                  <div className="p-1">
+                    <CategoryCard category={category} />
                   </div>
                 </CarouselItem>
               ))}

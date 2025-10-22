@@ -16,3 +16,9 @@ export type CartItem = {
   size: string;
   imageId: string;
 };
+
+export type Category = {
+  id: string;
+  name: string;
+  imageId: string;
+};

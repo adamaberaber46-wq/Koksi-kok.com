@@ -76,5 +76,23 @@
     "description": "A pair of black high-waisted trousers",
     "imageUrl": "https://picsum.photos/seed/trousers/800/800",
     "imageHint": "black trousers"
+  },
+  {
+    "id": "category-clothing",
+    "description": "A rack of stylish clothing",
+    "imageUrl": "https://picsum.photos/seed/catclothing/800/600",
+    "imageHint": "clothing rack"
+  },
+  {
+    "id": "category-shoes",
+    "description": "A collection of different shoes",
+    "imageUrl": "https://picsum.photos/seed/catshoes/800/600",
+    "imageHint": "shoe collection"
+  },
+  {
+    "id": "category-accessories",
+    "description": "A display of fashion accessories",
+    "imageUrl": "https://picsum.photos/seed/cataccessories/800/600",
+    "imageHint": "fashion accessories"
   }
 ]

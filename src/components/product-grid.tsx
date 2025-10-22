@@ -8,8 +8,8 @@ import { cn } from '@/lib/utils';
 
 const categories = ['All', 'Clothing', 'Shoes'];
 
-export default function ProductGrid({ allProducts }: { allProducts: Product[] }) {
-  const [filter, setFilter] = useState('All');
+export default function ProductGrid({ allProducts, initialCategory = 'All' }: { allProducts: Product[], initialCategory?: string }) {
+  const [filter, setFilter] = useState(initialCategory);
 
   const filteredProducts =
     filter === 'All'
