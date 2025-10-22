@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Shirt, Facebook, Instagram } from 'lucide-react';
 import { Button } from './ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 // Custom TikTok icon component
 const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -25,82 +26,140 @@ const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function Footer() {
   return (
-    <footer className="border-t bg-primary text-primary-foreground">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
-          <div className="col-span-full lg:col-span-2 mb-8 lg:mb-0">
-            <Link href="/" className="flex items-center gap-2 text-xl font-bold font-headline mb-4">
-              <Shirt className="h-6 w-6" />
-              <span>Koksi Kok</span>
-            </Link>
-            <p className="text-primary-foreground/70 max-w-xs">
-              Your one-stop shop for the latest fashion trends.
+    <TooltipProvider>
+      <footer className="border-t bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+            <div className="col-span-full lg:col-span-2 mb-8 lg:mb-0">
+              <Link href="/" className="flex items-center gap-2 text-xl font-bold font-headline mb-4">
+                <Shirt className="h-6 w-6" />
+                <span>Koksi Kok</span>
+              </Link>
+              <p className="text-primary-foreground/70 max-w-xs">
+                Your one-stop shop for the latest fashion trends.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Shop</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/products" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                        Products
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>View all our products</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </li>
+                <li>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/offers" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                        Offers
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Check out our special deals</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">About</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/about" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                        About Us
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Learn more about Koksi Kok</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                        Privacy Policy
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Read our privacy policy</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </li>
+                <li>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                        Terms of Service
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Review our terms of service</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-primary-foreground/20 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between">
+            <p className="text-sm text-primary-foreground/70 mb-4 sm:mb-0">
+              &copy; {new Date().getFullYear()} Koksi Kok. All rights reserved.
             </p>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4">Shop</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/products" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
-                  Products
-                </Link>
-              </li>
-              <li>
-                <Link href="/offers" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
-                  Offers
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4">About</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/about" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
-                  About Us
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4">Legal</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-            </ul>
+            <div className="flex items-center gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
+                    <Link href="#" aria-label="Facebook">
+                      <Facebook className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Follow us on Facebook</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
+                    <Link href="#" aria-label="TikTok">
+                      <TikTokIcon className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Follow us on TikTok</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
+                    <Link href="#" aria-label="Instagram">
+                      <Instagram className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Follow us on Instagram</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </div>
-        <div className="border-t border-primary-foreground/20 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between">
-          <p className="text-sm text-primary-foreground/70 mb-4 sm:mb-0">
-            &copy; {new Date().getFullYear()} Koksi Kok. All rights reserved.
-          </p>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
-              <Link href="#" aria-label="Facebook">
-                <Facebook className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
-              <Link href="#" aria-label="TikTok">
-                <TikTokIcon className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" asChild className="hover:bg-primary-foreground/10">
-              <Link href="#" aria-label="Instagram">
-                <Instagram className="h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    </footer>
+      </footer>
+    </TooltipProvider>
   );
 }
