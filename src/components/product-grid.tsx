@@ -5,8 +5,9 @@ import type { Product } from '@/lib/types';
 import ProductCard from './product-card';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import { categories as allCategoriesData } from '@/lib/categories';
 
-const categories = ['All', 'Clothing', 'Shoes', 'Accessories'];
+const categories = ['All', ...allCategoriesData.map(c => c.name)];
 
 export default function ProductGrid({ allProducts, initialCategory = 'All' }: { allProducts: Product[], initialCategory?: string }) {
   const [filter, setFilter] = useState(initialCategory);

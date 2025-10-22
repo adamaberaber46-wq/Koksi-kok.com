@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Plus, Minus, Trash2, X, ShoppingCart } from 'lucide-react';
+import { Plus, Minus, Trash2, X, ShoppingCart, Loader2 } from 'lucide-react';
 import {
   SheetContent,
   SheetHeader,
@@ -18,7 +18,7 @@ import { Separator } from './ui/separator';
 import placeholderImages from '@/lib/placeholder-images.json';
 
 export default function CartSheet() {
-  const { cartItems, updateQuantity, removeItem, cartTotal, clearCart } = useCart();
+  const { cartItems, updateQuantity, removeItem, cartTotal, clearCart, isLoading } = useCart();
 
   return (
     <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
@@ -26,7 +26,11 @@ export default function CartSheet() {
         <SheetTitle>Shopping Cart</SheetTitle>
       </SheetHeader>
       <Separator />
-      {cartItems.length > 0 ? (
+      {isLoading ? (
+        <div className="flex flex-1 items-center justify-center">
+            <Loader2 className="h-16 w-16 animate-spin text-muted-foreground" />
+        </div>
+      ) : cartItems.length > 0 ? (
         <>
           <ScrollArea className="flex-1">
             <div className="flex flex-col gap-6 p-6">

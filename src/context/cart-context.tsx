@@ -3,6 +3,15 @@
 import { createContext, useState, ReactNode, useEffect } from 'react';
 import type { CartItem, Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useCollection, useFirestore, useUser } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/provider';
+import {
+  addDocumentNonBlocking,
+  deleteDocumentNonBlocking,
+  updateDocumentNonBlocking,
+  setDocumentNonBlocking,
+} from '@/firebase/non-blocking-updates';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -12,71 +21,101 @@ interface CartContextType {
   clearCart: () => void;
   cartTotal: number;
   itemCount: number;
+  isLoading: boolean;
 }
 
-export const CartContext = createContext<CartContextType | undefined>(undefined);
+export const CartContext = createContext<CartContextType | undefined>(
+  undefined
+);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
 
-  useEffect(() => {
-    const storedCart = localStorage.getItem('cart');
-    if (storedCart) {
-      setCartItems(JSON.parse(storedCart));
-    }
-  }, []);
+  const cartItemsRef = useMemoFirebase(
+    () =>
+      user && firestore
+        ? collection(firestore, 'users', user.uid, 'shopping_cart_items')
+        : null,
+    [user, firestore]
+  );
 
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+  const { data: cartItems, isLoading } = useCollection<CartItem>(cartItemsRef);
 
   const addItem = (product: Product, size: string, quantity: number) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find(
-        (item) => item.id === product.id && item.size === size
-      );
+    if (!user || !firestore) {
+      toast({
+        title: 'Please log in',
+        description: 'You need to be logged in to add items to your cart.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item.id === product.id && item.size === size
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
+    const cartDocRef = doc(
+      firestore,
+      'users',
+      user.uid,
+      'shopping_cart_items',
+      `${product.id}_${size}`
+    );
+    
+    const existingItem = cartItems?.find(item => item.id === `${product.id}_${size}`);
 
-      return [
-        ...prevItems,
-        {
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          quantity,
-          size,
-          imageId: product.imageIds[0],
-        },
-      ];
-    });
+    if (existingItem) {
+        updateDocumentNonBlocking(cartDocRef, {
+            quantity: existingItem.quantity + quantity
+        });
+    } else {
+        setDocumentNonBlocking(cartDocRef, {
+            productId: product.id,
+            name: product.name,
+            price: product.price,
+            quantity,
+            size,
+            imageId: product.imageIds[0],
+          }, { merge: true });
+    }
+
     toast({
-      title: "Added to cart",
+      title: 'Added to cart',
       description: `${quantity} x ${product.name} (${size})`,
     });
   };
 
   const updateQuantity = (itemId: string, quantity: number) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === itemId ? { ...item, quantity } : item
-      ).filter(item => item.quantity > 0)
+    if (!user || !firestore) return;
+    const cartDocRef = doc(
+      firestore,
+      'users',
+      user.uid,
+      'shopping_cart_items',
+      itemId
     );
+
+    if (quantity > 0) {
+      updateDocumentNonBlocking(cartDocRef, { quantity });
+    } else {
+      deleteDocumentNonBlocking(cartDocRef);
+    }
   };
 
   const removeItem = (itemId: string) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
-    const removedItem = cartItems.find(item => item.id === itemId);
+    if (!user || !firestore) return;
+    const cartDocRef = doc(
+      firestore,
+      'users',
+      user.uid,
+      'shopping_cart_items',
+      itemId
+    );
+    deleteDocumentNonBlocking(cartDocRef);
+    
+    const removedItem = cartItems?.find((item) => item.id === itemId);
     if (removedItem) {
       toast({
-        title: "Item removed",
+        title: 'Item removed',
         description: `${removedItem.name} has been removed from your cart.`,
         variant: 'destructive',
       });
@@ -84,15 +123,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const clearCart = () => {
-    setCartItems([]);
+    if (!user || !firestore || !cartItems) return;
+    for (const item of cartItems) {
+      const cartDocRef = doc(
+        firestore,
+        'users',
+        user.uid,
+        'shopping_cart_items',
+        item.id
+      );
+      deleteDocumentNonBlocking(cartDocRef);
+    }
   };
 
-  const cartTotal = cartItems.reduce(
+  const cartTotal = (cartItems ?? []).reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
 
-  const itemCount = cartItems.reduce(
+  const itemCount = (cartItems ?? []).reduce(
     (count, item) => count + item.quantity,
     0
   );
@@ -100,13 +149,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   return (
     <CartContext.Provider
       value={{
-        cartItems,
+        cartItems: cartItems ?? [],
         addItem,
         updateQuantity,
         removeItem,
         clearCart,
         cartTotal,
         itemCount,
+        isLoading,
       }}
     >
       {children}

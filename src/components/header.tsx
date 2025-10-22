@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogIn, Menu, ShoppingCart, User, UserPlus, Shirt } from 'lucide-react';
+import { LogIn, Menu, ShoppingCart, User, UserPlus, Shirt, LogOut } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -9,13 +9,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetTrigger } from '@/components/ui/sheet';
 import CartSheet from './cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
+import { useAuth, useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 const mainNav = [
   { href: '/', label: 'Home' },
@@ -27,12 +29,18 @@ const mainNav = [
 export default function Header() {
   const { itemCount } = useCart();
   const pathname = usePathname();
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
 
   const isHomePage = pathname === '/';
 
   return (
     <header className={cn(
-      "absolute top-0 z-40 w-full transition-colors duration-300",
+      "sticky top-0 z-40 w-full transition-colors duration-300",
        isHomePage ? 'bg-transparent' : 'bg-card border-b'
     )}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -53,7 +61,7 @@ export default function Header() {
         <div className={cn("flex items-center gap-4", isHomePage ? 'text-primary-foreground' : 'text-foreground')}>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative hover:bg-black/10">
+              <Button variant="ghost" size="icon" className={cn("relative", isHomePage && "hover:bg-black/10")}>
                 <ShoppingCart />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -66,33 +74,52 @@ export default function Header() {
             <CartSheet />
           </Sheet>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="hover:bg-black/10">
-                <User />
-                <span className="sr-only">User menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href="/login">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  <span>Login</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/signup">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  <span>Sign Up</span>
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {!isUserLoading && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className={cn(isHomePage && "hover:bg-black/10")}>
+                  <User />
+                  <span className="sr-only">User menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {user ? (
+                   <>
+                    <DropdownMenuItem disabled>
+                      <div className="flex flex-col">
+                        <span className='font-medium'>{user.email}</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Logout</span>
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/login">
+                        <LogIn className="mr-2 h-4 w-4" />
+                        <span>Login</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/signup">
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        <span>Sign Up</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hover:bg-black/10">
+                <Button variant="ghost" size="icon" className={cn(isHomePage && "hover:bg-black/10")}>
                   <Menu />
                   <span className="sr-only">Open menu</span>
                 </Button>

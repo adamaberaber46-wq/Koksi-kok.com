@@ -1,10 +1,8 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
-import { products } from '@/lib/products';
-import { categories } from '@/lib/categories';
 import ProductCard from '@/components/product-card';
 import CategoryCard from '@/components/category-card';
 import placeholderImages from '@/lib/placeholder-images.json';
@@ -15,10 +13,26 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection, limit, query } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/provider';
+import type { Category, Product } from '@/lib/types';
+import { categories } from '@/lib/categories';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
-  const featuredProducts = products.slice(0, 8);
   const heroImage = placeholderImages.find((img) => img.id === 'hero');
+  const firestore = useFirestore();
+
+  const productsQuery = useMemoFirebase(
+    () =>
+      firestore
+        ? query(collection(firestore, 'products'), limit(8))
+        : null,
+    [firestore]
+  );
+  const { data: featuredProducts, isLoading: productsLoading } =
+    useCollection<Product>(productsQuery);
 
   return (
     <div className="flex flex-col">
@@ -62,16 +76,33 @@ export default function Home() {
             className="w-full"
           >
             <CarouselContent>
-              {featuredProducts.map((product) => (
-                <CarouselItem
-                  key={product.id}
-                  className="sm:basis-1/2 lg:basis-1/4"
-                >
-                  <div className="p-1">
-                    <ProductCard product={product} />
-                  </div>
-                </CarouselItem>
-              ))}
+              {productsLoading &&
+                Array.from({ length: 4 }).map((_, i) => (
+                  <CarouselItem
+                    key={i}
+                    className="sm:basis-1/2 lg:basis-1/4"
+                  >
+                    <div className="p-1">
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="aspect-square w-full" />
+                        <Skeleton className="w-3/4 h-6" />
+                        <Skeleton className="w-1/2 h-5" />
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              {!productsLoading &&
+                featuredProducts &&
+                featuredProducts.map((product) => (
+                  <CarouselItem
+                    key={product.id}
+                    className="sm:basis-1/2 lg:basis-1/4"
+                  >
+                    <div className="p-1">
+                      <ProductCard product={product} />
+                    </div>
+                  </CarouselItem>
+                ))}
             </CarouselContent>
             <CarouselPrevious className="hidden md:flex" />
             <CarouselNext className="hidden md:flex" />
