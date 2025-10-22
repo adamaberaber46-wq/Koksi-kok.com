@@ -75,7 +75,7 @@ export default function SignupPage() {
 
       if (newUser && firestore) {
         const userDocRef = doc(firestore, 'users', newUser.uid);
-        setDocumentNonBlocking(userDocRef, {
+        await setDoc(userDocRef, {
             firstName: values.firstName,
             lastName: values.lastName,
             email: values.email,

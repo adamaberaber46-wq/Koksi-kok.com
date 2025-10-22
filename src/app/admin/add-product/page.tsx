@@ -27,8 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useFirestore } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { addDoc, collection } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
@@ -61,8 +60,6 @@ export default function AddProductPage() {
       imageIds: '',
       material: '',
       countryOfOrigin: '',
-      price: undefined,
-      originalPrice: undefined,
     },
   });
 
@@ -80,7 +77,7 @@ export default function AddProductPage() {
         ...(values.originalPrice && { originalPrice: Number(values.originalPrice) }),
       };
 
-      const docRef = await addDocumentNonBlocking(productsCollection, newProductData);
+      const docRef = await addDoc(productsCollection, newProductData);
       
       toast({
         title: 'Product Added!',
@@ -266,5 +263,3 @@ export default function AddProductPage() {
       </Card>
     </div>
   );
-
-    
