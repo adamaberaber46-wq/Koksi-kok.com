@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -27,12 +25,12 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { Loader2, Trash2 } from 'lucide-react';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useDoc } from '@/firebase';
 import { collection, addDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Separator } from '@/components/ui/separator';
-import type { Category, Product } from '@/lib/types';
+import type { Category, Product, HeroSection } from '@/lib/types';
 import { useMemoFirebase } from '@/firebase/provider';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { formatPrice } from '@/lib/utils';
@@ -68,9 +66,16 @@ const categoryFormSchema = z.object({
     imageId: z.string().min(1, { message: 'Image ID is required.' }),
 });
 
+const heroSectionFormSchema = z.object({
+  title: z.string().min(5, { message: "Title must be at least 5 characters."}),
+  subtitle: z.string().min(10, { message: "Subtitle must be at least 10 characters."}),
+  imageId: z.string().min(1, { message: "Image ID is required."}),
+});
+
 export default function DashboardPage() {
   const [isProductSubmitting, setIsProductSubmitting] = useState(false);
   const [isCategorySubmitting, setIsCategorySubmitting] = useState(false);
+  const [isHeroSubmitting, setIsHeroSubmitting] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -87,6 +92,9 @@ export default function DashboardPage() {
     [firestore]
   );
   const { data: products, isLoading: productsLoading } = useCollection<Product>(productsQuery);
+
+  const heroSectionDocRef = useMemoFirebase(() => (firestore ? doc(firestore, 'site_settings', 'hero') : null), [firestore]);
+  const { data: heroSectionData } = useDoc<HeroSection>(heroSectionDocRef);
 
   const productForm = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
@@ -110,6 +118,21 @@ export default function DashboardPage() {
       imageId: '',
     },
   });
+
+  const heroSectionForm = useForm<z.infer<typeof heroSectionFormSchema>>({
+    resolver: zodResolver(heroSectionFormSchema),
+    defaultValues: {
+      title: '',
+      subtitle: '',
+      imageId: '',
+    },
+  });
+
+  useEffect(() => {
+    if (heroSectionData) {
+      heroSectionForm.reset(heroSectionData);
+    }
+  }, [heroSectionData, heroSectionForm]);
 
   async function onProductSubmit(values: z.infer<typeof productFormSchema>) {
     setIsProductSubmitting(true);
@@ -203,14 +226,88 @@ export default function DashboardPage() {
     categoryForm.reset();
   }
 
+  async function onHeroSubmit(values: z.infer<typeof heroSectionFormSchema>) {
+    setIsHeroSubmitting(true);
+    if (!heroSectionDocRef) {
+      toast({ title: 'Error', description: 'Firestore is not available.', variant: 'destructive' });
+      setIsHeroSubmitting(false);
+      return;
+    }
+
+    setDocumentNonBlocking(heroSectionDocRef, values, { merge: true });
+
+    toast({
+      title: 'Hero Section Updated!',
+      description: 'The homepage hero section has been successfully updated.',
+    });
+    
+    setIsHeroSubmitting(false);
+  }
+
   return (
     <div className="container mx-auto px-4 py-16">
         <div className="max-w-3xl mx-auto space-y-12">
             <Card>
                 <CardHeader>
                 <CardTitle className="text-2xl font-headline">Dashboard</CardTitle>
-                <CardDescription>Manage your store's products and categories.</CardDescription>
+                <CardDescription>Manage your store's products, categories, and site settings.</CardDescription>
                 </CardHeader>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl font-headline">Manage Hero Section</CardTitle>
+                    <CardDescription>Update the main content of your homepage hero.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...heroSectionForm}>
+                        <form onSubmit={heroSectionForm.handleSubmit(onHeroSubmit)} className="space-y-8">
+                            <FormField
+                                control={heroSectionForm.control}
+                                name="title"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Title</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="e.g., Find Your Signature Style" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={heroSectionForm.control}
+                                name="subtitle"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Subtitle</FormLabel>
+                                    <FormControl>
+                                    <Textarea placeholder="e.g., Discover curated collections..." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={heroSectionForm.control}
+                                name="imageId"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Image ID</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="e.g., hero" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <Button type="submit" className="w-full md:w-auto" disabled={isHeroSubmitting}>
+                                {isHeroSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Save Hero Section
+                            </Button>
+                        </form>
+                    </Form>
+                </CardContent>
             </Card>
 
             <Card>

@@ -13,14 +13,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { useCollection, useFirestore } from '@/firebase';
-import { collection, limit, query } from 'firebase/firestore';
+import { useCollection, useFirestore, useDoc } from '@/firebase';
+import { collection, limit, query, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/provider';
-import type { Category, Product } from '@/lib/types';
+import type { Category, Product, HeroSection } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
-  const heroImage = placeholderImages.find((img) => img.id === 'hero');
   const firestore = useFirestore();
 
   const productsQuery = useMemoFirebase(
@@ -40,9 +39,15 @@ export default function Home() {
   const { data: categories, isLoading: categoriesLoading } =
     useCollection<Category>(categoriesQuery);
 
+  const heroSectionDocRef = useMemoFirebase(() => (firestore ? doc(firestore, 'site_settings', 'hero') : null), [firestore]);
+  const { data: heroData, isLoading: heroLoading } = useDoc<HeroSection>(heroSectionDocRef);
+
+  const heroImage = heroData ? placeholderImages.find((img) => img.id === heroData.imageId) : null;
+
   return (
     <div className="flex flex-col">
       <section className="relative w-full h-screen flex items-center justify-center text-center text-primary-foreground">
+        {heroLoading && <Skeleton className="absolute inset-0" />}
         {heroImage && (
           <Image
             src={heroImage.imageUrl}
@@ -55,17 +60,34 @@ export default function Home() {
         )}
         <div className="absolute inset-0 bg-black/60" />
         <div className="container mx-auto px-4 z-10">
-          <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 drop-shadow-lg">
-            Find Your Signature Style
-          </h1>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 drop-shadow-md text-primary-foreground/80">
-            Discover curated collections of the latest fashion trends.
-          </p>
-          <Button asChild size="lg" className="font-bold">
-            <Link href="/offers">
-              Shop Offers <ArrowRight className="ml-2" />
-            </Link>
-          </Button>
+          {heroLoading ? (
+            <div className='flex flex-col items-center gap-4'>
+                <Skeleton className="h-16 w-3/4 max-w-2xl" />
+                <Skeleton className="h-6 w-1/2 max-w-lg" />
+                <Skeleton className="h-12 w-48" />
+            </div>
+          ) : heroData ? (
+             <>
+                <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 drop-shadow-lg">
+                  {heroData.title}
+                </h1>
+                <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 drop-shadow-md text-primary-foreground/80">
+                  {heroData.subtitle}
+                </p>
+                <Button asChild size="lg" className="font-bold">
+                  <Link href="/offers">
+                    Shop Offers <ArrowRight className="ml-2" />
+                  </Link>
+                </Button>
+             </>
+          ) : (
+            <div className='text-center'>
+              <h2 className='text-2xl font-bold'>Hero section not configured.</h2>
+              <p className='text-primary-foreground/80'>Please set the title, subtitle, and image ID in the admin dashboard.</p>
+            </div>
+          )
+          
+          }
         </div>
       </section>
 
@@ -154,3 +176,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

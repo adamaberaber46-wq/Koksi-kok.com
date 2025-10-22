@@ -27,3 +27,11 @@ export type Category = {
   name: string;
   imageId: string;
 };
+
+export type HeroSection = {
+  title: string;
+  subtitle: string;
+  imageId: string;
+};
+
+    

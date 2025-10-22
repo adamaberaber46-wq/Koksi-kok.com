@@ -265,6 +265,31 @@
         "productIds",
         "dateCreated"
       ]
+    },
+    "HeroSection": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "HeroSection",
+      "type": "object",
+      "description": "Represents the content for the homepage hero section.",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The main headline for the hero section."
+        },
+        "subtitle": {
+          "type": "string",
+          "description": "The sub-headline or description for the hero section."
+        },
+        "imageId": {
+          "type": "string",
+          "description": "The ID of the background image from placeholder-images.json."
+        }
+      },
+      "required": [
+        "title",
+        "subtitle",
+        "imageId"
+      ]
     }
   },
   "auth": {
@@ -406,8 +431,25 @@
             }
           ]
         }
+      },
+      {
+        "path": "site_settings/{settingId}",
+        "definition": {
+          "entityName": "HeroSection",
+          "schema": {
+            "$ref": "#/backend/entities/HeroSection"
+          },
+          "description": "Stores global site settings. Use specific document IDs like 'hero'.",
+          "params": [
+            {
+              "name": "settingId",
+              "description": "The ID for the setting, e.g., 'hero'."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to support the Style Store application's core features, including product catalog, shopping cart, user profiles, and AI outfit suggestions. It prioritizes authorization independence by using path-based ownership for user-specific data and denormalization where appropriate. The structure also supports secure listing and data integrity.\n\n*   **Categories and Products:** Categories are stored in a top-level `categories` collection. Products are also stored in a top-level `products` collection. This facilitates easy listing and filtering of categories and products.\n*   **User Profiles:** User profiles are stored in a `users` collection, with each document ID being the user's UID from Firebase Authentication. This path-based ownership ensures that only the authenticated user can access their profile data.\n*   **Shopping Carts:** Each user has their own shopping cart, which is stored as a subcollection under their user document (`/users/{userId}/shopping_cart_items/{cartItemId}`). This enforces ownership and prevents unauthorized access.\n*   **Orders:** Orders are stored in a subcollection under the user's document (`/users/{userId}/orders/{orderId}`). Similar to shopping carts, this ensures that only the user can access their order history.\n*   **AI Outfit Suggestions:** AI outfit suggestions are stored in a subcollection under the user's document (`/users/{userId}/ai_outfit_suggestions/{suggestionId}`). This allows users to manage their outfit suggestions and keeps the data private.\n\n**Authorization Independence:**\n\n*   User-specific data (shopping carts, orders, AI outfit suggestions) is stored under the `/users/{userId}` path. This allows security rules to directly check the `request.auth.uid` against the `userId` path parameter, without needing to read parent documents.\n\n**QAPs (Rules are not Filters):**\n\n*   The structural segregation of data based on ownership (e.g., `/users/{userId}/shopping_cart_items`) ensures that listing operations are secure and efficient. Rules can simply check if the requesting user ID matches the `userId` path parameter."
+    "reasoning": "The Firestore structure is designed to support the Style Store application's core features, including product catalog, shopping cart, user profiles, and AI outfit suggestions. It prioritizes authorization independence by using path-based ownership for user-specific data and denormalization where appropriate. The structure also supports secure listing and data integrity.\n\n*   **Categories and Products:** Categories are stored in a top-level `categories` collection. Products are also stored in a top-level `products` collection. This facilitates easy listing and filtering of categories and products.\n*   **User Profiles:** User profiles are stored in a `users` collection, with each document ID being the user's UID from Firebase Authentication. This path-based ownership ensures that only the authenticated user can access their profile data.\n*   **Shopping Carts:** Each user has their own shopping cart, which is stored as a subcollection under their user document (`/users/{userId}/shopping_cart_items/{cartItemId}`). This enforces ownership and prevents unauthorized access.\n*   **Orders:** Orders are stored in a subcollection under the user's document (`/users/{userId}/orders/{orderId}`). Similar to shopping carts, this ensures that only the user can access their order history.\n*   **AI Outfit Suggestions:** AI outfit suggestions are stored in a subcollection under the user's document (`/users/{userId}/ai_outfit_suggestions/{suggestionId}`). This allows users to manage their outfit suggestions and keeps the data private.\n*   **Site Settings:** A top-level `site_settings` collection holds global configuration documents. For example, the document with ID `hero` stores the content for the homepage hero section, making it easily editable by an admin.\n\n**Authorization Independence:**\n\n*   User-specific data (shopping carts, orders, AI outfit suggestions) is stored under the `/users/{userId}` path. This allows security rules to directly check the `request.auth.uid` against the `userId` path parameter, without needing to read parent documents.\n\n**QAPs (Rules are not Filters):**\n\n*   The structural segregation of data based on ownership (e.g., `/users/{userId}/shopping_cart_items`) ensures that listing operations are secure and efficient. Rules can simply check if the requesting user ID matches the `userId` path parameter."
   }
 }
+    
