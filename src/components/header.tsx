@@ -18,7 +18,6 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import { useEffect, useState } from 'react';
 import { useAdmin } from '@/hooks/use-admin';
 
 const mainNav = [
@@ -34,45 +33,14 @@ export default function Header() {
   const { user, isUserLoading } = useUser();
   const { isAdmin, isAdminLoading } = useAdmin();
   const auth = useAuth();
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-
-  const handleLogout = async () => {
-    if (auth) {
-      await signOut(auth);
-    }
-  };
-
+  
   const isHomePage = pathname === '/';
 
-  useEffect(() => {
-    if (!isHomePage) {
-      setIsHeaderVisible(true);
-      return;
-    }
-
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsHeaderVisible(true);
-      } else {
-        setIsHeaderVisible(false);
-      }
-    };
-    
-    // Set initial state based on scroll position
-    handleScroll();
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHomePage]);
-  
   const headerClasses = cn(
-    'w-full z-20 fixed top-0 left-0 transition-all duration-300',
+    'w-full z-20',
     isHomePage
-      ? {
-          'bg-transparent text-white': !isHeaderVisible,
-          'bg-card border-b shadow-sm text-foreground': isHeaderVisible,
-        }
-      : 'bg-card border-b shadow-sm text-foreground'
+      ? 'absolute top-0 left-0 bg-transparent text-white'
+      : 'relative bg-card border-b shadow-sm text-foreground'
   );
 
   return (
@@ -86,8 +54,8 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
               <Button key={item.href} asChild variant="link" className={cn(
-                'hover:text-current text-foreground/80 hover:text-foreground',
-                isHomePage && !isHeaderVisible && 'text-white/80 hover:text-white'
+                'text-current/80 hover:text-current',
+                 !isHomePage && 'text-foreground/80 hover:text-foreground'
               )}>
                 <Link href={item.href}>{item.label}</Link>
               </Button>
@@ -98,7 +66,7 @@ export default function Header() {
         <div className="flex items-center gap-1">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className={cn('relative', isHomePage && !isHeaderVisible ? 'text-white hover:bg-white/10' : 'text-foreground hover:bg-accent')}>
+              <Button variant="ghost" size="icon" className={cn('relative hover:bg-current/10', !isHomePage && 'text-foreground hover:bg-accent' )}>
                 <ShoppingCart />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -114,7 +82,7 @@ export default function Header() {
           {!isUserLoading && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn( isHomePage && !isHeaderVisible ? 'text-white hover:bg-white/10' : 'text-foreground hover:bg-accent')}>
+                <Button variant="ghost" size="icon" className={cn('hover:bg-current/10', !isHomePage && 'text-foreground hover:bg-accent' )}>
                   <User />
                   <span className="sr-only">User menu</span>
                 </Button>
@@ -128,7 +96,7 @@ export default function Header() {
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                     {!isAdminLoading && isAdmin && (
+                     {isAdmin && (
                         <>
                             <DropdownMenuItem asChild>
                             <Link href="/admin/dashboard">
@@ -145,7 +113,7 @@ export default function Header() {
                             <DropdownMenuSeparator />
                         </>
                      )}
-                    <DropdownMenuItem onClick={handleLogout}>
+                    <DropdownMenuItem onClick={() => signOut(auth)}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Logout</span>
                     </DropdownMenuItem>
@@ -173,7 +141,7 @@ export default function Header() {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn(isHomePage && !isHeaderVisible ? 'text-white hover:bg-white/10' : 'text-foreground hover:bg-accent')}>
+                <Button variant="ghost" size="icon" className={cn('hover:bg-current/10', !isHomePage && 'text-foreground hover:bg-accent' )}>
                   <Menu />
                   <span className="sr-only">Open menu</span>
                 </Button>
