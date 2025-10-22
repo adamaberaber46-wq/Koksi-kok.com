@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogIn, Menu, ShoppingCart, User, UserPlus, Shirt, LogOut, LayoutDashboard, Package } from 'lucide-react';
+import { LogIn, Menu, ShoppingCart, User, UserPlus, Shirt, LogOut, LayoutDashboard, Package, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -43,6 +43,8 @@ export default function Header() {
       : 'relative bg-card border-b shadow-sm text-foreground'
   );
 
+  const isLoading = isUserLoading || isAdminLoading;
+
   return (
     <header className={headerClasses}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -79,7 +81,11 @@ export default function Header() {
             <CartSheet />
           </Sheet>
 
-          {(!isUserLoading && !isAdminLoading) && (
+          {isLoading ? (
+             <div className="h-10 w-10 flex items-center justify-center">
+                 <Loader2 className="h-5 w-5 animate-spin" />
+             </div>
+          ): (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn('hover:bg-current/10', !isHomePage && 'text-foreground hover:bg-accent' )}>
