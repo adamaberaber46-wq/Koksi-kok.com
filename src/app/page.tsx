@@ -40,8 +40,8 @@ export default function Home() {
             Discover curated collections of the latest fashion trends.
           </p>
           <Button asChild size="lg" className="font-bold">
-            <Link href="/products">
-              Shop Now <ArrowRight className="ml-2" />
+            <Link href="/offers">
+              Shop Offers <ArrowRight className="ml-2" />
             </Link>
           </Button>
         </div>
