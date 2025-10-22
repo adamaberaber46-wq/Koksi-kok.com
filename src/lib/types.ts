@@ -6,9 +6,11 @@ export type Product = {
   price: number;
   originalPrice?: number;
   sizes: string[];
-  category: 'Clothing' | 'Shoes';
+  category: 'Clothing' | 'Shoes' | 'Accessories';
   imageId: string;
   hoverImageId: string;
+  material: string;
+  countryOfOrigin: string;
 };
 
 export type CartItem = {

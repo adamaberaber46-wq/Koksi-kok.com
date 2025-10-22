@@ -44,7 +44,7 @@ export default function ProductDetailPage({
         </div>
         <div className="flex flex-col gap-4">
           <Badge variant="secondary" className="w-fit">{product.category}</Badge>
-          <h1 className="text-2xl md:text-3xl font-bold font-headline">
+          <h1 className="text-2xl font-bold font-headline">
             {product.name}
           </h1>
           <p className="text-2xl font-semibold">{formatPrice(product.price)}</p>
@@ -52,6 +52,11 @@ export default function ProductDetailPage({
           <p className="text-muted-foreground leading-relaxed">
             {product.description}
           </p>
+          <div className="text-sm text-muted-foreground space-y-1">
+            <p><span className="font-semibold text-foreground">Brand:</span> {product.brand}</p>
+            <p><span className="font-semibold text-foreground">Material:</span> {product.material}</p>
+            <p><span className="font-semibold text-foreground">Made in:</span> {product.countryOfOrigin}</p>
+          </div>
           <Separator />
           <AddToCartForm product={product} />
         </div>

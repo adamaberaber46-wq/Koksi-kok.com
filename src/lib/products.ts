@@ -11,6 +11,8 @@ export const products: Product[] = [
     category: 'Clothing',
     imageId: 'classic-white-tee',
     hoverImageId: 'classic-white-tee-hover',
+    material: '100% Cotton',
+    countryOfOrigin: 'Egypt',
   },
   {
     id: 'slim-fit-jeans',
@@ -23,6 +25,8 @@ export const products: Product[] = [
     category: 'Clothing',
     imageId: 'slim-fit-jeans',
     hoverImageId: 'slim-fit-jeans-hover',
+    material: 'Stretch Denim',
+    countryOfOrigin: 'Turkey',
   },
   {
     id: 'leather-biker-jacket',
@@ -34,6 +38,8 @@ export const products: Product[] = [
     category: 'Clothing',
     imageId: 'leather-biker-jacket',
     hoverImageId: 'leather-biker-jacket-hover',
+    material: 'Genuine Leather',
+    countryOfOrigin: 'Turkey',
   },
   {
     id: 'cashmere-sweater',
@@ -46,6 +52,8 @@ export const products: Product[] = [
     category: 'Clothing',
     imageId: 'cashmere-sweater',
     hoverImageId: 'cashmere-sweater-hover',
+    material: '100% Cashmere',
+    countryOfOrigin: 'China',
   },
   {
     id: 'suede-chelsea-boots',
@@ -57,6 +65,8 @@ export const products: Product[] = [
     category: 'Shoes',
     imageId: 'suede-chelsea-boots',
     hoverImageId: 'suede-chelsea-boots-hover',
+    material: 'Suede',
+    countryOfOrigin: 'Portugal',
   },
   {
     id: 'minimalist-sneakers',
@@ -69,6 +79,8 @@ export const products: Product[] = [
     category: 'Shoes',
     imageId: 'minimalist-sneakers',
     hoverImageId: 'minimalist-sneakers-hover',
+    material: 'Leather',
+    countryOfOrigin: 'Vietnam',
   },
   {
     id: 'tailored-chino-shorts',
@@ -80,6 +92,8 @@ export const products: Product[] = [
     category: 'Clothing',
     imageId: 'tailored-chino-shorts',
     hoverImageId: 'tailored-chino-shorts-hover',
+    material: 'Cotton Blend',
+    countryOfOrigin: 'Egypt',
   },
   {
     id: 'linen-button-down',
@@ -91,6 +105,8 @@ export const products: Product[] = [
     category: 'Clothing',
     imageId: 'linen-button-down',
     hoverImageId: 'linen-button-down-hover',
+    material: '100% Linen',
+    countryOfOrigin: 'Egypt',
   },
   {
     id: 'wool-overcoat',
@@ -102,6 +118,8 @@ export const products: Product[] = [
     category: 'Clothing',
     imageId: 'wool-overcoat',
     hoverImageId: 'wool-overcoat-hover',
+    material: 'Wool Blend',
+    countryOfOrigin: 'Turkey',
   },
   {
     id: 'leather-loafers',
@@ -113,6 +131,8 @@ export const products: Product[] = [
     category: 'Shoes',
     imageId: 'leather-loafers',
     hoverImageId: 'leather-loafers-hover',
+    material: 'Full-Grain Leather',
+    countryOfOrigin: 'Portugal',
   },
   {
     id: 'silk-blend-blouse',
@@ -124,6 +144,8 @@ export const products: Product[] = [
     category: 'Clothing',
     imageId: 'silk-blend-blouse',
     hoverImageId: 'silk-blend-blouse-hover',
+    material: 'Silk Blend',
+    countryOfOrigin: 'China',
   },
   {
     id: 'high-waisted-trousers',
@@ -135,5 +157,7 @@ export const products: Product[] = [
     category: 'Clothing',
     imageId: 'high-waisted-trousers',
     hoverImageId: 'high-waisted-trousers-hover',
+    material: 'Polyester Blend',
+    countryOfOrigin: 'Vietnam',
   },
 ];
