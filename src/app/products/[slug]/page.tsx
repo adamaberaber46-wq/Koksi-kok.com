@@ -20,7 +20,7 @@ export default function ProductDetailPage({
 }: {
   params: { slug: string };
 }) {
-  const { slug } = params;
+  const { slug } = use(params);
   const firestore = useFirestore();
 
   const productRef = useMemoFirebase(
@@ -66,7 +66,7 @@ export default function ProductDetailPage({
     : [];
 
   const selectedImage = productImages.length > 0 
-    ? placeholderImages.find(img => img.id === (selectedImageId || product.imageIds[0]))
+    ? placeholderImages.find(img => img.id === (selectedImageId || (product.imageIds && product.imageIds[0])))
     : null;
 
   return (
