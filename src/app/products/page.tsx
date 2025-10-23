@@ -30,13 +30,9 @@ export default function ProductsPage({
         <h1 className="text-4xl font-headline font-bold mb-8 text-center">
           All Products
         </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="flex flex-wrap justify-center gap-8">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="flex flex-col gap-2">
-              <Skeleton className="aspect-square w-full" />
-              <Skeleton className="w-3/4 h-6" />
-              <Skeleton className="w-1/2 h-5" />
-            </div>
+            <Skeleton key={i} className="h-[450px] w-[300px]" />
           ))}
         </div>
       </div>

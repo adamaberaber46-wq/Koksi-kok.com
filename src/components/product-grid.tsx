@@ -46,7 +46,7 @@ export default function ProductGrid({ allProducts, initialCategory = 'All' }: { 
         ))}
       </div>
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="flex flex-wrap justify-center gap-8">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
