@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useDoc, useFirestore } from '@/firebase';
@@ -18,7 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Tag, Weight, Shirt, Scale, Loader2 } from 'lucide-react';
+import { Tag, Weight, Shirt, Scale, Loader2, Share2 } from 'lucide-react';
 import AddToCartForm from '@/components/add-to-cart-form';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -37,6 +36,7 @@ export default function ProductDetailPage() {
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(undefined);
   const [activeImage, setActiveImage] = useState<string | undefined>(undefined);
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
 
   useEffect(() => {
     if (product && product.variants && product.variants.length > 0) {
@@ -53,6 +53,30 @@ export default function ProductDetailPage() {
         setActiveImage(selectedVariant.imageUrl);
     }
   }, [selectedVariant]);
+  
+  const handleShare = async () => {
+    if (!product) return;
+
+    const shareUrl = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: `Check out this product: ${product.name}`,
+          url: shareUrl,
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        setIsLinkCopied(true);
+        setTimeout(() => setIsLinkCopied(false), 2000); // Hide message after 2 seconds
+      });
+    }
+  };
+
 
   if (isLoading || !productId) {
     return <ProductPageSkeleton />;
@@ -143,14 +167,25 @@ export default function ProductDetailPage() {
         {/* Product Details */}
         <div className="flex flex-col gap-4">
           <div className="flex-grow">
-            {product.category && (
-              <Link href={`/products?category=${product.category}`} className="w-fit">
-                <Badge variant="secondary">{product.category}</Badge>
-              </Link>
+            <div className="flex justify-between items-start">
+                <div>
+                    {product.category && (
+                    <Link href={`/products?category=${product.category}`} className="w-fit">
+                        <Badge variant="secondary">{product.category}</Badge>
+                    </Link>
+                    )}
+                    <h1 className="text-3xl lg:text-4xl font-bold font-headline mt-2">
+                    {product.name}
+                    </h1>
+                </div>
+                <Button variant="ghost" size="icon" onClick={handleShare}>
+                    <Share2 className="h-5 w-5" />
+                    <span className="sr-only">Share</span>
+                </Button>
+            </div>
+             {isLinkCopied && (
+              <div className="text-sm text-green-600 mt-2">Link Copied!</div>
             )}
-            <h1 className="text-3xl lg:text-4xl font-bold font-headline mt-2">
-              {product.name}
-            </h1>
             <p className="text-3xl font-semibold mt-4 text-destructive">{formatPrice(priceToShow)}</p>
             <Separator className="my-6" />
             <p className="text-muted-foreground leading-relaxed">
