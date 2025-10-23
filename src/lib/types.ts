@@ -1,4 +1,5 @@
 
+
 export const ORDER_STATUSES = ['Pending', 'Shipped', 'Delivered', 'Cancelled'] as const;
 export type OrderStatus = typeof ORDER_STATUSES[number];
 
@@ -57,6 +58,10 @@ export type FooterSettings = {
         url: string;
     }[];
 };
+
+export type SiteSettings = {
+    faviconUrl?: string;
+}
 
 export type Order = {
     id: string;

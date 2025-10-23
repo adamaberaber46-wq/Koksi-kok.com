@@ -33,7 +33,7 @@ import { collection, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Separator } from '@/components/ui/separator';
-import type { Category, Product, HeroSection, FooterSettings, ProductVariant } from '@/lib/types';
+import type { Category, Product, HeroSection, FooterSettings, SiteSettings, ProductVariant } from '@/lib/types';
 import { useMemoFirebase } from '@/firebase/provider';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { formatPrice } from '@/lib/utils';
@@ -98,11 +98,16 @@ const footerFormSchema = z.object({
   })).optional(),
 });
 
+const siteSettingsFormSchema = z.object({
+    faviconUrl: z.string().url({ message: "Please enter a valid URL for the favicon."}).optional().or(z.literal('')),
+});
+
 export default function DashboardPage() {
   const [isProductSubmitting, setIsProductSubmitting] = useState(false);
   const [isCategorySubmitting, setIsCategorySubmitting] = useState(false);
   const [isHeroSubmitting, setIsHeroSubmitting] = useState(false);
   const [isFooterSubmitting, setIsFooterSubmitting] = useState(false);
+  const [isSiteSettingsSubmitting, setIsSiteSettingsSubmitting] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -135,6 +140,9 @@ export default function DashboardPage() {
 
   const footerSettingsDocRef = useMemoFirebase(() => (firestore ? doc(firestore, 'site_settings', 'footer') : null), [firestore]);
   const { data: footerData } = useDoc<FooterSettings>(footerSettingsDocRef);
+  
+  const siteSettingsDocRef = useMemoFirebase(() => (firestore ? doc(firestore, 'site_settings', 'general') : null), [firestore]);
+  const { data: siteSettingsData } = useDoc<SiteSettings>(siteSettingsDocRef);
 
   const productForm = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
@@ -192,6 +200,13 @@ export default function DashboardPage() {
     control: footerForm.control,
   });
 
+  const siteSettingsForm = useForm<z.infer<typeof siteSettingsFormSchema>>({
+    resolver: zodResolver(siteSettingsFormSchema),
+    defaultValues: {
+        faviconUrl: '',
+    }
+  });
+
   useEffect(() => {
     if (heroSectionData) {
       heroSectionForm.reset(heroSectionData);
@@ -203,6 +218,12 @@ export default function DashboardPage() {
       footerForm.reset({ socialLinks: footerData.socialLinks || [] });
     }
   }, [footerData, footerForm]);
+
+  useEffect(() => {
+    if (siteSettingsData) {
+        siteSettingsForm.reset(siteSettingsData);
+    }
+  }, [siteSettingsData, siteSettingsForm]);
 
 
   async function onProductSubmit(values: z.infer<typeof productFormSchema>) {
@@ -402,6 +423,24 @@ export default function DashboardPage() {
 
     setIsFooterSubmitting(false);
   }
+  
+  async function onSiteSettingsSubmit(values: z.infer<typeof siteSettingsFormSchema>) {
+    setIsSiteSettingsSubmitting(true);
+    if (!siteSettingsDocRef) {
+        toast({ title: 'Error', description: 'Firestore is not available.', variant: 'destructive' });
+        setIsSiteSettingsSubmitting(false);
+        return;
+    }
+
+    setDocumentNonBlocking(siteSettingsDocRef, values, { merge: true });
+
+    toast({
+        title: 'Site Settings Updated!',
+        description: 'Your general site settings have been saved.',
+    });
+    
+    setIsSiteSettingsSubmitting(false);
+  }
 
   if (isUserLoading || !isAdmin) {
     return (
@@ -423,6 +462,37 @@ export default function DashboardPage() {
                     <Button asChild>
                         <Link href="/admin/orders">View Orders</Link>
                     </Button>
+                </CardContent>
+            </Card>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl font-headline">General Site Settings</CardTitle>
+                    <CardDescription>Manage global settings for your site like the favicon.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...siteSettingsForm}>
+                        <form onSubmit={siteSettingsForm.handleSubmit(onSiteSettingsSubmit)} className="space-y-8">
+                            <FormField
+                                control={siteSettingsForm.control}
+                                name="faviconUrl"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Favicon URL</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="https://example.com/favicon.png" {...field} />
+                                    </FormControl>
+                                    <FormDescription>The icon that appears in the browser tab. Use a square .png or .ico file.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <Button type="submit" className="w-full md:w-auto" disabled={isSiteSettingsSubmitting}>
+                                {isSiteSettingsSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Save Site Settings
+                            </Button>
+                        </form>
+                    </Form>
                 </CardContent>
             </Card>
 

@@ -1,0 +1,532 @@
+
+{
+  "entities": {
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a product in the store's catalog.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the product."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the product."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the product."
+        },
+        "price": {
+          "type": "number",
+          "description": "Base price of the product. Variant prices can override this."
+        },
+        "originalPrice": {
+          "type": "number",
+          "description": "The original price of the product, for showing discounts."
+        },
+        "brand": {
+            "type": "string",
+            "description": "The brand of the product."
+        },
+        "imageUrls": {
+          "type": "array",
+          "description": "General URLs of the product images, not specific to variants.",
+          "items": { "type": "string", "format": "uri" }
+        },
+        "availableSizes": {
+          "type": "array",
+          "description": "Available sizes for the product.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "variants": {
+          "type": "array",
+          "description": "Color/price/image specific variants of the product.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "color": {
+                "type": "string",
+                "description": "The color of the variant."
+              },
+              "imageUrls": {
+                "type": "array",
+                "description": "The specific image URLs for this variant.",
+                "items": { "type": "string", "format": "uri" }
+              },
+              "price": {
+                "type": "number",
+                "description": "The price for this specific variant."
+              }
+            },
+            "required": ["color", "imageUrls", "price"]
+          }
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to Category. (Relationship: Category 1:N Product)"
+        },
+        "material": {
+            "type": "string",
+            "description": "The material the product is made of."
+        },
+        "countryOfOrigin": {
+            "type": "string",
+            "description": "The country where the product was manufactured."
+        },
+        "isFeatured": {
+            "type": "boolean",
+            "description": "If true, the product will be featured on the homepage."
+        },
+        "tags": {
+            "type": "array",
+            "description": "Optional tags for product filtering and searching.",
+            "items": { "type": "string" }
+        },
+        "sku": {
+            "type": "string",
+            "description": "Optional Stock Keeping Unit for inventory management."
+        },
+        "weightGrams": {
+            "type": "number",
+            "description": "Optional weight of the product in grams."
+        },
+        "careInstructions": {
+            "type": "string",
+            "description": "Optional instructions for product care."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "price",
+        "imageUrls",
+        "availableSizes",
+        "variants",
+        "categoryId",
+        "brand",
+        "material",
+        "countryOfOrigin"
+      ]
+    },
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Represents a category of products.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the category."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the category."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the category."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description"
+      ]
+    },
+    "ShoppingCartItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ShoppingCartItem",
+      "type": "object",
+      "description": "Represents an item in the shopping cart.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the shopping cart item."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N ShoppingCartItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to Product. (Relationship: Product 1:N ShoppingCartItem)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of the product in the cart."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "productId",
+        "quantity"
+      ]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user profile.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        },
+        "shippingAddress": {
+          "type": "string",
+          "description": "Shipping address of the user."
+        },
+        "billingAddress": {
+          "type": "string",
+          "description": "Billing address of the user."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName"
+      ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents a customer order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the order."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Order)"
+        },
+        "orderDate": {
+          "type": "string",
+          "description": "Date when the order was placed.",
+          "format": "date-time"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Total amount of the order."
+        },
+        "shippingAddress": {
+          "type": "string",
+          "description": "Shipping address for the order."
+        },
+        "billingAddress": {
+          "type": "string",
+          "description": "Billing address for the order."
+        },
+        "orderItemIds": {
+          "type": "array",
+          "description": "References to OrderItems. (Relationship: Order 1:N OrderItem)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "orderDate",
+        "totalAmount",
+        "shippingAddress",
+        "billingAddress",
+        "orderItemIds"
+      ]
+    },
+    "OrderItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "OrderItem",
+      "type": "object",
+      "description": "Represents an item within an order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the order item."
+        },
+        "orderId": {
+          "type": "string",
+          "description": "Reference to Order. (Relationship: Order 1:N OrderItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to Product. (Relationship: Product 1:N OrderItem)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of the product in the order item."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the product in the order item."
+        }
+      },
+      "required": [
+        "id",
+        "orderId",
+        "productId",
+        "quantity",
+        "price"
+      ]
+    },
+    "AiOutfitSuggestion": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AiOutfitSuggestion",
+      "type": "object",
+      "description": "Represents an AI generated outfit suggestion.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AI outfit suggestion."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N AiOutfitSuggestion)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the outfit suggestion."
+        },
+        "productIds": {
+          "type": "array",
+          "description": "References to Products. (Relationship: AiOutfitSuggestion 1:N Product)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dateCreated": {
+          "type": "string",
+          "description": "Date the AI outfit suggestion was generated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "description",
+        "productIds",
+        "dateCreated"
+      ]
+    },
+    "HeroSection": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "HeroSection",
+      "type": "object",
+      "description": "Represents the content for the homepage hero section.",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The main headline for the hero section."
+        },
+        "subtitle": {
+          "type": "string",
+          "description": "The sub-headline or description for the hero section."
+        },
+        "imageId": {
+          "type": "string",
+          "description": "The ID of the background image from placeholder-images.json."
+        }
+      },
+      "required": [
+        "title",
+        "subtitle",
+        "imageId"
+      ]
+    },
+    "SiteSettings": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "SiteSettings",
+        "type": "object",
+        "description": "Represents global site settings like branding and metadata.",
+        "properties": {
+            "faviconUrl": {
+                "type": "string",
+                "format": "uri",
+                "description": "The URL for the website's favicon."
+            }
+        }
+    },
+    "FooterSettings": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FooterSettings",
+      "type": "object",
+      "description": "Represents the content for the footer, specifically social media links.",
+      "properties": {
+        "socialLinks": {
+          "type": "array",
+          "description": "A list of social media links to display in the footer.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name of the social media platform (e.g., Facebook, Instagram, TikTok)."
+              },
+              "url": {
+                "type": "string",
+                "description": "The full URL to the social media profile.",
+                "format": "uri"
+              }
+            },
+            "required": ["name", "url"]
+          }
+        }
+      },
+      "required": ["socialLinks"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "categories/{categoryId}",
+        "definition": {
+          "entityName": "Category",
+          "schema": {
+            "$ref": "#/backend/entities/Category"
+          },
+          "description": "Stores product categories.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "Unique identifier for the category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Stores product information.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "Unique identifier for the product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile data. Document ID is the Firebase Auth UID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Auth UID of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/shopping_cart_items/{cartItemId}",
+        "definition": {
+          "entityName": "ShoppingCartItem",
+          "schema": {
+            "$ref": "#/backend/entities/ShoppingCartItem"
+          },
+          "description": "Stores shopping cart items for a user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Auth UID of the user."
+            },
+            {
+              "name": "cartItemId",
+              "description": "Unique identifier for the shopping cart item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Stores all orders placed in the store.",
+          "params": [
+            {
+              "name": "orderId",
+              "description": "Unique identifier for the order."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/ai_outfit_suggestions/{suggestionId}",
+        "definition": {
+          "entityName": "AiOutfitSuggestion",
+          "schema": {
+            "$ref": "#/backend/entities/AiOutfitSuggestion"
+          },
+          "description": "Stores AI outfit suggestions for a user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Auth UID of the user."
+            },
+            {
+              "name": "suggestionId",
+              "description": "Unique identifier for the AI outfit suggestion."
+            }
+          ]
+        }
+      },
+      {
+        "path": "site_settings/{settingId}",
+        "definition": {
+          "entityName": "HeroSection",
+          "schema": {
+            "$ref": "#/backend/entities/HeroSection"
+          },
+          "description": "Stores global site settings. Use specific document IDs like 'hero', 'footer', or 'general'. The schema will vary based on the settingId.",
+          "params": [
+            {
+              "name": "settingId",
+              "description": "The ID for the setting, e.g., 'hero', 'footer', or 'general'."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the Style Store application's core features. Orders are stored in a top-level collection to allow admins to easily query and list all orders. User-specific data (shopping carts, profiles) remains nested under the user's document to enforce ownership-based security rules. Global site settings like hero content, footer links, and branding are stored in a dedicated `site_settings` collection for easy management from the admin dashboard, using specific document IDs to differentiate between settings types."
+  }
+}
