@@ -32,7 +32,7 @@ export default function ProductCard({ product }: { product: Product }) {
     : 0;
 
   return (
-    <Card className="flex flex-col overflow-hidden group h-[450px] w-[300px] shadow-md transition-shadow hover:shadow-lg">
+    <Card className="flex flex-col overflow-hidden group h-[600px] w-[200px] shadow-md transition-shadow hover:shadow-lg">
         <CardHeader className="p-0">
           <Link href={`/products/${product.id}`} className="block relative">
             {isDiscounted && (
