@@ -60,7 +60,7 @@ const productFormSchema = z.object({
   name: z.string().min(2, { message: 'Product name must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   price: z.coerce.number().positive({ message: 'Base price must be a positive number.' }),
-  originalPrice: z.coerce.number().optional(),
+  originalPrice: z.coerce.number().optional().nullable(),
   brand: z.string().min(2, { message: 'Brand is required.' }),
   category: z.string().min(1, { message: 'Category is required.' }),
   sizes: z.string().min(1, { message: 'At least one size is required.' }),
@@ -137,6 +137,8 @@ export default function DashboardPage() {
     defaultValues: {
       name: '',
       description: '',
+      price: 0,
+      originalPrice: null,
       brand: '',
       category: '',
       sizes: '',
@@ -234,6 +236,8 @@ export default function DashboardPage() {
     
     if (values.originalPrice) {
       newProductData.originalPrice = Number(values.originalPrice);
+    } else {
+      newProductData.originalPrice = undefined;
     }
 
     if (editingProductId) {
@@ -256,6 +260,8 @@ export default function DashboardPage() {
     productForm.reset({
       name: '',
       description: '',
+      price: 0,
+      originalPrice: null,
       brand: '',
       category: '',
       sizes: '',
@@ -274,6 +280,8 @@ export default function DashboardPage() {
     setEditingProductId(product.id);
     productForm.reset({
         ...product,
+        price: product.price || 0,
+        originalPrice: product.originalPrice || null,
         sizes: product.sizes ? product.sizes.join(', ') : '',
         imageUrls: product.imageUrls ? product.imageUrls.join(', ') : '',
         tags: product.tags ? product.tags.join(', ') : '',
@@ -290,6 +298,8 @@ export default function DashboardPage() {
     productForm.reset({
       name: '',
       description: '',
+      price: 0,
+      originalPrice: null,
       brand: '',
       category: '',
       sizes: '',
@@ -985,5 +995,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    

@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['Helvetica', 'sans-serif'],
-        headline: ['Arial', 'sans-serif'],
+        body: ['var(--font-tajawal)', 'sans-serif'],
+        headline: ['var(--font-tajawal)', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

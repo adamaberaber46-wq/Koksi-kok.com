@@ -32,7 +32,7 @@ export default function ProductCard({ product }: { product: Product }) {
     : 0;
 
   return (
-    <Card className="flex flex-col overflow-hidden rounded-none group h-full border-none shadow-none">
+    <Card className="flex flex-col overflow-hidden group h-full border-none shadow-none rounded-none">
         <CardHeader className="p-0">
           <Link href={`/products/${product.id}`} className="block relative">
             {isDiscounted && (
@@ -48,14 +48,14 @@ export default function ProductCard({ product }: { product: Product }) {
                     alt={product.name}
                     fill
                     className="object-cover transition-opacity duration-300 opacity-100 group-hover:opacity-0"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
                   <Image
                       src={hoverImageUrl}
                       alt={`${product.name} (hover)`}
                       fill
                       className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     />
                 </>
               ) : (
@@ -84,15 +84,18 @@ export default function ProductCard({ product }: { product: Product }) {
           
           {product.variants && product.variants.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
-                {product.variants.slice(0, 5).map((variant) => (
-                    <div
-                        key={variant.color}
-                        className="h-5 w-5 rounded-full border overflow-hidden"
-                        title={variant.color}
-                    >
-                       <Image src={variant.imageUrls[0]} alt={variant.color} width={20} height={20} className="object-cover" />
-                    </div>
-                ))}
+                {product.variants.slice(0, 5).map((variant) => {
+                    const variantImage = variant.imageUrls?.[0];
+                    return (
+                        <div
+                            key={variant.color}
+                            className="h-5 w-5 rounded-full border overflow-hidden"
+                            title={variant.color}
+                        >
+                        {variantImage && <Image src={variantImage} alt={variant.color} width={20} height={20} className="object-cover" />}
+                        </div>
+                    )
+                })}
                 {product.variants.length > 5 && (
                   <div className="h-5 w-5 rounded-full border bg-muted flex items-center justify-center text-xs">
                       + {product.variants.length - 5}

@@ -1,10 +1,17 @@
 import type { Metadata } from 'next';
+import { Tajawal } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/providers';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
+
+const tajawal = Tajawal({
+  subsets: ['arabic', 'latin'],
+  weight: ['400', '500', '700', '800'],
+  variable: '--font-tajawal',
+});
 
 export const metadata: Metadata = {
   title: 'Koksi Kok',
@@ -74,7 +81,8 @@ export default function RootLayout({
       </head>
       <body
         className={cn(
-          'min-h-screen bg-background font-body antialiased'
+          'min-h-screen bg-background font-body antialiased',
+          tajawal.variable
         )}
       >
         <Providers>
