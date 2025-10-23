@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -278,7 +279,7 @@ export default function DashboardPage() {
         tags: product.tags ? product.tags.join(', ') : '',
         variants: product.variants.map(v => ({
             ...v,
-            imageUrls: v.imageUrls.join(', '),
+            imageUrls: Array.isArray(v.imageUrls) ? v.imageUrls.join(', ') : '',
         })) || [{ color: '', imageUrls: '', price: product.price }]
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -984,3 +985,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
