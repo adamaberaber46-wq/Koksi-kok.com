@@ -18,7 +18,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Tag, Weight, Shirt, Scale } from 'lucide-react';
+import { Tag, Weight, Shirt, Scale, Loader2 } from 'lucide-react';
 import AddToCartForm from '@/components/add-to-cart-form';
 import Link from 'next/link';
 
@@ -27,10 +27,11 @@ export default function ProductDetailPage({
 }: {
   params: { productId: string };
 }) {
+  const { productId } = params;
   const firestore = useFirestore();
   const productRef = useMemoFirebase(
-    () => (firestore ? doc(firestore, 'products', params.productId) : null),
-    [firestore, params.productId]
+    () => (firestore ? doc(firestore, 'products', productId) : null),
+    [firestore, productId]
   );
   const { data: product, isLoading } = useDoc<Product>(productRef);
 
@@ -41,7 +42,7 @@ export default function ProductDetailPage({
     if (product && product.variants && product.variants.length > 0) {
         const initialVariant = product.variants[0];
         setSelectedVariant(initialVariant);
-        setActiveImage(initialVariant.imageUrl || product.imageUrls[0]);
+        setActiveImage(initialVariant.imageUrl || (product.imageUrls && product.imageUrls[0]));
     } else if (product && product.imageUrls && product.imageUrls.length > 0) {
         setActiveImage(product.imageUrls[0]);
     }
