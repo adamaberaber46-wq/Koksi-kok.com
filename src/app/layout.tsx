@@ -7,7 +7,7 @@ import Header from '@/components/header';
 import Footer from '@/components/footer';
 
 export const metadata: Metadata = {
-  title: 'Koksi Kok | شركة بيع ملابس وأحذية وإكسسوارات أصلية',
+  title: 'Koksi Kok',
   description: 'تسوق الآن من شركة Koksi Kok أفضل الملابس، الأحذية، والإكسسوارات الأصلية بأسعار مميزة وجودة مضمونة. تسوق أونلاين بسهولة مع شحن سريع لجميع المحافظات.',
   keywords: "Koksi Kok, شركة ملابس وأحذية وإكسسوارات, متجر إلكتروني, تسوق أونلاين, كوتشي أديداس, أحذية نايك, ملابس رجالي ونسائي, ترنجات أصلية, ساعات وإكسسوارات, موضة عصرية, منتجات أصلية, خصومات, عروض, ملابس كاجوال, أحذية سبورت, شنط, تسوق الآن, جودة عالية",
   authors: [{ name: 'Koksi Kok Company' }],
