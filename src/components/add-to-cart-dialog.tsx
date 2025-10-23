@@ -83,7 +83,7 @@ export function AddToCartDialog({ product, children }: { product: Product, child
         <div className="space-y-4">
             <div className="relative aspect-square w-full overflow-hidden rounded-md">
                 <Image
-                    src={selectedVariant?.imageUrl || product.imageUrls[0] || '/placeholder.svg'}
+                    src={selectedVariant?.imageUrls[0] || product.imageUrls[0] || '/placeholder.svg'}
                     alt={product.name}
                     fill
                     className="object-cover"
@@ -123,7 +123,7 @@ export function AddToCartDialog({ product, children }: { product: Product, child
                         aria-label={`Select color ${variant.color}`}
                         title={variant.color}
                       >
-                         <Image src={variant.imageUrl} alt={variant.color} width={40} height={40} className="object-cover" />
+                         <Image src={variant.imageUrls[0]} alt={variant.color} width={40} height={40} className="object-cover" />
                       </button>
                   ))}
                 </div>

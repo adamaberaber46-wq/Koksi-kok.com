@@ -61,7 +61,7 @@ export default function AddToCartForm({ product, selectedVariant, onVariantChang
                         aria-label={`Select color ${variant.color}`}
                         title={variant.color}
                       >
-                         <Image src={variant.imageUrl} alt={variant.color} width={40} height={40} className="object-cover" />
+                         <Image src={variant.imageUrls[0]} alt={variant.color} width={40} height={40} className="object-cover" />
                       </button>
                     ))}
                 </div>

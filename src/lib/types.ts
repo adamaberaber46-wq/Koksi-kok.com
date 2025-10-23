@@ -4,7 +4,7 @@ export type OrderStatus = typeof ORDER_STATUSES[number];
 
 export type ProductVariant = {
   color: string;
-  imageUrl: string;
+  imageUrls: string[]; // Changed from imageUrl: string
   price: number;
 };
 

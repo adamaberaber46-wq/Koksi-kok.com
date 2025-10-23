@@ -50,7 +50,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 
 const productVariantSchema = z.object({
     color: z.string().min(1, 'Color name is required'),
-    imageUrl: z.string().url('Must be a valid URL'),
+    imageUrls: z.string().min(1, 'At least one image URL is required.'),
     price: z.coerce.number().positive('Price must be a positive number'),
 });
 
@@ -142,7 +142,7 @@ export default function DashboardPage() {
       imageUrls: '',
       material: '',
       countryOfOrigin: '',
-      variants: [{ color: '', imageUrl: '', price: 0 }],
+      variants: [{ color: '', imageUrls: '', price: 0 }],
       tags: '',
       sku: '',
       careInstructions: '',
@@ -220,7 +220,11 @@ export default function DashboardPage() {
       imageUrls: values.imageUrls.split(',').map((url) => url.trim()),
       material: values.material,
       countryOfOrigin: values.countryOfOrigin,
-      variants: values.variants.map(v => ({...v, price: Number(v.price)})),
+      variants: values.variants.map(v => ({
+        ...v,
+        price: Number(v.price),
+        imageUrls: v.imageUrls.split(',').map(url => url.trim()),
+      })),
       ...(values.tags && { tags: values.tags.split(',').map(t => t.trim()) }),
       ...(values.sku && { sku: values.sku }),
       ...(values.weightGrams && { weightGrams: Number(values.weightGrams) }),
@@ -257,7 +261,7 @@ export default function DashboardPage() {
       imageUrls: '',
       material: '',
       countryOfOrigin: '',
-      variants: [{ color: '', imageUrl: '', price: 0 }],
+      variants: [{ color: '', imageUrls: '', price: 0 }],
       tags: '',
       sku: '',
       careInstructions: '',
@@ -272,7 +276,10 @@ export default function DashboardPage() {
         sizes: product.sizes ? product.sizes.join(', ') : '',
         imageUrls: product.imageUrls ? product.imageUrls.join(', ') : '',
         tags: product.tags ? product.tags.join(', ') : '',
-        variants: product.variants || [{ color: '', imageUrl: '', price: product.price }]
+        variants: product.variants.map(v => ({
+            ...v,
+            imageUrls: v.imageUrls.join(', '),
+        })) || [{ color: '', imageUrls: '', price: product.price }]
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -288,7 +295,7 @@ export default function DashboardPage() {
       imageUrls: '',
       material: '',
       countryOfOrigin: '',
-      variants: [{ color: '', imageUrl: '', price: 0 }],
+      variants: [{ color: '', imageUrls: '', price: 0 }],
       tags: '',
       sku: '',
       careInstructions: '',
@@ -634,9 +641,9 @@ export default function DashboardPage() {
                         name="imageUrls"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>General Image URLs</FormLabel>
+                            <FormLabel>General Image URLs (comma-separated)</FormLabel>
                             <FormControl>
-                            <Input placeholder="https://.../img1.jpg, https://.../img2.jpg" {...field} />
+                            <Textarea placeholder="https://.../img1.jpg, https://.../img2.jpg" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -708,12 +715,12 @@ export default function DashboardPage() {
                                 </div>
                                 <FormField
                                     control={productForm.control}
-                                    name={`variants.${index}.imageUrl`}
+                                    name={`variants.${index}.imageUrls`}
                                     render={({ field }) => (
                                         <FormItem>
-                                        <FormLabel>Variant Image URL</FormLabel>
+                                        <FormLabel>Variant Image URLs (comma-separated)</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="https://.../red-variant.jpg" {...field} />
+                                            <Textarea placeholder="https://.../red-1.jpg, https://.../red-2.jpg" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                         </FormItem>
@@ -738,7 +745,7 @@ export default function DashboardPage() {
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => appendVariant({ color: '', imageUrl: '', price: 0 })}
+                            onClick={() => appendVariant({ color: '', imageUrls: '', price: 0 })}
                         >
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Add Another Variant

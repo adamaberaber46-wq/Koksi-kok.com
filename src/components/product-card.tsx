@@ -17,9 +17,15 @@ import { AddToCartDialog } from './add-to-cart-dialog';
 
 export default function ProductCard({ product }: { product: Product }) {
   const hasImages = product.imageUrls && product.imageUrls.length > 0;
-  const imageUrl = product.variants?.[0]?.imageUrl || (hasImages ? product.imageUrls[0] : '/placeholder.svg');
-  const hoverImageUrl = hasImages && product.imageUrls.length > 1 ? product.imageUrls[1] : imageUrl;
+  const hasVariantImages = product.variants?.[0]?.imageUrls && product.variants[0].imageUrls.length > 0;
   
+  const imageUrl = hasVariantImages ? product.variants[0].imageUrls[0] : (hasImages ? product.imageUrls[0] : '/placeholder.svg');
+  
+  const hoverImageUrl = 
+    (product.variants?.[0]?.imageUrls?.length > 1 ? product.variants[0].imageUrls[1] : null) ||
+    (product.imageUrls?.length > 1 ? product.imageUrls[1] : null) ||
+    imageUrl;
+
   const isDiscounted = product.originalPrice && product.originalPrice > product.price;
   const discountPercentage = isDiscounted
     ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
@@ -35,7 +41,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 </Badge>
             )}
             <div className="relative aspect-square w-full">
-              {hasImages || product.variants?.[0]?.imageUrl ? (
+              {hasImages || hasVariantImages ? (
                 <>
                   <Image
                     src={imageUrl}
@@ -84,7 +90,7 @@ export default function ProductCard({ product }: { product: Product }) {
                         className="h-5 w-5 rounded-full border overflow-hidden"
                         title={variant.color}
                     >
-                       <Image src={variant.imageUrl} alt={variant.color} width={20} height={20} className="object-cover" />
+                       <Image src={variant.imageUrls[0]} alt={variant.color} width={20} height={20} className="object-cover" />
                     </div>
                 ))}
                 {product.variants.length > 5 && (

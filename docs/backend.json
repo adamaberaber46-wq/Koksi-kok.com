@@ -53,17 +53,17 @@
                 "type": "string",
                 "description": "The color of the variant."
               },
-              "imageUrl": {
-                "type": "string",
-                "description": "The specific image URL for this variant.",
-                "format": "uri"
+              "imageUrls": {
+                "type": "array",
+                "description": "The specific image URLs for this variant.",
+                "items": { "type": "string", "format": "uri" }
               },
               "price": {
                 "type": "number",
                 "description": "The price for this specific variant."
               }
             },
-            "required": ["color", "imageUrl", "price"]
+            "required": ["color", "imageUrls", "price"]
           }
         },
         "categoryId": {

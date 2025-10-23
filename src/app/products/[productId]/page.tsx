@@ -36,23 +36,30 @@ export default function ProductDetailPage() {
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(undefined);
   const [activeImage, setActiveImage] = useState<string | undefined>(undefined);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
 
   useEffect(() => {
-    if (product && product.variants && product.variants.length > 0) {
-        const initialVariant = product.variants[0];
-        setSelectedVariant(initialVariant);
-        setActiveImage(initialVariant.imageUrl || (product.imageUrls && product.imageUrls[0]));
-    } else if (product && product.imageUrls && product.imageUrls.length > 0) {
-        setActiveImage(product.imageUrls[0]);
+    if (product) {
+      const initialVariant = product.variants?.[0];
+      setSelectedVariant(initialVariant);
     }
   }, [product]);
 
   useEffect(() => {
     if (selectedVariant) {
-        setActiveImage(selectedVariant.imageUrl);
+      const newGalleryImages = selectedVariant.imageUrls;
+      setGalleryImages(newGalleryImages);
+      setActiveImage(newGalleryImages[0]);
+    } else if (product) {
+      setGalleryImages(product.imageUrls);
+      setActiveImage(product.imageUrls[0]);
     }
-  }, [selectedVariant]);
+  }, [selectedVariant, product]);
+
+  const handleVariantChange = (variant: ProductVariant) => {
+    setSelectedVariant(variant);
+  };
   
   const handleShare = async () => {
     if (!product) return;
@@ -96,25 +103,6 @@ export default function ProductDetailPage() {
     );
   }
 
-  const allImages = [
-    ...(product.variants?.map((v) => v.imageUrl) || []),
-    ...product.imageUrls,
-  ];
-  const uniqueImages = [...new Set(allImages)];
-
-  const handleVariantChange = (variant: ProductVariant) => {
-    setSelectedVariant(variant);
-    setActiveImage(variant.imageUrl);
-  };
-
-  const handleThumbnailClick = (imageUrl: string) => {
-    setActiveImage(imageUrl);
-    const variantForImage = product.variants?.find((v) => v.imageUrl === imageUrl);
-    if (variantForImage) {
-      setSelectedVariant(variantForImage);
-    }
-  };
-
   const priceToShow = selectedVariant ? selectedVariant.price : product.price;
 
   return (
@@ -138,12 +126,12 @@ export default function ProductDetailPage() {
               </div>
             )}
           </div>
-          {uniqueImages.length > 1 && (
+          {galleryImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
-              {uniqueImages.map((imageUrl) => (
+              {galleryImages.map((imageUrl) => (
                 <button
                   key={imageUrl}
-                  onClick={() => handleThumbnailClick(imageUrl)}
+                  onClick={() => setActiveImage(imageUrl)}
                   className={cn(
                     'relative aspect-square w-full overflow-hidden rounded-md border-2 transition-all',
                     {
