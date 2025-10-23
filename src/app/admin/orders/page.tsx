@@ -1,6 +1,8 @@
 'use client';
 
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { useFirestore } from '@/firebase';
+import { useUser } from '@/firebase/provider';
 import { collection, orderBy, query, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/provider';
 import type { Order, OrderStatus } from '@/lib/types';

@@ -3,7 +3,9 @@
 import { createContext, useState, ReactNode, useEffect } from 'react';
 import type { CartItem, Product, ProductVariant } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { useFirestore } from '@/firebase';
+import { useUser } from '@/firebase/provider';
 import { collection, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/provider';
 import {

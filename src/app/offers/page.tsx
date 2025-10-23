@@ -1,7 +1,8 @@
 
 'use client';
 import ProductCard from "@/components/product-card";
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { useFirestore } from '@/firebase';
 import { collection, where, query } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/provider';
 import type { Product } from '@/lib/types';
@@ -45,7 +46,7 @@ export default function OffersPage() {
             )}
 
             {!isLoading && trulyDiscounted && trulyDiscounted.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div className="flex flex-wrap justify-center gap-8">
                     {trulyDiscounted.map((product) => (
                         <ProductCard key={product.id} product={product} />
                     ))}

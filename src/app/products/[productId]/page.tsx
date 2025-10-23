@@ -1,6 +1,7 @@
 'use client';
 
-import { useDoc, useFirestore } from '@/firebase';
+import { useDoc } from '@/firebase/firestore/use-doc';
+import { useFirestore } from '@/firebase';
 import { useMemoFirebase } from '@/firebase/provider';
 import { doc } from 'firebase/firestore';
 import type { Product, ProductVariant } from '@/lib/types';
@@ -47,14 +48,17 @@ export default function ProductDetailPage() {
   }, [product]);
 
   useEffect(() => {
-    if (selectedVariant) {
-      const newGalleryImages = selectedVariant.imageUrls || [];
+    if (selectedVariant && selectedVariant.imageUrls && selectedVariant.imageUrls.length > 0) {
+      const newGalleryImages = selectedVariant.imageUrls;
       setGalleryImages(newGalleryImages);
-      setActiveImage(newGalleryImages.length > 0 ? newGalleryImages[0] : undefined);
-    } else if (product) {
-      const newGalleryImages = product.imageUrls || [];
+      setActiveImage(newGalleryImages[0]);
+    } else if (product && product.imageUrls && product.imageUrls.length > 0) {
+      const newGalleryImages = product.imageUrls;
       setGalleryImages(newGalleryImages);
-      setActiveImage(newGalleryImages.length > 0 ? newGalleryImages[0] : undefined);
+      setActiveImage(newGalleryImages[0]);
+    } else {
+        setGalleryImages([]);
+        setActiveImage(undefined);
     }
   }, [selectedVariant, product]);
 

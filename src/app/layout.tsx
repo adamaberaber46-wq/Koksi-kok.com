@@ -5,7 +5,7 @@ import { Providers } from '@/components/providers';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import { Tajawal } from 'next/font/google';
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import type { SiteSettings } from '@/lib/types';
 import type { Metadata } from 'next';
@@ -19,7 +19,7 @@ const tajawal = Tajawal({
 // Helper function to fetch site settings
 async function getSiteSettings() {
   try {
-    const { firestore } = initializeFirebase();
+    const { firestore } = initializeFirebase(); // This will now work on the server
     const settingsDocRef = doc(firestore, 'site_settings', 'general');
     const docSnap = await getDoc(settingsDocRef);
 

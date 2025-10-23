@@ -12,11 +12,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { useCollection, useFirestore, useDoc } from '@/firebase';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { useFirestore } from '@/firebase';
 import { collection, limit, query, where, doc } from 'firebase/firestore';
-import { useMemoFirebase } from '@/firebase/provider';
+import { useMemoFirebase, useUser } from '@/firebase/provider';
 import type { Category, Product, HeroSection } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDoc } from '@/firebase/firestore/use-doc';
 
 export default function Home() {
   const firestore = useFirestore();

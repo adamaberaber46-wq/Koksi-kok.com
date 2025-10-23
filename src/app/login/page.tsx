@@ -21,7 +21,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useAuth, useUser } from '@/firebase';
+import { useAuth, useUser } from '@/firebase/provider';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -56,6 +56,11 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
+    if (!auth) {
+        toast({ title: "Error", description: "Auth service not available.", variant: "destructive"});
+        setIsSubmitting(false);
+        return;
+    }
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({

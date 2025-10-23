@@ -1,6 +1,7 @@
 'use client';
 
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { useFirestore } from '@/firebase';
 import ProductGrid from '@/components/product-grid';
 import { collection } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/provider';
@@ -32,7 +33,7 @@ export default function ProductsPage({
         </h1>
         <div className="flex flex-wrap justify-center gap-8">
           {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-[450px] w-[300px]" />
+            <Skeleton key={i} className="h-[500px] w-[250px]" />
           ))}
         </div>
       </div>

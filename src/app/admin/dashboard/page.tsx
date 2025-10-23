@@ -28,14 +28,14 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { Loader2, Trash2, PlusCircle } from 'lucide-react';
-import { useFirestore, useCollection, useDoc, useUser } from '@/firebase';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { useFirestore } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Separator } from '@/components/ui/separator';
 import type { Category, Product, HeroSection, FooterSettings, SiteSettings, ProductVariant } from '@/lib/types';
-import { useMemoFirebase } from '@/firebase/provider';
-import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useMemoFirebase, useUser } from '@/firebase/provider';
 import { formatPrice } from '@/lib/utils';
 import Link from 'next/link';
 import {
@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Switch } from '@/components/ui/switch';
+import { useDoc } from '@/firebase/firestore/use-doc';
 
 const productVariantSchema = z.object({
     color: z.string().min(1, 'Color name is required'),
@@ -328,7 +329,7 @@ export default function DashboardPage() {
       name: '',
       description: '',
       price: 0,
-      originalPrice: undefined,
+      originalPrice: 0,
       brand: '',
       category: '',
       sizes: '',
@@ -1094,3 +1095,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

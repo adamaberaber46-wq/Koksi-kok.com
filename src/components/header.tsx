@@ -26,7 +26,7 @@ import CartSheet from './cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useAuth, useUser } from '@/firebase';
+import { useAuth, useUser } from '@/firebase/provider';
 import { signOut } from 'firebase/auth';
 import { useMemo } from 'react';
 
@@ -144,7 +144,7 @@ export default function Header() {
                         </Link>
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem onClick={() => signOut(auth)}>
+                    <DropdownMenuItem onClick={() => auth && signOut(auth)}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Logout</span>
                     </DropdownMenuItem>
