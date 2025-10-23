@@ -12,8 +12,6 @@ import { SheetContent, SheetHeader, SheetTitle, SheetDescription } from './ui/sh
 import { ScrollArea } from './ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { Tag, Weight, Shirt, Scale } from 'lucide-react';
-import { useCart } from '@/hooks/use-cart';
-
 
 export default function ProductDetailSheet({
   product,
@@ -21,10 +19,6 @@ export default function ProductDetailSheet({
   product: Product;
 }) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(product.variants?.[0]);
-  const [selectedSize, setSelectedSize] = useState<string | undefined>();
-  const [error, setError] = useState<string | null>(null);
-  const { addItem } = useCart();
-  
   const [activeImage, setActiveImage] = useState(selectedVariant?.imageUrl || product.imageUrls[0]);
 
   useEffect(() => {
@@ -37,7 +31,7 @@ export default function ProductDetailSheet({
   ];
   const uniqueImages = [...new Set(allImages)];
 
-  const handleVariantSelect = (variant: ProductVariant) => {
+  const handleVariantChange = (variant: ProductVariant) => {
       setSelectedVariant(variant);
       setActiveImage(variant.imageUrl);
   }
@@ -136,7 +130,7 @@ export default function ProductDetailSheet({
                     </div>
                     <div className="mt-auto pt-4">
                         <Separator className='my-4' />
-                        <AddToCartForm product={product} />
+                        <AddToCartForm product={product} selectedVariant={selectedVariant} onVariantChange={handleVariantChange} />
                     </div>
                 </div>
             </div>

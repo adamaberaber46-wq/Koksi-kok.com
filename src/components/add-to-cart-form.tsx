@@ -15,16 +15,16 @@ import { Label } from './ui/label';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
-export default function AddToCartForm({ product }: { product: Product }) {
+interface AddToCartFormProps {
+  product: Product;
+  selectedVariant: ProductVariant | undefined;
+  onVariantChange: (variant: ProductVariant) => void;
+}
+
+export default function AddToCartForm({ product, selectedVariant, onVariantChange }: AddToCartFormProps) {
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(product.variants?.[0]);
   const [error, setError] = useState<string | null>(null);
   const { addItem } = useCart();
-
-  const handleVariantSelect = (color: string) => {
-    const variant = product.variants.find(v => v.color === color);
-    setSelectedVariant(variant);
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,12 +34,12 @@ export default function AddToCartForm({ product }: { product: Product }) {
       errorMessage += 'Please select a color variant.';
     }
 
-    if (errorMessage) {
+    if (errorMessage || !selectedVariant) {
       setError(errorMessage.trim());
       return;
     }
     setError(null);
-    addItem(product, selectedSize!, 1, selectedVariant!);
+    addItem(product, selectedSize!, 1, selectedVariant);
   };
 
   return (
@@ -73,7 +73,7 @@ export default function AddToCartForm({ product }: { product: Product }) {
                            'h-10 w-10 rounded-full border-2 transition-transform transform hover:scale-110 flex items-center justify-center overflow-hidden',
                            selectedVariant?.color === variant.color ? 'border-primary scale-110' : 'border-border'
                          )}
-                         onClick={() => handleVariantSelect(variant.color)}
+                         onClick={() => onVariantChange(variant)}
                          title={variant.color}
                          aria-label={`Select color ${variant.color}`}
                        >
