@@ -59,7 +59,7 @@ export default function AddToCartForm({ product, selectedVariant, onVariantChang
                            selectedVariant?.color === variant.color ? 'border-primary shadow-md' : 'border-border hover:border-primary/50'
                          )}
                        >
-                         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
+                         <div className="relative h-[100px] w-[40px] shrink-0 overflow-hidden rounded-md">
                            <Image src={variant.imageUrl} alt={variant.color} fill className="object-cover" />
                          </div>
                          <div className="flex-1">
