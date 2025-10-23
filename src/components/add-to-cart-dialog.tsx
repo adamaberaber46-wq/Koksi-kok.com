@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Product } from '@/lib/types';
+import type { Product, ProductVariant } from '@/lib/types';
 import { Button } from './ui/button';
 import { useCart } from '@/hooks/use-cart';
 import {
@@ -23,10 +23,12 @@ import {
   DialogClose
 } from "@/components/ui/dialog"
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { formatPrice } from '@/lib/utils';
 
 export function AddToCartDialog({ product, children }: { product: Product, children: React.ReactNode }) {
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
-  const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(product.variants?.[0]);
   const [error, setError] = useState<string | null>(null);
   const { addItem } = useCart();
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +36,7 @@ export function AddToCartDialog({ product, children }: { product: Product, child
   const handleSubmit = () => {
     let errorMessage = '';
     if (!selectedSize) errorMessage += 'Please select a size. ';
-    if (product.availableColors && product.availableColors.length > 0 && !selectedColor) {
+    if (!selectedVariant) {
       errorMessage += 'Please select a color.';
     }
 
@@ -44,10 +46,10 @@ export function AddToCartDialog({ product, children }: { product: Product, child
     }
 
     setError(null);
-    addItem(product, selectedSize!, 1, selectedColor || '');
+    addItem(product, selectedSize!, 1, selectedVariant!);
     setIsOpen(false);
     setSelectedSize(undefined);
-    setSelectedColor(undefined);
+    setSelectedVariant(product.variants?.[0]);
   };
   
   const handleOpenChange = (open: boolean) => {
@@ -55,23 +57,40 @@ export function AddToCartDialog({ product, children }: { product: Product, child
     if (!open) {
       setError(null);
       setSelectedSize(undefined);
-      setSelectedColor(undefined);
+      setSelectedVariant(product.variants?.[0]);
     }
   }
+
+  const handleVariantSelect = (color: string) => {
+    const variant = product.variants.find(v => v.color === color);
+    setSelectedVariant(variant);
+  }
+
+  const priceToShow = selectedVariant ? selectedVariant.price : product.price;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Select Options for {product.name}</DialogTitle>
+          <DialogTitle>Add to Cart: {product.name}</DialogTitle>
           <DialogDescription>
-            Choose your preferred size and color to add this item to your cart.
+            Select your preferred options to add this item to your cart.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="space-y-4">
+            <div className="relative aspect-square w-full overflow-hidden rounded-md">
+                <Image
+                    src={selectedVariant?.imageUrl || product.imageUrls[0] || '/placeholder.svg'}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                />
+            </div>
+            <div className="text-2xl font-bold">{formatPrice(priceToShow)}</div>
+
             <div className="grid gap-2">
                 <Label htmlFor="size-select">Size</Label>
                 <Select value={selectedSize} onValueChange={setSelectedSize}>
@@ -88,28 +107,25 @@ export function AddToCartDialog({ product, children }: { product: Product, child
                 </Select>
             </div>
 
-            {product.availableColors && product.availableColors.length > 0 && (
+            {product.variants && product.variants.length > 0 && (
               <div className="grid gap-2">
                 <Label>Color</Label>
                 <div className="flex flex-wrap gap-2">
-                  {product.availableColors.map((color) => {
-                    const isHex = /^#([0-9A-F]{3}){1,2}$/i.test(color);
-                    return (
+                  {product.variants.map((variant) => (
                        <button
-                        key={color}
+                        key={variant.color}
                         type="button"
                         className={cn(
-                          'h-8 w-8 rounded-full border-2 transition-transform transform hover:scale-110',
-                          selectedColor === color ? 'border-primary scale-110' : 'border-border'
+                          'h-10 w-10 rounded-full border-2 transition-transform transform hover:scale-110 flex items-center justify-center overflow-hidden',
+                          selectedVariant?.color === variant.color ? 'border-primary scale-110' : 'border-border'
                         )}
-                        style={{ backgroundColor: isHex ? color : undefined }}
-                        onClick={() => setSelectedColor(color)}
-                        aria-label={`Select color ${color}`}
+                        onClick={() => handleVariantSelect(variant.color)}
+                        aria-label={`Select color ${variant.color}`}
+                        title={variant.color}
                       >
-                         {!isHex && <span className="text-xs">{color.charAt(0)}</span>}
+                         <Image src={variant.imageUrl} alt={variant.color} width={40} height={40} className="object-cover" />
                       </button>
-                    )
-                  })}
+                  ))}
                 </div>
               </div>
             )}

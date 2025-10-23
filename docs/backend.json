@@ -21,7 +21,7 @@
         },
         "price": {
           "type": "number",
-          "description": "Price of the product."
+          "description": "Base price of the product. Variant prices can override this."
         },
         "originalPrice": {
           "type": "number",
@@ -33,7 +33,7 @@
         },
         "imageUrls": {
           "type": "array",
-          "description": "URLs of the product images.",
+          "description": "General URLs of the product images, not specific to variants.",
           "items": { "type": "string", "format": "uri" }
         },
         "availableSizes": {
@@ -41,6 +41,29 @@
           "description": "Available sizes for the product.",
           "items": {
             "type": "string"
+          }
+        },
+        "variants": {
+          "type": "array",
+          "description": "Color/price/image specific variants of the product.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "color": {
+                "type": "string",
+                "description": "The color of the variant."
+              },
+              "imageUrl": {
+                "type": "string",
+                "description": "The specific image URL for this variant.",
+                "format": "uri"
+              },
+              "price": {
+                "type": "number",
+                "description": "The price for this specific variant."
+              }
+            },
+            "required": ["color", "imageUrl", "price"]
           }
         },
         "categoryId": {
@@ -80,6 +103,7 @@
         "price",
         "imageUrls",
         "availableSizes",
+        "variants",
         "categoryId",
         "brand",
         "material",

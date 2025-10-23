@@ -87,19 +87,22 @@ export default function ProductCard({ product }: { product: Product }) {
               </div>
             <p className="text-sm text-muted-foreground mt-2 truncate w-full">{product.description}</p>
             
-            {product.availableColors && product.availableColors.length > 0 && (
+            {product.variants && product.variants.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-4">
-                  {product.availableColors.map((color) => {
-                      const isHex = /^#([0-9A-F]{3}){1,2}$/i.test(color);
-                      return (
-                          <div
-                              key={color}
-                              className="h-5 w-5 rounded-full border"
-                              style={{ backgroundColor: isHex ? color : 'transparent' }}
-                              title={color}
-                          />
-                      )
-                  })}
+                  {product.variants.slice(0, 5).map((variant) => (
+                      <div
+                          key={variant.color}
+                          className="h-5 w-5 rounded-full border overflow-hidden"
+                          title={variant.color}
+                      >
+                         <Image src={variant.imageUrl} alt={variant.color} width={20} height={20} className="object-cover" />
+                      </div>
+                  ))}
+                  {product.variants.length > 5 && (
+                    <div className="h-5 w-5 rounded-full border bg-muted flex items-center justify-center text-xs">
+                        + {product.variants.length - 5}
+                    </div>
+                  )}
               </div>
             )}
 

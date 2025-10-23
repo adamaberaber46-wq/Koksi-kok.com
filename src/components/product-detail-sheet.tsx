@@ -1,13 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatPrice } from '@/lib/utils';
 import AddToCartForm from '@/components/add-to-cart-form';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { Product } from '@/lib/types';
+import type { Product, ProductVariant } from '@/lib/types';
 import { SheetContent, SheetHeader, SheetTitle, SheetDescription } from './ui/sheet';
 import { ScrollArea } from './ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
@@ -19,11 +19,29 @@ export default function ProductDetailSheet({
 }: {
   product: Product;
 }) {
-  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(product.variants?.[0]);
+  const [selectedSize, setSelectedSize] = useState<string | undefined>();
+  const [error, setError] = useState<string | null>(null);
+  const { addItem } = useCart();
+  
+  const [activeImage, setActiveImage] = useState(selectedVariant?.imageUrl || product.imageUrls[0]);
 
-  const productImages = product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls : [];
+  useEffect(() => {
+      setActiveImage(selectedVariant?.imageUrl || product.imageUrls[0])
+  }, [selectedVariant, product.imageUrls]);
 
-  const selectedImage = selectedImageUrl || (productImages.length > 0 ? productImages[0] : null);
+  const allImages = [
+      ...(product.variants?.map(v => v.imageUrl) || []),
+      ...product.imageUrls
+  ];
+  const uniqueImages = [...new Set(allImages)];
+
+  const handleVariantSelect = (variant: ProductVariant) => {
+      setSelectedVariant(variant);
+      setActiveImage(variant.imageUrl);
+  }
+
+  const priceToShow = selectedVariant ? selectedVariant.price : product.price;
 
   return (
     <SheetContent side="right" className="w-full sm:max-w-2xl p-0">
@@ -35,9 +53,9 @@ export default function ProductDetailSheet({
             <div className="grid md:grid-cols-2 items-start">
                 <div className="p-6 lg:p-8 flex flex-col gap-4">
                     <div className="relative aspect-square w-full overflow-hidden rounded-lg">
-                        {selectedImage ? (
+                        {activeImage ? (
                         <Image
-                            src={selectedImage}
+                            src={activeImage}
                             alt={product.name}
                             fill
                             className="object-cover"
@@ -51,13 +69,13 @@ export default function ProductDetailSheet({
                         )}
                     </div>
                     <div className="grid grid-cols-4 gap-2">
-                        {productImages.map((imageUrl) => (
+                        {uniqueImages.map((imageUrl) => (
                         <button 
                             key={imageUrl}
-                            onClick={() => setSelectedImageUrl(imageUrl)}
+                            onClick={() => setActiveImage(imageUrl)}
                             className={cn("relative aspect-square w-full overflow-hidden rounded-md border-2", {
-                            'border-primary': selectedImage === imageUrl,
-                            'border-transparent': selectedImage !== imageUrl
+                            'border-primary': activeImage === imageUrl,
+                            'border-transparent': activeImage !== imageUrl
                             })}
                         >
                             <Image 
@@ -76,7 +94,7 @@ export default function ProductDetailSheet({
                         <h1 className="text-2xl lg:text-3xl font-bold font-headline mt-2">
                             {product.name}
                         </h1>
-                        <p className="text-2xl font-semibold mt-4">{formatPrice(product.price)}</p>
+                        <p className="text-2xl font-semibold mt-4">{formatPrice(priceToShow)}</p>
                         <Separator className='my-4' />
                         <p className="text-muted-foreground leading-relaxed">
                             {product.description}

@@ -2,17 +2,23 @@
 export const ORDER_STATUSES = ['Pending', 'Shipped', 'Delivered', 'Cancelled'] as const;
 export type OrderStatus = typeof ORDER_STATUSES[number];
 
+export type ProductVariant = {
+  color: string;
+  imageUrl: string;
+  price: number;
+};
+
 export type Product = {
   id: string;
   name: string;
   brand: string;
   description: string;
-  price: number;
+  price: number; // Base price
   originalPrice?: number;
   sizes: string[];
-  availableColors?: string[];
   category: string;
-  imageUrls: string[];
+  imageUrls: string[]; // General images
+  variants: ProductVariant[];
   material: string;
   countryOfOrigin: string;
   tags?: string[];

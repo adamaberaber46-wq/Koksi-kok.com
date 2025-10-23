@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Product } from '@/lib/types';
+import type { Product, ProductVariant } from '@/lib/types';
 import { Button } from './ui/button';
 import { useCart } from '@/hooks/use-cart';
 import {
@@ -13,19 +13,25 @@ import {
 } from '@/components/ui/select';
 import { Label } from './ui/label';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 export default function AddToCartForm({ product }: { product: Product }) {
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
-  const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(product.variants?.[0]);
   const [error, setError] = useState<string | null>(null);
   const { addItem } = useCart();
+
+  const handleVariantSelect = (color: string) => {
+    const variant = product.variants.find(v => v.color === color);
+    setSelectedVariant(variant);
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     let errorMessage = '';
     if (!selectedSize) errorMessage += 'Please select a size. ';
-    if (product.availableColors && product.availableColors.length > 0 && !selectedColor) {
-      errorMessage += 'Please select a color.';
+    if (!selectedVariant) {
+      errorMessage += 'Please select a color variant.';
     }
 
     if (errorMessage) {
@@ -33,7 +39,7 @@ export default function AddToCartForm({ product }: { product: Product }) {
       return;
     }
     setError(null);
-    addItem(product, selectedSize!, 1, selectedColor || '');
+    addItem(product, selectedSize!, 1, selectedVariant!);
   };
 
   return (
@@ -55,29 +61,25 @@ export default function AddToCartForm({ product }: { product: Product }) {
           </Select>
         </div>
         
-        {product.availableColors && product.availableColors.length > 0 && (
+        {product.variants && product.variants.length > 0 && (
             <div className="grid gap-2">
                 <Label>Color</Label>
                 <div className="flex flex-wrap gap-2">
-                    {product.availableColors.map((color) => {
-                       const isHex = /^#([0-9A-F]{3}){1,2}$/i.test(color);
-                       return (
-                         <button
-                           key={color}
-                           type="button"
-                           className={cn(
-                             'h-8 w-8 rounded-full border-2 transition-transform transform hover:scale-110',
-                             selectedColor === color ? 'border-primary scale-110' : 'border-border'
-                           )}
-                           style={{ backgroundColor: isHex ? color : 'transparent' }}
-                           onClick={() => setSelectedColor(color)}
-                           title={color}
-                           aria-label={`Select color ${color}`}
-                         >
-                           {!isHex && <span className="text-xs">{color.charAt(0)}</span>}
-                         </button>
-                       )
-                    })}
+                    {product.variants.map((variant) => (
+                       <button
+                         key={variant.color}
+                         type="button"
+                         className={cn(
+                           'h-10 w-10 rounded-full border-2 transition-transform transform hover:scale-110 flex items-center justify-center overflow-hidden',
+                           selectedVariant?.color === variant.color ? 'border-primary scale-110' : 'border-border'
+                         )}
+                         onClick={() => handleVariantSelect(variant.color)}
+                         title={variant.color}
+                         aria-label={`Select color ${variant.color}`}
+                       >
+                         <Image src={variant.imageUrl} alt={variant.color} width={40} height={40} className="object-cover" />
+                       </button>
+                    ))}
                 </div>
             </div>
         )}

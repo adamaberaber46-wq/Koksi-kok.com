@@ -1,13 +1,12 @@
 'use client';
 
 import { createContext, useState, ReactNode, useEffect } from 'react';
-import type { CartItem, Product } from '@/lib/types';
+import type { CartItem, Product, ProductVariant } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/provider';
 import {
-  addDocumentNonBlocking,
   deleteDocumentNonBlocking,
   updateDocumentNonBlocking,
   setDocumentNonBlocking,
@@ -15,7 +14,7 @@ import {
 
 interface CartContextType {
   cartItems: CartItem[];
-  addItem: (product: Product, size: string, quantity: number, color: string) => void;
+  addItem: (product: Product, size: string, quantity: number, variant: ProductVariant) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   removeItem: (itemId: string) => void;
   clearCart: () => void;
@@ -43,7 +42,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const { data: cartItems, isLoading } = useCollection<CartItem>(cartItemsRef);
 
-  const addItem = (product: Product, size: string, quantity: number, color: string) => {
+  const addItem = (product: Product, size: string, quantity: number, variant: ProductVariant) => {
     if (!user || !firestore) {
       toast({
         title: 'Please log in',
@@ -53,7 +52,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const itemId = `${product.id}_${size}_${color}`;
+    const itemId = `${product.id}_${size}_${variant.color}`;
     const cartDocRef = doc(
       firestore,
       'users',
@@ -72,17 +71,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setDocumentNonBlocking(cartDocRef, {
             productId: product.id,
             name: product.name,
-            price: product.price,
+            price: variant.price,
             quantity,
             size,
-            color,
-            imageUrl: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '',
+            color: variant.color,
+            imageUrl: variant.imageUrl,
           }, { merge: true });
     }
 
     toast({
       title: 'Added to cart',
-      description: `${quantity} x ${product.name} (${size}${color ? `, ${color}` : ''})`,
+      description: `${quantity} x ${product.name} (${size}, ${variant.color})`,
     });
   };
 

@@ -26,11 +26,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { Loader2, Trash2, PlusCircle } from 'lucide-react';
 import { useFirestore, useCollection, useDoc, useUser } from '@/firebase';
-import { collection, addDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Separator } from '@/components/ui/separator';
-import type { Category, Product, HeroSection, FooterSettings } from '@/lib/types';
+import type { Category, Product, HeroSection, FooterSettings, ProductVariant } from '@/lib/types';
 import { useMemoFirebase } from '@/firebase/provider';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { formatPrice } from '@/lib/utils';
@@ -48,20 +48,26 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
+const productVariantSchema = z.object({
+    color: z.string().min(1, 'Color name is required'),
+    imageUrl: z.string().url('Must be a valid URL'),
+    price: z.coerce.number().positive('Price must be a positive number'),
+});
+
 const productFormSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(2, { message: 'Product name must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
-  price: z.coerce.number().positive({ message: 'Price must be a positive number.' }),
+  price: z.coerce.number().positive({ message: 'Base price must be a positive number.' }),
   originalPrice: z.coerce.number().optional(),
   brand: z.string().min(2, { message: 'Brand is required.' }),
   category: z.string().min(1, { message: 'Category is required.' }),
   sizes: z.string().min(1, { message: 'At least one size is required.' }),
-  imageUrls: z.string().min(1, { message: 'At least one image URL is required.' }),
+  imageUrls: z.string().min(1, { message: 'At least one general image URL is required.' }),
   material: z.string().min(2, { message: 'Material is required.' }),
   countryOfOrigin: z.string().min(2, { message: 'Country of origin is required.' }),
+  variants: z.array(productVariantSchema).min(1, "At least one color variant is required."),
   // Optional fields
-  availableColors: z.string().optional(),
   tags: z.string().optional(),
   sku: z.string().optional(),
   weightGrams: z.coerce.number().optional(),
@@ -136,11 +142,16 @@ export default function DashboardPage() {
       imageUrls: '',
       material: '',
       countryOfOrigin: '',
-      availableColors: '',
+      variants: [{ color: '', imageUrl: '', price: 0 }],
       tags: '',
       sku: '',
       careInstructions: '',
     },
+  });
+  
+  const { fields: variantFields, append: appendVariant, remove: removeVariant } = useFieldArray({
+    control: productForm.control,
+    name: 'variants',
   });
 
   const categoryForm = useForm<z.infer<typeof categoryFormSchema>>({
@@ -199,17 +210,17 @@ export default function DashboardPage() {
         return;
     }
 
-    const newProductData: Partial<Product> = {
+    const newProductData: Omit<Product, 'id'> = {
       name: values.name,
       description: values.description,
       price: Number(values.price),
       brand: values.brand,
-      category: values.category as any,
+      category: values.category,
       sizes: values.sizes.split(',').map((s) => s.trim()),
       imageUrls: values.imageUrls.split(',').map((url) => url.trim()),
       material: values.material,
       countryOfOrigin: values.countryOfOrigin,
-      ...(values.availableColors && { availableColors: values.availableColors.split(',').map(c => c.trim()) }),
+      variants: values.variants.map(v => ({...v, price: Number(v.price)})),
       ...(values.tags && { tags: values.tags.split(',').map(t => t.trim()) }),
       ...(values.sku && { sku: values.sku }),
       ...(values.weightGrams && { weightGrams: Number(values.weightGrams) }),
@@ -237,7 +248,20 @@ export default function DashboardPage() {
     }
 
     setIsProductSubmitting(false);
-    productForm.reset();
+    productForm.reset({
+      name: '',
+      description: '',
+      brand: '',
+      category: '',
+      sizes: '',
+      imageUrls: '',
+      material: '',
+      countryOfOrigin: '',
+      variants: [{ color: '', imageUrl: '', price: 0 }],
+      tags: '',
+      sku: '',
+      careInstructions: '',
+    });
     setEditingProductId(null);
   }
 
@@ -247,15 +271,28 @@ export default function DashboardPage() {
         ...product,
         sizes: product.sizes ? product.sizes.join(', ') : '',
         imageUrls: product.imageUrls ? product.imageUrls.join(', ') : '',
-        availableColors: product.availableColors ? product.availableColors.join(', ') : '',
         tags: product.tags ? product.tags.join(', ') : '',
+        variants: product.variants || [{ color: '', imageUrl: '', price: product.price }]
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function handleCancelEdit() {
     setEditingProductId(null);
-    productForm.reset();
+    productForm.reset({
+      name: '',
+      description: '',
+      brand: '',
+      category: '',
+      sizes: '',
+      imageUrls: '',
+      material: '',
+      countryOfOrigin: '',
+      variants: [{ color: '', imageUrl: '', price: 0 }],
+      tags: '',
+      sku: '',
+      careInstructions: '',
+    });
   }
 
   function handleDeleteProduct(productId: string) {
@@ -519,7 +556,7 @@ export default function DashboardPage() {
                             name="price"
                             render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Price (EGP)</FormLabel>
+                                <FormLabel>Base Price (EGP)</FormLabel>
                                 <FormControl>
                                 <Input type="number" placeholder="e.g., 299.99" {...field} value={field.value ?? ''} />
                                 </FormControl>
@@ -591,25 +628,13 @@ export default function DashboardPage() {
                         </FormItem>
                         )}
                     />
-                    <FormField
-                        control={productForm.control}
-                        name="availableColors"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Available Colors (Optional)</FormLabel>
-                            <FormControl>
-                            <Input placeholder="e.g. Red, Blue, #FFFFFF (comma-separated)" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
+                    
                     <FormField
                         control={productForm.control}
                         name="imageUrls"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Image URLs</FormLabel>
+                            <FormLabel>General Image URLs</FormLabel>
                             <FormControl>
                             <Input placeholder="https://.../img1.jpg, https://.../img2.jpg" {...field} />
                             </FormControl>
@@ -646,6 +671,81 @@ export default function DashboardPage() {
                         />
                     </div>
                     
+                    {/* Product Variants Section */}
+                    <div className="space-y-6">
+                        <Separator />
+                        <h3 className="text-lg font-medium">Product Variants (Colors)</h3>
+                        {variantFields.map((field, index) => (
+                            <div key={field.id} className="p-4 border rounded-md space-y-4 relative">
+                                <h4 className="font-semibold">Variant {index + 1}</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                     <FormField
+                                        control={productForm.control}
+                                        name={`variants.${index}.color`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                            <FormLabel>Color Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g., Red" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={productForm.control}
+                                        name={`variants.${index}.price`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                            <FormLabel>Variant Price (EGP)</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="e.g., 350.00" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <FormField
+                                    control={productForm.control}
+                                    name={`variants.${index}.imageUrl`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Variant Image URL</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="https://.../red-variant.jpg" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                {variantFields.length > 1 && (
+                                <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => removeVariant(index)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                                )}
+                            </div>
+                        ))}
+                         <FormField
+                            control={productForm.control}
+                            name="variants"
+                            render={() => (
+                                <FormItem>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => appendVariant({ color: '', imageUrl: '', price: 0 })}
+                        >
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Another Variant
+                        </Button>
+                        <Separator />
+                    </div>
+
                     <Collapsible>
                         <CollapsibleTrigger asChild>
                             <Button variant="link" className="p-0">
