@@ -78,6 +78,10 @@
             "type": "string",
             "description": "The country where the product was manufactured."
         },
+        "isFeatured": {
+            "type": "boolean",
+            "description": "If true, the product will be featured on the homepage."
+        },
         "tags": {
             "type": "array",
             "description": "Optional tags for product filtering and searching.",

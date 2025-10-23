@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -11,6 +12,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -48,6 +50,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Switch } from '@/components/ui/switch';
 
 const productVariantSchema = z.object({
     color: z.string().min(1, 'Color name is required'),
@@ -68,6 +71,7 @@ const productFormSchema = z.object({
   material: z.string().min(2, { message: 'Material is required.' }),
   countryOfOrigin: z.string().min(2, { message: 'Country of origin is required.' }),
   variants: z.array(productVariantSchema).min(1, "At least one color variant is required."),
+  isFeatured: z.boolean().default(false),
   // Optional fields
   tags: z.string().optional(),
   sku: z.string().optional(),
@@ -138,7 +142,7 @@ export default function DashboardPage() {
       name: '',
       description: '',
       price: 0,
-      originalPrice: null,
+      originalPrice: undefined,
       brand: '',
       category: '',
       sizes: '',
@@ -146,6 +150,7 @@ export default function DashboardPage() {
       material: '',
       countryOfOrigin: '',
       variants: [{ color: '', imageUrls: '', price: 0 }],
+      isFeatured: false,
       tags: '',
       sku: '',
       careInstructions: '',
@@ -223,6 +228,7 @@ export default function DashboardPage() {
       imageUrls: values.imageUrls.split(',').map((url) => url.trim()),
       material: values.material,
       countryOfOrigin: values.countryOfOrigin,
+      isFeatured: values.isFeatured,
       variants: values.variants.map(v => ({
         ...v,
         price: Number(v.price),
@@ -261,7 +267,7 @@ export default function DashboardPage() {
       name: '',
       description: '',
       price: 0,
-      originalPrice: null,
+      originalPrice: undefined,
       brand: '',
       category: '',
       sizes: '',
@@ -269,6 +275,7 @@ export default function DashboardPage() {
       material: '',
       countryOfOrigin: '',
       variants: [{ color: '', imageUrls: '', price: 0 }],
+      isFeatured: false,
       tags: '',
       sku: '',
       careInstructions: '',
@@ -281,10 +288,11 @@ export default function DashboardPage() {
     productForm.reset({
         ...product,
         price: product.price || 0,
-        originalPrice: product.originalPrice || null,
+        originalPrice: product.originalPrice || undefined,
         sizes: product.sizes ? product.sizes.join(', ') : '',
         imageUrls: product.imageUrls ? product.imageUrls.join(', ') : '',
         tags: product.tags ? product.tags.join(', ') : '',
+        isFeatured: product.isFeatured || false,
         variants: product.variants.map(v => ({
             ...v,
             imageUrls: Array.isArray(v.imageUrls) ? v.imageUrls.join(', ') : '',
@@ -299,7 +307,7 @@ export default function DashboardPage() {
       name: '',
       description: '',
       price: 0,
-      originalPrice: null,
+      originalPrice: undefined,
       brand: '',
       category: '',
       sizes: '',
@@ -307,6 +315,7 @@ export default function DashboardPage() {
       material: '',
       countryOfOrigin: '',
       variants: [{ color: '', imageUrls: '', price: 0 }],
+      isFeatured: false,
       tags: '',
       sku: '',
       careInstructions: '',
@@ -553,6 +562,26 @@ export default function DashboardPage() {
                             </FormControl>
                             <FormMessage />
                         </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={productForm.control}
+                        name="isFeatured"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                                <FormLabel>Mark as Best Seller</FormLabel>
+                                <FormDescription>
+                                If checked, this product will appear on the homepage.
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            </FormItem>
                         )}
                     />
                     <FormField

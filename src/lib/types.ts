@@ -21,6 +21,7 @@ export type Product = {
   variants: ProductVariant[];
   material: string;
   countryOfOrigin: string;
+  isFeatured?: boolean;
   tags?: string[];
   sku?: string;
   weightGrams?: number;

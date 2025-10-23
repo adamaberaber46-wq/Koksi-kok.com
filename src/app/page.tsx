@@ -13,7 +13,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { useCollection, useFirestore, useDoc } from '@/firebase';
-import { collection, limit, query, doc } from 'firebase/firestore';
+import { collection, limit, query, where, doc } from 'firebase/firestore';
 import { useMemoFirebase } from '@/firebase/provider';
 import type { Category, Product, HeroSection } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,7 +24,7 @@ export default function Home() {
   const productsQuery = useMemoFirebase(
     () =>
       firestore
-        ? query(collection(firestore, 'products'), limit(8))
+        ? query(collection(firestore, 'products'), where('isFeatured', '==', true), limit(8))
         : null,
     [firestore]
   );
@@ -87,52 +87,54 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-card">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold text-center mb-12">
-            Best Sellers
-          </h2>
-          <Carousel
-            opts={{
-              align: 'start',
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent>
-              {productsLoading &&
-                Array.from({ length: 4 }).map((_, i) => (
-                  <CarouselItem
-                    key={i}
-                    className="sm:basis-1/2 lg:basis-1/4"
-                  >
-                    <div className="p-1">
-                      <div className="flex flex-col gap-2">
-                        <Skeleton className="aspect-square w-full" />
-                        <Skeleton className="w-3/4 h-6" />
-                        <Skeleton className="w-1/2 h-5" />
+      {(!productsLoading && featuredProducts && featuredProducts.length > 0) && (
+        <section className="py-16 md:py-24 bg-card">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-headline font-bold text-center mb-12">
+              Best Sellers
+            </h2>
+            <Carousel
+              opts={{
+                align: 'start',
+                loop: featuredProducts.length > 3,
+              }}
+              className="w-full"
+            >
+              <CarouselContent>
+                {productsLoading &&
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <CarouselItem
+                      key={i}
+                      className="sm:basis-1/2 lg:basis-1/4"
+                    >
+                      <div className="p-1">
+                        <div className="flex flex-col gap-2">
+                          <Skeleton className="aspect-square w-full" />
+                          <Skeleton className="w-3/4 h-6" />
+                          <Skeleton className="w-1/2 h-5" />
+                        </div>
                       </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              {!productsLoading &&
-                featuredProducts &&
-                featuredProducts.map((product) => (
-                  <CarouselItem
-                    key={product.id}
-                    className="sm:basis-1/2 lg:basis-1/4"
-                  >
-                    <div className="p-1">
-                      <ProductCard product={product} />
-                    </div>
-                  </CarouselItem>
-                ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
-          </Carousel>
-        </div>
-      </section>
+                    </CarouselItem>
+                  ))}
+                {!productsLoading &&
+                  featuredProducts &&
+                  featuredProducts.map((product) => (
+                    <CarouselItem
+                      key={product.id}
+                      className="sm:basis-1/2 lg:basis-1/4"
+                    >
+                      <div className="p-1">
+                        <ProductCard product={product} />
+                      </div>
+                    </CarouselItem>
+                  ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
+          </div>
+        </section>
+      )}
 
       <section className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4">
