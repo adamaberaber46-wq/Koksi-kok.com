@@ -61,6 +61,7 @@ const productFormSchema = z.object({
   material: z.string().min(2, { message: 'Material is required.' }),
   countryOfOrigin: z.string().min(2, { message: 'Country of origin is required.' }),
   // Optional fields
+  availableColors: z.string().optional(),
   tags: z.string().optional(),
   sku: z.string().optional(),
   weightGrams: z.coerce.number().optional(),
@@ -135,6 +136,7 @@ export default function DashboardPage() {
       imageUrls: '',
       material: '',
       countryOfOrigin: '',
+      availableColors: '',
       tags: '',
       sku: '',
       careInstructions: '',
@@ -207,6 +209,7 @@ export default function DashboardPage() {
       imageUrls: values.imageUrls.split(',').map((url) => url.trim()),
       material: values.material,
       countryOfOrigin: values.countryOfOrigin,
+      ...(values.availableColors && { availableColors: values.availableColors.split(',').map(c => c.trim()) }),
       ...(values.tags && { tags: values.tags.split(',').map(t => t.trim()) }),
       ...(values.sku && { sku: values.sku }),
       ...(values.weightGrams && { weightGrams: Number(values.weightGrams) }),
@@ -244,6 +247,7 @@ export default function DashboardPage() {
         ...product,
         sizes: product.sizes ? product.sizes.join(', ') : '',
         imageUrls: product.imageUrls ? product.imageUrls.join(', ') : '',
+        availableColors: product.availableColors ? product.availableColors.join(', ') : '',
         tags: product.tags ? product.tags.join(', ') : '',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -579,9 +583,22 @@ export default function DashboardPage() {
                         name="sizes"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Sizes</FormLabel>
+                            <FormLabel>Available Sizes</FormLabel>
                             <FormControl>
                             <Input placeholder="S, M, L, XL (comma-separated)" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={productForm.control}
+                        name="availableColors"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Available Colors (Optional)</FormLabel>
+                            <FormControl>
+                            <Input placeholder="e.g. Red, Blue, #FFFFFF (comma-separated)" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

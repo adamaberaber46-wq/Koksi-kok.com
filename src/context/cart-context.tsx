@@ -15,7 +15,7 @@ import {
 
 interface CartContextType {
   cartItems: CartItem[];
-  addItem: (product: Product, size: string, quantity: number) => void;
+  addItem: (product: Product, size: string, quantity: number, color: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   removeItem: (itemId: string) => void;
   clearCart: () => void;
@@ -43,7 +43,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const { data: cartItems, isLoading } = useCollection<CartItem>(cartItemsRef);
 
-  const addItem = (product: Product, size: string, quantity: number) => {
+  const addItem = (product: Product, size: string, quantity: number, color: string) => {
     if (!user || !firestore) {
       toast({
         title: 'Please log in',
@@ -53,15 +53,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const itemId = `${product.id}_${size}_${color}`;
     const cartDocRef = doc(
       firestore,
       'users',
       user.uid,
       'shopping_cart_items',
-      `${product.id}_${size}`
+      itemId
     );
     
-    const existingItem = cartItems?.find(item => item.id === `${product.id}_${size}`);
+    const existingItem = cartItems?.find(item => item.id === itemId);
 
     if (existingItem) {
         updateDocumentNonBlocking(cartDocRef, {
@@ -74,13 +75,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
             price: product.price,
             quantity,
             size,
+            color,
             imageUrl: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '',
           }, { merge: true });
     }
 
     toast({
       title: 'Added to cart',
-      description: `${quantity} x ${product.name} (${size})`,
+      description: `${quantity} x ${product.name} (${size}${color ? `, ${color}` : ''})`,
     });
   };
 

@@ -34,6 +34,7 @@ export default function CartSheet() {
           <ScrollArea className="flex-1">
             <div className="flex flex-col gap-6 p-6">
               {cartItems.map((item) => {
+                const isHex = /^#([0-9A-F]{3}){1,2}$/i.test(item.color);
                 return (
                   <div key={item.id} className="flex items-start gap-4">
                     <div className="relative h-24 w-24 overflow-hidden rounded-md">
@@ -52,7 +53,22 @@ export default function CartSheet() {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold">{item.name}</h3>
-                      <p className="text-sm text-muted-foreground">Size: {item.size}</p>
+                      <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span>Size: {item.size}</span>
+                        {item.color && (
+                          <>
+                           <Separator orientation="vertical" className="h-4"/>
+                           <div className="flex items-center gap-1.5">
+                             Color:
+                             {isHex ? (
+                               <div className="h-4 w-4 rounded-full border" style={{ backgroundColor: item.color }} />
+                             ) : (
+                               <span>{item.color}</span>
+                             )}
+                           </div>
+                          </>
+                        )}
+                      </div>
                       <p className="text-sm font-medium">{formatPrice(item.price)}</p>
                       <div className="mt-2 flex items-center justify-between">
                         <div className="flex items-center gap-2">

@@ -10,6 +10,7 @@ export type Product = {
   price: number;
   originalPrice?: number;
   sizes: string[];
+  availableColors?: string[];
   category: string;
   imageUrls: string[];
   material: string;
@@ -27,6 +28,7 @@ export type CartItem = {
   price: number;
   quantity: number;
   size: string;
+  color: string;
   imageUrl: string;
 };
 
