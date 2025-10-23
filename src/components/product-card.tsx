@@ -31,7 +31,7 @@ export default function ProductCard({ product }: { product: Product }) {
     : 0;
 
   return (
-    <Card className="flex flex-col overflow-hidden group h-[500px] w-[250px] transition-shadow border rounded-none shadow-none">
+    <Card className="flex flex-col overflow-hidden group h-[500px] w-[250px] transition-shadow border shadow-none rounded-none">
         <div className="p-0">
           <Link href={`/products/${product.id}`} className="block relative">
             {isDiscounted && (
@@ -103,7 +103,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </CardContent>
         <CardFooter className="p-4 pt-0 mt-auto">
           <AddToCartDialog product={product}>
-            <Button variant="outline" className="w-full rounded-none">
+            <Button variant="outline" className="w-full rounded-[50px]">
                 Add to Cart
             </Button>
           </AddToCartDialog>
