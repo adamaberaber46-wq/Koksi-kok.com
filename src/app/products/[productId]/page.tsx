@@ -23,10 +23,11 @@ import AddToCartForm from '@/components/add-to-cart-form';
 import Link from 'next/link';
 
 export default function ProductDetailPage({
-  params: { productId },
+  params,
 }: {
   params: { productId: string };
 }) {
+  const { productId } = params;
   const firestore = useFirestore();
   const productRef = useMemoFirebase(
     () => (firestore ? doc(firestore, 'products', productId) : null),
