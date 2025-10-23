@@ -36,6 +36,15 @@ export default function ProductDetailSheet({
       setActiveImage(variant.imageUrl);
   }
 
+  const handleThumbnailClick = (imageUrl: string) => {
+    setActiveImage(imageUrl);
+    // Find if this image belongs to a variant and update the selected variant
+    const variantForImage = product.variants?.find(v => v.imageUrl === imageUrl);
+    if (variantForImage) {
+      setSelectedVariant(variantForImage);
+    }
+  };
+
   const priceToShow = selectedVariant ? selectedVariant.price : product.price;
 
   return (
@@ -67,7 +76,7 @@ export default function ProductDetailSheet({
                         {uniqueImages.map((imageUrl) => (
                         <button 
                             key={imageUrl}
-                            onClick={() => setActiveImage(imageUrl)}
+                            onClick={() => handleThumbnailClick(imageUrl)}
                             className={cn("relative aspect-square w-full overflow-hidden rounded-md border-2", {
                             'border-primary': activeImage === imageUrl,
                             'border-transparent': activeImage !== imageUrl
