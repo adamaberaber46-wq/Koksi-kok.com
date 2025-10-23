@@ -49,7 +49,9 @@ export default function AddToCartForm({ product, selectedVariant, onVariantChang
             <div className="grid gap-2">
                 <Label>Color</Label>
                 <div className="flex flex-wrap gap-2">
-                    {product.variants.map((variant) => (
+                    {product.variants.map((variant) => {
+                      const hasImage = variant.imageUrls && variant.imageUrls.length > 0 && variant.imageUrls[0];
+                      return (
                        <button
                         key={variant.color}
                         type="button"
@@ -60,10 +62,15 @@ export default function AddToCartForm({ product, selectedVariant, onVariantChang
                         onClick={() => onVariantChange(variant)}
                         aria-label={`Select color ${variant.color}`}
                         title={variant.color}
+                        style={{ backgroundColor: hasImage ? 'transparent' : variant.color.toLowerCase() }}
                       >
-                         <Image src={variant.imageUrls[0]} alt={variant.color} width={40} height={40} className="object-cover" />
+                         {hasImage ? (
+                            <Image src={variant.imageUrls[0]} alt={variant.color} width={40} height={40} className="object-cover" />
+                         ) : (
+                            <span className='sr-only'>{variant.color}</span>
+                         )}
                       </button>
-                    ))}
+                    )})}
                 </div>
             </div>
         )}

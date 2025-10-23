@@ -68,6 +68,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             quantity: existingItem.quantity + quantity
         });
     } else {
+        const firstImage = (variant.imageUrls && variant.imageUrls.length > 0) ? variant.imageUrls[0] : (product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/placeholder.svg');
         setDocumentNonBlocking(cartDocRef, {
             productId: product.id,
             name: product.name,
@@ -75,7 +76,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             quantity,
             size,
             color: variant.color,
-            imageUrl: variant.imageUrl,
+            imageUrl: firstImage,
           }, { merge: true });
     }
 
