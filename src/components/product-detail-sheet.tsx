@@ -12,6 +12,7 @@ import { SheetContent, SheetHeader, SheetTitle, SheetDescription } from './ui/sh
 import { ScrollArea } from './ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { Tag, Weight, Shirt, Scale } from 'lucide-react';
+import { useCart } from '@/hooks/use-cart';
 
 
 export default function ProductDetailSheet({
