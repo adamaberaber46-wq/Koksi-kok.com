@@ -48,12 +48,13 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     if (selectedVariant) {
-      const newGalleryImages = selectedVariant.imageUrls;
+      const newGalleryImages = selectedVariant.imageUrls || [];
       setGalleryImages(newGalleryImages);
-      setActiveImage(newGalleryImages[0]);
+      setActiveImage(newGalleryImages.length > 0 ? newGalleryImages[0] : undefined);
     } else if (product) {
-      setGalleryImages(product.imageUrls);
-      setActiveImage(product.imageUrls[0]);
+      const newGalleryImages = product.imageUrls || [];
+      setGalleryImages(newGalleryImages);
+      setActiveImage(newGalleryImages.length > 0 ? newGalleryImages[0] : undefined);
     }
   }, [selectedVariant, product]);
 
