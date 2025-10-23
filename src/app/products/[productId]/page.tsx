@@ -21,16 +21,15 @@ import {
 import { Tag, Weight, Shirt, Scale, Loader2 } from 'lucide-react';
 import AddToCartForm from '@/components/add-to-cart-form';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
-export default function ProductDetailPage({
-  params,
-}: {
-  params: { productId: string };
-}) {
-  const { productId } = params;
+export default function ProductDetailPage() {
+  const params = useParams();
+  const productId = params.productId as string;
+
   const firestore = useFirestore();
   const productRef = useMemoFirebase(
-    () => (firestore ? doc(firestore, 'products', productId) : null),
+    () => (firestore && productId ? doc(firestore, 'products', productId) : null),
     [firestore, productId]
   );
   const { data: product, isLoading } = useDoc<Product>(productRef);
@@ -54,7 +53,7 @@ export default function ProductDetailPage({
     }
   }, [selectedVariant]);
 
-  if (isLoading) {
+  if (isLoading || !productId) {
     return <ProductPageSkeleton />;
   }
 
