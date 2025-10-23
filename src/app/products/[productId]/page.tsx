@@ -22,6 +22,7 @@ import { Tag, Weight, Shirt, Scale, Loader2 } from 'lucide-react';
 import AddToCartForm from '@/components/add-to-cart-form';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 export default function ProductDetailPage() {
   const params = useParams();
