@@ -47,14 +47,14 @@ export default function ProductCard({ product }: { product: Product }) {
                     alt={product.name}
                     fill
                     className="object-cover object-center transition-opacity duration-300 opacity-100 group-hover:opacity-0"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
                   />
                   <Image
                       src={hoverImageUrl}
                       alt={`${product.name} (hover)`}
                       fill
                       className="object-cover object-center transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
                     />
                 </>
               ) : (
@@ -97,7 +97,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 ))}
               </div>
             )}
-            <p className="text-sm text-muted-foreground mt-2 line-clamp-2 flex-grow">
+            <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                 {product.description}
             </p>
         </CardContent>
