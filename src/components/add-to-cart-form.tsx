@@ -12,8 +12,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from './ui/label';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import Image from 'next/image';
+import { Card } from './ui/card';
 
 interface AddToCartFormProps {
   product: Product;
@@ -43,8 +44,34 @@ export default function AddToCartForm({ product, selectedVariant, onVariantChang
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-4">
+        {product.variants && product.variants.length > 0 && (
+            <div className="grid gap-2">
+                <Label>Color</Label>
+                <div className="flex flex-col gap-3">
+                    {product.variants.map((variant) => (
+                       <Card
+                         key={variant.color}
+                         onClick={() => onVariantChange(variant)}
+                         className={cn(
+                           'flex items-center gap-4 p-3 cursor-pointer transition-all border-2',
+                           selectedVariant?.color === variant.color ? 'border-primary shadow-md' : 'border-border hover:border-primary/50'
+                         )}
+                       >
+                         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md">
+                           <Image src={variant.imageUrl} alt={variant.color} fill className="object-cover" />
+                         </div>
+                         <div className="flex-1">
+                           <p className="font-semibold">{variant.color}</p>
+                           <p className="text-sm text-muted-foreground">{formatPrice(variant.price)}</p>
+                         </div>
+                       </Card>
+                    ))}
+                </div>
+            </div>
+        )}
+
         <div className="grid gap-2">
           <Label htmlFor="size-select">Size</Label>
           <Select value={selectedSize} onValueChange={setSelectedSize}>
@@ -60,29 +87,6 @@ export default function AddToCartForm({ product, selectedVariant, onVariantChang
             </SelectContent>
           </Select>
         </div>
-        
-        {product.variants && product.variants.length > 0 && (
-            <div className="grid gap-2">
-                <Label>Color</Label>
-                <div className="flex flex-wrap gap-2">
-                    {product.variants.map((variant) => (
-                       <button
-                         key={variant.color}
-                         type="button"
-                         className={cn(
-                           'h-10 w-10 rounded-full border-2 transition-transform transform hover:scale-110 flex items-center justify-center overflow-hidden',
-                           selectedVariant?.color === variant.color ? 'border-primary scale-110' : 'border-border'
-                         )}
-                         onClick={() => onVariantChange(variant)}
-                         title={variant.color}
-                         aria-label={`Select color ${variant.color}`}
-                       >
-                         <Image src={variant.imageUrl} alt={variant.color} width={40} height={40} className="object-cover" />
-                       </button>
-                    ))}
-                </div>
-            </div>
-        )}
 
         {error && <p className="text-sm font-medium text-destructive">{error}</p>}
       </div>
