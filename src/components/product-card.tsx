@@ -16,6 +16,7 @@ import { Badge } from './ui/badge';
 import { AddToCartDialog } from './add-to-cart-dialog';
 import { Sheet, SheetTrigger } from './ui/sheet';
 import ProductDetailSheet from './product-detail-sheet';
+import { cn } from '@/lib/utils';
 
 export default function ProductCard({ product }: { product: Product }) {
   const hasImages = product.imageUrls && product.imageUrls.length > 0;
@@ -85,6 +86,23 @@ export default function ProductCard({ product }: { product: Product }) {
                   )}
               </div>
             <p className="text-sm text-muted-foreground mt-2 truncate w-full">{product.description}</p>
+            
+            {product.availableColors && product.availableColors.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                  {product.availableColors.map((color) => {
+                      const isHex = /^#([0-9A-F]{3}){1,2}$/i.test(color);
+                      return (
+                          <div
+                              key={color}
+                              className="h-5 w-5 rounded-full border"
+                              style={{ backgroundColor: isHex ? color : 'transparent' }}
+                              title={color}
+                          />
+                      )
+                  })}
+              </div>
+            )}
+
             <AddToCartDialog product={product}>
               <Button variant="outline" className="w-full mt-4 rounded-full">
                   Add to Cart
