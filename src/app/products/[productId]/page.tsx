@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import { useDoc } from '@/firebase/firestore/use-doc';
@@ -23,6 +25,7 @@ import AddToCartForm from '@/components/add-to-cart-form';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Carousel, CarouselContent, CarouselItem, useCarousel, type CarouselApi } from '@/components/ui/carousel';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -110,52 +113,126 @@ export default function ProductDetailPage() {
 
   const priceToShow = selectedVariant ? selectedVariant.price : product.price;
 
+  function ImageGallery() {
+    const [api, setApi] = useState<CarouselApi>()
+    const [current, setCurrent] = useState(0)
+    const [count, setCount] = useState(0)
+
+    useEffect(() => {
+        if (!api) {
+            return
+        }
+
+        setCount(api.scrollSnapList().length)
+        setCurrent(api.selectedScrollSnap())
+
+        api.on("select", () => {
+            setCurrent(api.selectedScrollSnap())
+        })
+    }, [api])
+
+
+    const handleThumbnailClick = (index: number) => {
+        if (!api) {
+            return
+        }
+        setActiveImage(galleryImages[index]);
+        api.scrollTo(index)
+    }
+
+    return (
+        <div className="flex flex-col gap-4 md:sticky md:top-24">
+            <Carousel setApi={setApi} className="md:hidden">
+              <CarouselContent>
+                {galleryImages.length > 0 ? (
+                  galleryImages.map((imageUrl) => (
+                    <CarouselItem key={imageUrl}>
+                      <div className="relative aspect-square w-full overflow-hidden rounded-lg border">
+                        <Image
+                          src={imageUrl}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                          sizes="100vw"
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))
+                ) : (
+                  <CarouselItem>
+                    <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted flex items-center justify-center">
+                      <span className="text-muted-foreground text-sm">No Image</span>
+                    </div>
+                  </CarouselItem>
+                )}
+              </CarouselContent>
+              {count > 1 && (
+                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                    {Array.from({ length: count }).map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => api?.scrollTo(index)}
+                          className={cn(
+                            'h-2 w-2 rounded-full',
+                            index === current ? 'bg-primary scale-125' : 'bg-primary/30'
+                          )}
+                          aria-label={`Go to slide ${index + 1}`}
+                        />
+                    ))}
+                 </div>
+              )}
+            </Carousel>
+
+            <div className="relative aspect-square w-full overflow-hidden rounded-lg border hidden md:block">
+              {activeImage ? (
+                <Image
+                  src={activeImage}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="50vw"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <span className="text-muted-foreground text-sm">No Image</span>
+                </div>
+              )}
+            </div>
+
+            {galleryImages.length > 1 && (
+              <div className="hidden md:grid grid-cols-4 gap-2">
+                {galleryImages.map((imageUrl, index) => (
+                  <button
+                    key={imageUrl}
+                    onClick={() => handleThumbnailClick(index)}
+                    className={cn(
+                      'relative aspect-square w-full overflow-hidden rounded-md border-2 transition-all',
+                      {
+                        'border-primary shadow-md': activeImage === imageUrl,
+                        'border-transparent hover:border-muted-foreground/50': activeImage !== imageUrl,
+                      }
+                    )}
+                  >
+                    <Image
+                      src={imageUrl}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+        </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 sm:py-16">
       <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-start">
-        {/* Image Gallery */}
-        <div className="flex flex-col gap-4 sticky top-24">
-          <div className="relative aspect-square w-full overflow-hidden rounded-lg border">
-            {activeImage ? (
-              <Image
-                src={activeImage}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full bg-muted flex items-center justify-center">
-                <span className="text-muted-foreground text-sm">No Image</span>
-              </div>
-            )}
-          </div>
-          {galleryImages.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
-              {galleryImages.map((imageUrl) => (
-                <button
-                  key={imageUrl}
-                  onClick={() => setActiveImage(imageUrl)}
-                  className={cn(
-                    'relative aspect-square w-full overflow-hidden rounded-md border-2 transition-all',
-                    {
-                      'border-primary shadow-md': activeImage === imageUrl,
-                      'border-transparent hover:border-muted-foreground/50': activeImage !== imageUrl,
-                    }
-                  )}
-                >
-                  <Image
-                    src={imageUrl}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        
+        <ImageGallery />
 
         {/* Product Details */}
         <div className="flex flex-col gap-4">
