@@ -61,7 +61,7 @@ const productFormSchema = z.object({
   // Optional fields
   tags: z.string().optional(),
   sku: z.string().optional(),
-  weightGrams: z.coerce.number().optional(),
+  weightGrams: z.coerce.number().optional().nullable(),
   careInstructions: z.string().optional(),
 });
 
@@ -94,7 +94,7 @@ export default function AddProductPage() {
       name: '',
       description: '',
       price: 0,
-      originalPrice: undefined,
+      originalPrice: null,
       brand: '',
       category: '',
       sizes: '',
@@ -105,6 +105,7 @@ export default function AddProductPage() {
       isFeatured: false,
       tags: '',
       sku: '',
+      weightGrams: null,
       careInstructions: '',
     },
   });
@@ -239,7 +240,7 @@ export default function AddProductPage() {
                                 <FormItem>
                                     <FormLabel>Base Price (EGP)</FormLabel>
                                     <FormControl>
-                                    <Input type="number" placeholder="e.g., 299.99" {...field} value={field.value ?? ''} />
+                                    <Input type="number" placeholder="e.g., 299.99" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -252,7 +253,7 @@ export default function AddProductPage() {
                                 <FormItem>
                                     <FormLabel>Original Price (Optional)</FormLabel>
                                     <FormControl>
-                                    <Input type="number" placeholder="e.g., 399.99" {...field} value={field.value ?? ''} onChange={field.onChange} />
+                                    <Input type="number" placeholder="e.g., 399.99" {...field} value={field.value ?? ''} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -279,7 +280,7 @@ export default function AddProductPage() {
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Category</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                    <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select a category" />
