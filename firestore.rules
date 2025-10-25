@@ -1,192 +1,189 @@
+/**
+ * @fileoverview Firestore Security Rules for Style Store App
+ *
+ * Core Philosophy:
+ * This ruleset enforces a user-ownership model for personal data and allows public read access to product catalog data.
+ *
+ * Data Structure:
+ * - Products and Categories are stored in top-level collections for public read access.
+ * - User-specific data (profiles, shopping carts, AI outfit suggestions) is nested under /users/{userId}.
+ * - Orders are stored in a top-level collection.
+ * - Site settings are stored in a top-level collection.
+ *
+ * Key Security Decisions:
+ * - Users can only create, update, and delete their own user profiles and associated data.
+ * - Products, categories, orders and site settings are publicly readable, but writes are not secured in this prototype.
+ * - User listing is disallowed.
+ *
+ * Denormalization for Authorization:
+ *  - User-specific data (e.g., shopping cart items, AI outfit suggestions) includes a 'userId' field that must match the document path. This is enforced on creation and update.
+ *
+ * Structural Segregation:
+ * - Private user data is stored under the `/users/{userId}` path, while public product data is stored in top-level collections.
+ */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Checks if the request is authenticated.
+     * @description Checks if the current user is signed in.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Authentication is required for certain operations.
      */
     function isSignedIn() {
       return request.auth != null;
     }
 
     /**
-     * @description Checks if the authenticated user is the owner of the resource.
+     * @description Checks if the current user is the owner of the resource.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Enforces ownership-based access control.
      */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
     /**
-     * @description Checks if the authenticated user is the owner of the resource and the resource exists.
+     * @description Checks if the current user is the existing owner of the resource.
+     *              Also verifies that the document exists to prevent accidental deletions.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Enforces ownership and prevents operations on non-existent documents.
      */
     function isExistingOwner(userId) {
-      return isOwner(userId) && exists(resource);
+        return isOwner(userId) && resource != null;
     }
 
     /**
-     * @description Grants read access to all authenticated users.
-     */
-    function isAuthenticated() {
-        return request.auth != null;
-    }
-
-    /**
-     * @description Grants write access only to admins.  Not yet implemented.
-     */
-    function isAdmin() {
-      return false;
-    }
-
-    /**
-     * @description Defines the valid data structure for the categories documents.
-     */
-    function hasValidCategoryData() {
-        return true;
-    }
-
-    /**
-     * @description Defines the valid data structure for the products documents.
-     */
-    function hasValidProductData() {
-        return true;
-    }
-
-    /**
-     * @description Defines the valid data structure for the site settings documents.
-     */
-    function hasValidSiteSettingsData() {
-        return true;
-    }
-
-    /**
-     * @description
-     * Defines the valid data structure for the shopping cart item documents.
-     */
-    function hasValidShoppingCartItemData() {
-      return true;
-    }
-
-    /**
-     * @description Defines the valid data structure for the order documents.
-     */
-    function hasValidOrderData() {
-      return true;
-    }
-
-    /**
-     * @description Defines the valid data structure for the AI outfit suggestion documents.
-     */
-    function hasValidAiOutfitSuggestionData() {
-      return true;
-    }
-
-
-    /**
-     * @description Rules for the /categories/{categoryId} collection.
+     * @description Allows public read access to categories.  Writes are not secured in this prototype.
      * @path /categories/{categoryId}
-     * @allow (get, list): Any user can read any category.
-     * @allow (create, update, delete): No one can create, update, or delete categories except through the console
-     * @principle Allows public read access to categories.
+     * @allow (get, list): Any user can read category data.
+     * @allow (create, update, delete): No user can modify category data without proper authorization (TODO).
+     * @deny (create, update, delete): Any unauthenticated request.
+     * @principle Public read, requires auth for writes.
      */
     match /categories/{categoryId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create, update, delete: if false; // TODO: Secure writes
     }
 
     /**
-     * @description Rules for the /products/{productId} collection.
+     * @description Allows public read access to products. Writes are not secured in this prototype.
      * @path /products/{productId}
-     * @allow (get, list): Any user can read any product.
-     * @allow (create, update, delete): No one can create, update, or delete products except through the console.
-     * @principle Allows public read access to products.
+     * @allow (get, list): Any user can read product data.
+     * @allow (create, update, delete): No user can modify product data without proper authorization (TODO).
+     * @deny (create, update, delete): Any unauthenticated request.
+     * @principle Public read, requires auth for writes.
      */
     match /products/{productId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create, update, delete: if false; // TODO: Secure writes
     }
 
     /**
-     * @description Rules for the /users/{userId} collection.
+     * @description Manages user profile data.
      * @path /users/{userId}
-     * @allow (get, list): Only the user can read their own profile. User listing is disallowed.
-     * @allow (create): Only the user can create their own profile.
-     * @allow (update, delete): Only the user can update or delete their own profile, and the profile must already exist.
-     * @principle Enforces document ownership for user profiles.
+     * @allow (get): The user can read their own profile.
+     * @allow (list): Listing users is disallowed.
+     * @allow (create): The user can create their own profile if the UID matches the document ID.
+     * @allow (update): The user can update their own profile if the UID matches.
+     * @allow (delete): The user can delete their own profile if the UID matches.
+     * @deny (get): A different user tries to read this profile.
+     * @deny (create): A different user tries to create this profile.
+     * @deny (update): A different user tries to update this profile.
+     * @deny (delete): A different user tries to delete this profile.
+     * @principle Enforces document ownership.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && existsAfter(resource);
+      allow list: if false; // Listing users is not allowed
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for the /users/{userId}/shopping_cart_items/{cartItemId} collection.
+     * @description Manages shopping cart items for a user.
      * @path /users/{userId}/shopping_cart_items/{cartItemId}
-     * @allow (get, list): Only the user can read their own shopping cart items.
-     * @allow (create, update, delete): Only the user can create, update, or delete their own shopping cart items.
-     * @principle Enforces document ownership for shopping cart items.
+     * @allow (get, list): The user can read their own shopping cart items.
+     * @allow (create): The user can create shopping cart items under their own user ID.
+     * @allow (update): The user can update their own shopping cart items.
+     * @allow (delete): The user can delete their own shopping cart items.
+     * @deny (get, list): A different user tries to read these shopping cart items.
+     * @deny (create): A different user tries to create shopping cart items under a different user ID.
+     * @deny (update): A different user tries to update shopping cart items that don't belong to them.
+     * @deny (delete): A different user tries to delete shopping cart items that don't belong to them.
+     * @principle Enforces ownership for shopping cart items.
      */
     match /users/{userId}/shopping_cart_items/{cartItemId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && existsAfter(resource);
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for the /orders/{orderId} collection.
+     * @description Allows public read access to orders.  Writes are not secured in this prototype.
      * @path /orders/{orderId}
-     * @allow (get, list): Any authenticated user can get, list order data.
-     * @allow (create, update, delete): Only admins can create, update or delete order data.
-     * @principle Restricts order creation, updates, and deletion to admins.
+     * @allow (get, list): Any user can read order data.
+     * @allow (create, update, delete): No user can modify order data without proper authorization (TODO).
+     * @deny (create, update, delete): Any unauthenticated request.
+     * @principle Public read, requires auth for writes.
      */
     match /orders/{orderId} {
-      allow get, list: if isAuthenticated();
-      allow create: if isAdmin();
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Secure writes
     }
 
     /**
-     * @description Rules for the /users/{userId}/ai_outfit_suggestions/{suggestionId} collection.
+     * @description Manages AI outfit suggestions for a user.
      * @path /users/{userId}/ai_outfit_suggestions/{suggestionId}
-     * @allow (get, list): Only the user can read their own AI outfit suggestions.
-     * @allow (create, update, delete): Only the user can create, update, or delete their own AI outfit suggestions.
-     * @principle Enforces document ownership for AI outfit suggestions.
+     * @allow (get, list): The user can read their own AI outfit suggestions.
+     * @allow (create): The user can create AI outfit suggestions under their own user ID.
+     * @allow (update): The user can update their own AI outfit suggestions.
+     * @allow (delete): The user can delete their own AI outfit suggestions.
+     * @deny (get, list): A different user tries to read these AI outfit suggestions.
+     * @deny (create): A different user tries to create AI outfit suggestions under a different user ID.
+     * @deny (update): A different user tries to update AI outfit suggestions that don't belong to them.
+     * @deny (delete): A different user tries to delete AI outfit suggestions that don't belong to them.
+     * @principle Enforces ownership for AI outfit suggestions.
      */
     match /users/{userId}/ai_outfit_suggestions/{suggestionId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && existsAfter(resource);
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for the /site_settings/{settingId} collection.
+     * @description Allows public read access to site settings. Writes are not secured in this prototype.
      * @path /site_settings/{settingId}
-     * @allow (get, list): Any authenticated user can get and list site settings.
-     * @allow (create, update, delete): Only admins can create, update, and delete site settings.
+     * @allow (get, list): Any user can read site settings.
+     * @allow (create, update, delete): No user can modify site settings without proper authorization (TODO).
+     * @deny (create, update, delete): Any unauthenticated request.
+     * @principle Public read, requires auth for writes.
      */
     match /site_settings/{settingId} {
-      allow get, list: if isAuthenticated();
-      allow create: if isAdmin();
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Secure writes
     }
 
-    /**
-     * @description Rules for the /shipping_rates collection.
+        /**
+     * @description Allows public read access to shipping rates. Writes are not secured in this prototype.
      * @path /shipping_rates
-     * @allow (get, list): Any authenticated user can get and list shipping rates.
-     * @allow (create, update, delete): Nobody can create, update or delete shipping rates.
+     * @allow (get, list): Any user can read shipping rates.
+     * @allow (create, update, delete): No user can modify shipping rates without proper authorization (TODO).
+     * @deny (create, update, delete): Any unauthenticated request.
+     * @principle Public read, requires auth for writes.
      */
-    match /shipping_rates {
-      allow get, list: if isAuthenticated();
-      allow create, update, delete: if false;
-    }
+        match /shipping_rates {
+            allow get, list: if true;
+            allow create, update, delete: if false; // TODO: Secure writes
+        }
   }
 }
