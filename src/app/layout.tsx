@@ -1,4 +1,3 @@
-
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
@@ -20,7 +19,7 @@ const cairo = Cairo({
 // Helper function to fetch site settings
 async function getSiteSettings() {
   try {
-    const { firestore } = initializeFirebase(); // This will now work on the server
+    const { firestore } = initializeFirebase();
     const settingsDocRef = doc(firestore, 'site_settings', 'general');
     const docSnap = await getDoc(settingsDocRef);
 
@@ -38,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
 
   const metadata: Metadata = {
-    title: 'Koksi Kok',
+    title: 'Koksi Kok | Fashion & Shoes Store',
     description: 'تسوق الآن من شركة Koksi Kok أفضل الملابس، الأحذية، والإكسسوارات الأصلية بأسعار مميزة وجودة مضمونة. تسوق أونلاين بسهولة مع شحن سريع لجميع المحافظات.',
     keywords: "Koksi Kok, شركة ملابس وأحذية وإكسسوارات, متجر إلكتروني, تسوق أونلاين, كوتشي أديداس, أحذية نايك, ملابس رجالي ونسائي, ترنجات أصلية, ساعات وإكسسوارات, موضة عصرية, منتجات أصلية, خصومات, عروض, ملابس كاجوال, أحذية سبورت, شنط, تسوق الآن, جودة عالية",
     authors: [{ name: 'Koksi Kok Company' }],
@@ -68,13 +67,12 @@ export async function generateMetadata(): Promise<Metadata> {
       images: ['https://koksi-kok.vercel.app/logo.png'],
     },
     icons: {
-      icon: settings?.faviconUrl || '/favicon.ico', // Default fallback
-    }
+      icon: settings?.faviconUrl || '/favicon.ico',
+    },
   };
 
   return metadata;
 }
-
 
 export default function RootLayout({
   children,
@@ -102,14 +100,29 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
-        {/* Add Google Search Console verification tag here */}
+        {/* ✅ Meta Tags for SEO */}
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="author" content="Koksi Kok Company" />
+        <meta name="copyright" content="Koksi Kok © 2025" />
+        <meta name="language" content="Arabic" />
+        <meta name="rating" content="General" />
+        <meta name="distribution" content="global" />
+        <meta name="classification" content="E-commerce, Fashion, Shoes, Accessories" />
+
+        {/* ✅ Google Search Console verification */}
+        <meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_CODE_HERE" />
+
+        {/* ✅ Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
+
       <body
         className={cn(
           'min-h-screen bg-background font-body antialiased',
