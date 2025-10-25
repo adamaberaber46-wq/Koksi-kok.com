@@ -63,10 +63,15 @@ export default function Header() {
         <div className="flex items-center gap-6">
           <Link
             href="/"
-            className="flex items-center gap-2 text-xl font-bold font-headline"
+            className="flex items-center gap-2 text-2xl font-bold font-headline"
           >
-            <Shirt className="h-6 w-6" />
-            <span>Koksi Kok</span>
+            <Shirt className="h-7 w-7" />
+            <span>
+              <span className="text-logo-blue">K</span>o
+              <span className="text-logo-blue">k</span>si{' '}
+              <span className="text-logo-blue">K</span>o
+              <span className="text-logo-blue">k</span>
+            </span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
