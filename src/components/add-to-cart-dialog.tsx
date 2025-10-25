@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -25,6 +26,7 @@ import {
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
+import { ScrollArea } from './ui/scroll-area';
 
 export function AddToCartDialog({ product, children }: { product: Product, children: React.ReactNode }) {
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
@@ -73,66 +75,68 @@ export function AddToCartDialog({ product, children }: { product: Product, child
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Add to Cart: {product.name}</DialogTitle>
           <DialogDescription>
             Select your preferred options to add this item to your cart.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-            <div className="relative aspect-square w-full overflow-hidden rounded-md">
-                <Image
-                    src={selectedVariant?.imageUrls[0] || product.imageUrls[0] || '/placeholder.svg'}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                />
-            </div>
-            <div className="text-2xl font-bold">{formatPrice(priceToShow)}</div>
-
-            <div className="grid gap-2">
-                <Label htmlFor="size-select">Size</Label>
-                <Select value={selectedSize} onValueChange={setSelectedSize}>
-                <SelectTrigger id="size-select" className="w-full">
-                    <SelectValue placeholder="Select a size" />
-                </SelectTrigger>
-                <SelectContent>
-                    {product.sizes.map((size) => (
-                    <SelectItem key={size} value={size}>
-                        {size}
-                    </SelectItem>
-                    ))}
-                </SelectContent>
-                </Select>
-            </div>
-
-            {product.variants && product.variants.length > 0 && (
-              <div className="grid gap-2">
-                <Label>Color</Label>
-                <div className="flex flex-wrap gap-2">
-                  {product.variants.map((variant) => (
-                       <button
-                        key={variant.color}
-                        type="button"
-                        className={cn(
-                          'h-10 w-10 rounded-full border-2 transition-transform transform hover:scale-110 flex items-center justify-center overflow-hidden',
-                          selectedVariant?.color === variant.color ? 'border-primary scale-110' : 'border-border'
-                        )}
-                        onClick={() => handleVariantSelect(variant.color)}
-                        aria-label={`Select color ${variant.color}`}
-                        title={variant.color}
-                      >
-                         <Image src={variant.imageUrls[0]} alt={variant.color} width={40} height={40} className="object-cover" />
-                      </button>
-                  ))}
+        <ScrollArea className="pr-4 -mr-4">
+            <div className="space-y-4">
+                <div className="relative aspect-square w-full overflow-hidden rounded-md">
+                    <Image
+                        src={selectedVariant?.imageUrls[0] || product.imageUrls[0] || '/placeholder.svg'}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                    />
                 </div>
-              </div>
-            )}
-            
-            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-        </div>
-        <DialogFooter>
+                <div className="text-2xl font-bold">{formatPrice(priceToShow)}</div>
+
+                <div className="grid gap-2">
+                    <Label htmlFor="size-select">Size</Label>
+                    <Select value={selectedSize} onValueChange={setSelectedSize}>
+                    <SelectTrigger id="size-select" className="w-full">
+                        <SelectValue placeholder="Select a size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {product.sizes.map((size) => (
+                        <SelectItem key={size} value={size}>
+                            {size}
+                        </SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                </div>
+
+                {product.variants && product.variants.length > 0 && (
+                  <div className="grid gap-2">
+                    <Label>Color</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {product.variants.map((variant) => (
+                           <button
+                            key={variant.color}
+                            type="button"
+                            className={cn(
+                              'h-10 w-10 rounded-full border-2 transition-transform transform hover:scale-110 flex items-center justify-center overflow-hidden',
+                              selectedVariant?.color === variant.color ? 'border-primary scale-110' : 'border-border'
+                            )}
+                            onClick={() => handleVariantSelect(variant.color)}
+                            aria-label={`Select color ${variant.color}`}
+                            title={variant.color}
+                          >
+                             <Image src={variant.imageUrls[0]} alt={variant.color} width={40} height={40} className="object-cover" />
+                          </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+            </div>
+        </ScrollArea>
+        <DialogFooter className="pt-4">
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
@@ -142,3 +146,4 @@ export function AddToCartDialog({ product, children }: { product: Product, child
     </Dialog>
   );
 }
+
