@@ -75,14 +75,14 @@ export function AddToCartDialog({ product, children }: { product: Product, child
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add to Cart: {product.name}</DialogTitle>
           <DialogDescription>
             Select your preferred options to add this item to your cart.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="pr-4 -mr-4">
+        <div className="grid gap-4 py-4">
             <div className="space-y-4">
                 <div className="relative aspect-square w-full overflow-hidden rounded-md">
                     <Image
@@ -135,8 +135,8 @@ export function AddToCartDialog({ product, children }: { product: Product, child
                 
                 {error && <p className="text-sm font-medium text-destructive">{error}</p>}
             </div>
-        </ScrollArea>
-        <DialogFooter className="pt-4">
+        </div>
+        <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
@@ -146,4 +146,3 @@ export function AddToCartDialog({ product, children }: { product: Product, child
     </Dialog>
   );
 }
-
