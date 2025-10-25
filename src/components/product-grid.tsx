@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { Product, Category } from '@/lib/types';
 import ProductCard from './product-card';
 import { Button } from './ui/button';
@@ -12,7 +13,10 @@ import { useMemoFirebase } from '@/firebase/provider';
 import { Skeleton } from './ui/skeleton';
 
 export default function ProductGrid({ allProducts, initialCategory = 'All' }: { allProducts: Product[], initialCategory?: string }) {
-  const [filter, setFilter] = useState(initialCategory);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
+  
   const firestore = useFirestore();
 
   const categoriesQuery = useMemoFirebase(
@@ -22,11 +26,18 @@ export default function ProductGrid({ allProducts, initialCategory = 'All' }: { 
   const { data: categoriesData, isLoading: categoriesLoading } = useCollection<Category>(categoriesQuery);
 
   const categories = ['All', ...(categoriesData?.map(c => c.name) ?? [])];
+  
+  useEffect(() => {
+    // Keep the component's state in sync with the URL's search param
+    const categoryFromUrl = searchParams.get('category') || 'All';
+    setActiveCategory(categoryFromUrl);
+  }, [searchParams]);
 
-  const filteredProducts =
-    filter === 'All'
-      ? allProducts
-      : allProducts.filter((p) => p.category === filter);
+  const handleFilterChange = (category: string) => {
+    setActiveCategory(category);
+    // Update the URL to trigger a new server-side fetch
+    router.push(`/products?category=${category}`);
+  };
 
   return (
     <div>
@@ -35,20 +46,20 @@ export default function ProductGrid({ allProducts, initialCategory = 'All' }: { 
         {!categoriesLoading && categories.map((category) => (
           <Button
             key={category}
-            variant={filter === category ? 'default' : 'outline'}
-            onClick={() => setFilter(category)}
+            variant={activeCategory === category ? 'default' : 'outline'}
+            onClick={() => handleFilterChange(category)}
             className={cn(
               'capitalize',
-              filter === category && 'font-bold'
+              activeCategory === category && 'font-bold'
             )}
           >
             {category}
           </Button>
         ))}
       </div>
-      {filteredProducts.length > 0 ? (
+      {allProducts.length > 0 ? (
         <div className="flex flex-wrap justify-center gap-8">
-          {filteredProducts.map((product) => (
+          {allProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
