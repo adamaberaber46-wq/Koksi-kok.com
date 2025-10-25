@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -7,7 +8,7 @@ import {
   ShoppingCart,
   User,
   UserPlus,
-  Shirt,
+  ShoppingBag,
   LogOut,
   LayoutDashboard,
   Loader2,
@@ -65,7 +66,7 @@ export default function Header() {
             href="/"
             className="flex items-center gap-2 text-2xl font-bold font-headline"
           >
-            <Shirt className="h-7 w-7" />
+            <ShoppingBag className="h-7 w-7" />
             <span>
               <span className="text-logo-blue">K</span>o
               <span className="text-logo-blue">k</span>si{' '}
