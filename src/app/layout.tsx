@@ -28,7 +28,7 @@ async function getSiteSettings() {
     }
     return null;
   } catch (error) {
-    console.error("Error fetching site settings:", error);
+    console.error('Error fetching site settings:', error);
     return null;
   }
 }
@@ -93,6 +93,7 @@ export default function RootLayout({
       'https://www.facebook.com/koksi.kok',
       'https://www.instagram.com/koksi.kok',
       'https://www.linkedin.com/company/koksi-kok',
+      'https://wa.me/201234567890',
     ],
     contactPoint: {
       '@type': 'ContactPoint',
@@ -106,7 +107,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
-        {/* ✅ General Meta Tags */}
+        {/* ✅ Meta Tags for SEO */}
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#ffffff" />
@@ -115,44 +116,36 @@ export default function RootLayout({
         <meta name="language" content="Arabic" />
         <meta name="rating" content="General" />
         <meta name="distribution" content="global" />
-        <meta name="classification" content="E-commerce, Fashion, Shoes, Accessories" />
+        <meta
+          name="classification"
+          content="E-commerce, Fashion, Shoes, Accessories"
+        />
 
-        {/* ✅ Google Search Console */}
-        <meta name="google-site-verification" content="ZQLPiVxNUyCsG-X88B3lCMLXTsaffJg3kgE6KdLYuro" />
-        {/* ✅ Open Graph (Facebook, Instagram, WhatsApp) */}
-        <meta property="og:type" content="website" />
+        {/* ✅ Google Search Console Verification */}
+        <meta
+          name="google-site-verification"
+          content="ZQLPiVxNUyCsG-X88B3lCMLXTsaffJg3kgE6KdLYuro"
+        />
+
+        {/* ✅ Social Media (Facebook / Instagram / WhatsApp) */}
         <meta property="og:title" content="Koksi Kok | Fashion & Shoes Store" />
         <meta
           property="og:description"
-          content="تسوق أحدث الأزياء والأحذية والإكسسوارات الأصلية من Koksi Kok بأسعار مميزة وجودة مضمونة."
+          content="تسوق أحدث الأزياء والأحذية والإكسسوارات الأصلية من Koksi Kok."
         />
-        <meta property="og:url" content="https://koksi-kok.vercel.app" />
-        <meta property="og:site_name" content="Koksi Kok" />
-        <meta property="og:locale" content="ar_AR" />
         <meta property="og:image" content="https://koksi-kok.vercel.app/logo.png" />
-        <meta property="og:image:type" content="image/png" />
-        <meta property="og:image:width" content="800" />
-        <meta property="og:image:height" content="600" />
+        <meta property="og:url" content="https://koksi-kok.vercel.app" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Koksi Kok" />
 
-        {/* ✅ Twitter Card */}
+        {/* WhatsApp preview (uses OG tags automatically) */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Koksi Kok | Fashion & Shoes Store" />
         <meta
           name="twitter:description"
-          content="تسوق أحدث الأزياء والأحذية والإكسسوارات الأصلية من Koksi Kok."
+          content="أفضل متجر إلكتروني لشراء الملابس والأحذية والإكسسوارات الأصلية."
         />
         <meta name="twitter:image" content="https://koksi-kok.vercel.app/logo.png" />
-
-        {/* ✅ WhatsApp Preview (uses OG tags, but we reinforce it for better display) */}
-        <meta property="og:whatsapp:title" content="Koksi Kok | Fashion & Shoes Store" />
-        <meta
-          property="og:whatsapp:description"
-          content="🛍️ اكتشف أحدث الموديلات من الملابس والأحذية والإكسسوارات الأصلية فقط على Koksi Kok!"
-        />
-        <meta
-          property="og:whatsapp:image"
-          content="https://koksi-kok.vercel.app/logo.png"
-        />
 
         {/* ✅ Structured Data */}
         <script
@@ -177,3 +170,4 @@ export default function RootLayout({
     </html>
   );
 }
+
