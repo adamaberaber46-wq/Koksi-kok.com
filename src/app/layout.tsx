@@ -118,11 +118,7 @@ export default function RootLayout({
         <meta name="classification" content="E-commerce, Fashion, Shoes, Accessories" />
 
         {/* ✅ Google Search Console */}
-        <meta
-          name="google-site-verification"
-          content="YOUR_GOOGLE_VERIFICATION_CODE_HERE"
-        />
-
+        <meta name="google-site-verification" content="ZQLPiVxNUyCsG-X88B3lCMLXTsaffJg3kgE6KdLYuro" />
         {/* ✅ Open Graph (Facebook, Instagram, WhatsApp) */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Koksi Kok | Fashion & Shoes Store" />
