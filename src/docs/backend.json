@@ -128,15 +128,16 @@
           "type": "string",
           "description": "Name of the category."
         },
-        "description": {
-          "type": "string",
-          "description": "Description of the category."
+        "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL for the category's representative image."
         }
       },
       "required": [
         "id",
         "name",
-        "description"
+        "imageUrl"
       ]
     },
     "ShoppingCartItem": {

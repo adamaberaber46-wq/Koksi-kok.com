@@ -1,0 +1,535 @@
+
+'use client';
+
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
+import { Loader2, Trash2, PlusCircle, ArrowLeft } from 'lucide-react';
+import { useCollection, useDoc, useFirestore } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import { useRouter, useParams } from 'next/navigation';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { Separator } from '@/components/ui/separator';
+import type { Category, Product } from '@/lib/types';
+import { useMemoFirebase, useUser } from '@/firebase/provider';
+import Link from 'next/link';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Switch } from '@/components/ui/switch';
+
+const productVariantSchema = z.object({
+    color: z.string().min(1, 'Color name is required'),
+    imageUrls: z.string().min(1, 'At least one image URL is required.'),
+    price: z.coerce.number().positive('Price must be a positive number'),
+});
+
+const productFormSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(2, { message: 'Product name must be at least 2 characters.' }),
+  description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
+  price: z.coerce.number().positive({ message: 'Base price must be a positive number.' }),
+  originalPrice: z.coerce.number().optional().nullable(),
+  brand: z.string().min(2, { message: 'Brand is required.' }),
+  category: z.string().min(1, { message: 'Category is required.' }),
+  sizes: z.string().min(1, { message: 'At least one size is required.' }),
+  imageUrls: z.string().min(1, { message: 'At least one general image URL is required.' }),
+  material: z.string().min(2, { message: 'Material is required.' }),
+  countryOfOrigin: z.string().min(2, { message: 'Country of origin is required.' }),
+  variants: z.array(productVariantSchema).min(1, "At least one color variant is required."),
+  isFeatured: z.boolean().default(false),
+  // Optional fields
+  tags: z.string().optional(),
+  sku: z.string().optional(),
+  weightGrams: z.coerce.number().optional(),
+  careInstructions: z.string().optional(),
+});
+
+
+export default function EditProductPage() {
+  const [isProductSubmitting, setIsProductSubmitting] = useState(false);
+  const { toast } = useToast();
+  const firestore = useFirestore();
+  const router = useRouter();
+  const params = useParams();
+  const productId = params.productId as string;
+
+  const { user, isUserLoading } = useUser();
+  const isAdmin = user?.email === 'adamaber50@gmail.com';
+
+  const productRef = useMemoFirebase(
+    () => (firestore && productId ? doc(firestore, 'products', productId) : null),
+    [firestore, productId]
+  );
+  const { data: product, isLoading: isProductLoading } = useDoc<Product>(productRef);
+
+  useEffect(() => {
+    if (!isUserLoading) {
+      if (!user || !isAdmin) {
+        router.push('/login');
+      }
+    }
+  }, [user, isUserLoading, isAdmin, router]);
+
+  const categoriesQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'categories') : null),
+    [firestore]
+  );
+  const { data: categories } = useCollection<Category>(categoriesQuery);
+
+  const productForm = useForm<z.infer<typeof productFormSchema>>({
+    resolver: zodResolver(productFormSchema),
+  });
+  
+  useEffect(() => {
+      if(product) {
+        productForm.reset({
+            ...product,
+            price: product.price || 0,
+            originalPrice: product.originalPrice || undefined,
+            sizes: product.sizes ? product.sizes.join(', ') : '',
+            imageUrls: product.imageUrls ? product.imageUrls.join(', ') : '',
+            tags: product.tags ? product.tags.join(', ') : '',
+            isFeatured: product.isFeatured || false,
+            variants: product.variants.map(v => ({
+                ...v,
+                imageUrls: Array.isArray(v.imageUrls) ? v.imageUrls.join(', ') : '',
+            })) || [{ color: '', imageUrls: '', price: product.price }]
+        });
+      }
+  }, [product, productForm]);
+  
+  const { fields: variantFields, append: appendVariant, remove: removeVariant } = useFieldArray({
+    control: productForm.control,
+    name: 'variants',
+  });
+
+  async function onProductSubmit(values: z.infer<typeof productFormSchema>) {
+    setIsProductSubmitting(true);
+
+    if (!firestore || !productId) {
+        toast({
+            title: 'Error',
+            description: 'Firestore is not available or Product ID is missing. Please try again later.',
+            variant: 'destructive',
+        });
+        setIsProductSubmitting(false);
+        return;
+    }
+
+    const updatedProductData: Omit<Product, 'id'> = {
+      name: values.name,
+      description: values.description,
+      price: Number(values.price),
+      brand: values.brand,
+      category: values.category,
+      sizes: values.sizes.split(',').map((s) => s.trim()),
+      imageUrls: values.imageUrls.split(',').map((url) => url.trim()),
+      material: values.material,
+      countryOfOrigin: values.countryOfOrigin,
+      isFeatured: values.isFeatured,
+      variants: values.variants.map(v => ({
+        ...v,
+        price: Number(v.price),
+        imageUrls: v.imageUrls.split(',').map(url => url.trim()),
+      })),
+      ...(values.tags && { tags: values.tags.split(',').map(t => t.trim()) }),
+      ...(values.sku && { sku: values.sku }),
+      ...(values.weightGrams && { weightGrams: Number(values.weightGrams) }),
+      ...(values.careInstructions && { careInstructions: values.careInstructions }),
+    };
+    
+    if (values.originalPrice) {
+      updatedProductData.originalPrice = Number(values.originalPrice);
+    } else {
+      updatedProductData.originalPrice = undefined;
+    }
+
+    const productDocRef = doc(firestore, 'products', productId);
+    setDocumentNonBlocking(productDocRef, updatedProductData, { merge: true });
+    toast({
+        title: 'Product Updated!',
+        description: `${values.name} has been successfully updated.`,
+    });
+    
+    setIsProductSubmitting(false);
+    router.push('/admin/products');
+  }
+
+  if (isUserLoading || isProductLoading || !isAdmin) {
+    return (
+        <div className="min-h-screen flex items-center justify-center">
+            <Loader2 className="h-16 w-16 animate-spin" />
+        </div>
+    );
+  }
+
+  if (!product) {
+      return (
+          <div className="container mx-auto px-4 py-8 md:py-16 text-center">
+              <h1 className="text-2xl font-bold">Product not found</h1>
+              <p className="text-muted-foreground">This product could not be found. It may have been deleted.</p>
+              <Button asChild className="mt-4">
+                  <Link href="/admin/products">Go Back to Products</Link>
+              </Button>
+          </div>
+      )
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8 md:py-16">
+        <div className="max-w-3xl mx-auto space-y-12">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl font-headline">Edit Product</CardTitle>
+                    <CardDescription>Update the details for &quot;{product.name}&quot;.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...productForm}>
+                        <form onSubmit={productForm.handleSubmit(onProductSubmit)} className="space-y-8">
+                        <FormField
+                            control={productForm.control}
+                            name="name"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Product Name</FormLabel>
+                                <FormControl>
+                                <Input placeholder="e.g., Classic White Tee" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={productForm.control}
+                            name="isFeatured"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Mark as Best Seller</FormLabel>
+                                    <FormDescription>
+                                    If checked, this product will appear on the homepage.
+                                    </FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    />
+                                </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={productForm.control}
+                            name="description"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Description</FormLabel>
+                                <FormControl>
+                                <Textarea placeholder="Describe the product..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <FormField
+                                control={productForm.control}
+                                name="price"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Base Price (EGP)</FormLabel>
+                                    <FormControl>
+                                    <Input type="number" placeholder="e.g., 299.99" {...field} value={field.value ?? ''} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={productForm.control}
+                                name="originalPrice"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Original Price (Optional)</FormLabel>
+                                    <FormControl>
+                                    <Input type="number" placeholder="e.g., 399.99" {...field} value={field.value ?? ''} onChange={field.onChange} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <FormField
+                                control={productForm.control}
+                                name="brand"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Brand</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="e.g., Koksi Kok" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={productForm.control}
+                                name="category"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Category</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a category" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {categories && categories.map(cat => (
+                                                <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                        </div>
+                        <FormField
+                            control={productForm.control}
+                            name="sizes"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Available Sizes</FormLabel>
+                                <FormControl>
+                                <Input placeholder="S, M, L, XL (comma-separated)" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        
+                        <FormField
+                            control={productForm.control}
+                            name="imageUrls"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>General Image URLs (comma-separated)</FormLabel>
+                                <FormControl>
+                                <Textarea placeholder="https://.../img1.jpg, https://.../img2.jpg" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <FormField
+                                control={productForm.control}
+                                name="material"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Material</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="e.g., 100% Cotton" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={productForm.control}
+                                name="countryOfOrigin"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Country of Origin</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="e.g., Egypt" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                        </div>
+                        
+                        <div className="space-y-6">
+                            <Separator />
+                            <h3 className="text-lg font-medium">Product Variants (Colors)</h3>
+                            {variantFields.map((field, index) => (
+                                <div key={field.id} className="p-4 border rounded-md space-y-4 relative">
+                                    <h4 className="font-semibold">Variant {index + 1}</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <FormField
+                                            control={productForm.control}
+                                            name={`variants.${index}.color`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                <FormLabel>Color Name</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g., Red" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={productForm.control}
+                                            name={`variants.${index}.price`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                <FormLabel>Variant Price (EGP)</FormLabel>
+                                                <FormControl>
+                                                    <Input type="number" placeholder="e.g., 350.00" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <FormField
+                                        control={productForm.control}
+                                        name={`variants.${index}.imageUrls`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                            <FormLabel>Variant Image URLs (comma-separated)</FormLabel>
+                                            <FormControl>
+                                                <Textarea placeholder="https://.../red-1.jpg, https://.../red-2.jpg" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    {variantFields.length > 1 && (
+                                    <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => removeVariant(index)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                    )}
+                                </div>
+                            ))}
+                            <FormField
+                                control={productForm.control}
+                                name="variants"
+                                render={() => (
+                                    <FormItem>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => appendVariant({ color: '', imageUrls: '', price: 0 })}
+                            >
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add Another Variant
+                            </Button>
+                            <Separator />
+                        </div>
+
+                        <Collapsible>
+                            <CollapsibleTrigger asChild>
+                                <Button variant="link" className="p-0">
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    Add More Details (Optional)
+                                </Button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                            <div className="space-y-8 pt-6">
+                                    <FormField
+                                        control={productForm.control}
+                                        name="tags"
+                                        render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tags</FormLabel>
+                                            <FormControl>
+                                            <Input placeholder="e.g. summer, casual, sale" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                        )}
+                                    />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <FormField
+                                            control={productForm.control}
+                                            name="sku"
+                                            render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>SKU</FormLabel>
+                                                <FormControl>
+                                                <Input placeholder="e.g. TSHIRT-WHT-LG" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={productForm.control}
+                                            name="weightGrams"
+                                            render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Weight (grams)</FormLabel>
+                                                <FormControl>
+                                                <Input type="number" placeholder="e.g. 250" {...field} value={field.value ?? ''} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <FormField
+                                        control={productForm.control}
+                                        name="careInstructions"
+                                        render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Care Instructions</FormLabel>
+                                            <FormControl>
+                                            <Textarea placeholder="e.g. Machine wash cold, tumble dry low" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                        )}
+                                    />
+                            </div>
+                            </CollapsibleContent>
+                        </Collapsible>
+
+
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            <Button type="button" variant="outline" asChild>
+                                <Link href="/admin/products"><ArrowLeft className="mr-2" /> Cancel</Link>
+                            </Button>
+                            <Button type="submit" className="w-full" disabled={isProductSubmitting}>
+                                {isProductSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Save Changes
+                            </Button>
+                        </div>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+  );
+}
