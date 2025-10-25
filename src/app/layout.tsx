@@ -38,8 +38,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const metadata: Metadata = {
     title: 'Koksi Kok | Fashion & Shoes Store',
-    description: 'تسوق الآن من شركة Koksi Kok أفضل الملابس، الأحذية، والإكسسوارات الأصلية بأسعار مميزة وجودة مضمونة. تسوق أونلاين بسهولة مع شحن سريع لجميع المحافظات.',
-    keywords: "Koksi Kok, شركة ملابس وأحذية وإكسسوارات, متجر إلكتروني, تسوق أونلاين, كوتشي أديداس, أحذية نايك, ملابس رجالي ونسائي, ترنجات أصلية, ساعات وإكسسوارات, موضة عصرية, منتجات أصلية, خصومات, عروض, ملابس كاجوال, أحذية سبورت, شنط, تسوق الآن, جودة عالية",
+    description:
+      'تسوق الآن من شركة Koksi Kok أفضل الملابس، الأحذية، والإكسسوارات الأصلية بأسعار مميزة وجودة مضمونة. تسوق أونلاين بسهولة مع شحن سريع لجميع المحافظات.',
+    keywords:
+      'Koksi Kok, شركة ملابس وأحذية وإكسسوارات, متجر إلكتروني, تسوق أونلاين, كوتشي أديداس, أحذية نايك, ملابس رجالي ونسائي, ترنجات أصلية, ساعات وإكسسوارات, موضة عصرية, منتجات أصلية, خصومات, عروض, ملابس كاجوال, أحذية سبورت, شنط, تسوق الآن, جودة عالية',
     authors: [{ name: 'Koksi Kok Company' }],
     robots: {
       index: true,
@@ -47,7 +49,8 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title: 'Koksi Kok | متجر إلكتروني للأزياء والأحذية والإكسسوارات',
-      description: 'أفضل متجر إلكتروني لشراء الأحذية والملابس والإكسسوارات الأصلية بأسعار مميزة وجودة مضمونة.',
+      description:
+        'أفضل متجر إلكتروني لشراء الأحذية والملابس والإكسسوارات الأصلية بأسعار مميزة وجودة مضمونة.',
       url: 'https://koksi-kok.vercel.app',
       siteName: 'Koksi Kok',
       images: [
@@ -63,7 +66,8 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: 'Koksi Kok | Fashion & Shoes Store',
-      description: 'تسوق أحدث الأزياء والأحذية والإكسسوارات الأصلية من Koksi Kok.',
+      description:
+        'تسوق أحدث الأزياء والأحذية والإكسسوارات الأصلية من Koksi Kok.',
       images: ['https://koksi-kok.vercel.app/logo.png'],
     },
     icons: {
@@ -102,7 +106,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
-        {/* ✅ Meta Tags for SEO */}
+        {/* ✅ General Meta Tags */}
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#ffffff" />
@@ -113,8 +117,46 @@ export default function RootLayout({
         <meta name="distribution" content="global" />
         <meta name="classification" content="E-commerce, Fashion, Shoes, Accessories" />
 
-        {/* ✅ Google Search Console verification */}
-        <meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_CODE_HERE" />
+        {/* ✅ Google Search Console */}
+        <meta
+          name="google-site-verification"
+          content="YOUR_GOOGLE_VERIFICATION_CODE_HERE"
+        />
+
+        {/* ✅ Open Graph (Facebook, Instagram, WhatsApp) */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Koksi Kok | Fashion & Shoes Store" />
+        <meta
+          property="og:description"
+          content="تسوق أحدث الأزياء والأحذية والإكسسوارات الأصلية من Koksi Kok بأسعار مميزة وجودة مضمونة."
+        />
+        <meta property="og:url" content="https://koksi-kok.vercel.app" />
+        <meta property="og:site_name" content="Koksi Kok" />
+        <meta property="og:locale" content="ar_AR" />
+        <meta property="og:image" content="https://koksi-kok.vercel.app/logo.png" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="800" />
+        <meta property="og:image:height" content="600" />
+
+        {/* ✅ Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Koksi Kok | Fashion & Shoes Store" />
+        <meta
+          name="twitter:description"
+          content="تسوق أحدث الأزياء والأحذية والإكسسوارات الأصلية من Koksi Kok."
+        />
+        <meta name="twitter:image" content="https://koksi-kok.vercel.app/logo.png" />
+
+        {/* ✅ WhatsApp Preview (uses OG tags, but we reinforce it for better display) */}
+        <meta property="og:whatsapp:title" content="Koksi Kok | Fashion & Shoes Store" />
+        <meta
+          property="og:whatsapp:description"
+          content="🛍️ اكتشف أحدث الموديلات من الملابس والأحذية والإكسسوارات الأصلية فقط على Koksi Kok!"
+        />
+        <meta
+          property="og:whatsapp:image"
+          content="https://koksi-kok.vercel.app/logo.png"
+        />
 
         {/* ✅ Structured Data */}
         <script
