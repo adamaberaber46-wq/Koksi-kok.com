@@ -2,188 +2,172 @@
  * @fileoverview Firestore Security Rules for Style Store App
  *
  * Core Philosophy:
- * This ruleset enforces a user-ownership model for personal data and allows public read access to product catalog data.
+ * This ruleset enforces a combination of public read access for product catalogs and
+ * strict user-ownership for personal data like shopping carts and user profiles.
+ * Administrative access to Orders is not explicitly defined and thus not permitted.
  *
  * Data Structure:
- * - Products and Categories are stored in top-level collections for public read access.
- * - User-specific data (profiles, shopping carts, AI outfit suggestions) is nested under /users/{userId}.
- * - Orders are stored in a top-level collection.
- * - Site settings are stored in a top-level collection.
+ * - `/categories/{categoryId}`: Publicly readable product categories.
+ * - `/products/{productId}`: Publicly readable product information.
+ * - `/users/{userId}`: User profiles, accessible only to the owning user.
+ * - `/users/{userId}/shopping_cart_items/{cartItemId}`: Shopping cart items owned by a specific user.
+ * - `/orders/{orderId}`: Orders, not accessible to users, implicitly restricted.
+ * - `/users/{userId}/ai_outfit_suggestions/{suggestionId}`: AI outfit suggestions specific to a user.
+ * - `/site_settings/{settingId}`: Global site settings, no rules defined, implicitly restricted.
  *
  * Key Security Decisions:
- * - Users can only create, update, and delete their own user profiles and associated data.
- * - Products, categories, orders and site settings are publicly readable, but writes are not secured in this prototype.
- * - User listing is disallowed.
+ * - Public product catalog (categories and products) for all users.
+ * - Strict ownership model for user profiles, shopping carts, and AI outfit suggestions.
+ * - Listing of user documents is disallowed for privacy.
+ * - Orders and Site settings are implicitly restricted due to a lack of defined rules.
  *
  * Denormalization for Authorization:
- *  - User-specific data (e.g., shopping cart items, AI outfit suggestions) includes a 'userId' field that must match the document path. This is enforced on creation and update.
- *
- * Structural Segregation:
- * - Private user data is stored under the `/users/{userId}` path, while public product data is stored in top-level collections.
+ *  - User-specific data is nested under `/users/{userId}` to enable easy ownership checks using `isOwner(userId)`.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Checks if the current user is signed in.
-     * @path N/A
-     * @allow N/A
-     * @deny N/A
-     * @principle Authentication is required for certain operations.
-     */
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    /**
-     * @description Checks if the current user is the owner of the resource.
-     * @path N/A
-     * @allow N/A
-     * @deny N/A
-     * @principle Enforces ownership-based access control.
-     */
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    /**
-     * @description Checks if the current user is the existing owner of the resource.
-     *              Also verifies that the document exists to prevent accidental deletions.
-     * @path N/A
-     * @allow N/A
-     * @deny N/A
-     * @principle Enforces ownership and prevents operations on non-existent documents.
-     */
-    function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-    }
-
-    /**
-     * @description Allows public read access to categories.  Writes are not secured in this prototype.
+     * @description Allows anyone to read category data, but restricts writes.
      * @path /categories/{categoryId}
-     * @allow (get, list): Any user can read category data.
-     * @allow (create, update, delete): No user can modify category data without proper authorization (TODO).
-     * @deny (create, update, delete): Any unauthenticated request.
-     * @principle Public read, requires auth for writes.
+     * @allow get, list: if true
+     * @deny create, update, delete: if false
+     * @principle Public read access for product categories.
      */
     match /categories/{categoryId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; // TODO: Secure writes
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
 
     /**
-     * @description Allows public read access to products. Writes are not secured in this prototype.
+     * @description Allows anyone to read product data, but restricts writes.
      * @path /products/{productId}
-     * @allow (get, list): Any user can read product data.
-     * @allow (create, update, delete): No user can modify product data without proper authorization (TODO).
-     * @deny (create, update, delete): Any unauthenticated request.
-     * @principle Public read, requires auth for writes.
+     * @allow get, list: if true
+     * @deny create, update, delete: if false
+     * @principle Public read access for product information.
      */
     match /products/{productId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; // TODO: Secure writes
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
 
     /**
-     * @description Manages user profile data.
+     * @description Restricts access to user profile data to the owning user.
      * @path /users/{userId}
-     * @allow (get): The user can read their own profile.
-     * @allow (list): Listing users is disallowed.
-     * @allow (create): The user can create their own profile if the UID matches the document ID.
-     * @allow (update): The user can update their own profile if the UID matches.
-     * @allow (delete): The user can delete their own profile if the UID matches.
-     * @deny (get): A different user tries to read this profile.
-     * @deny (create): A different user tries to create this profile.
-     * @deny (update): A different user tries to update this profile.
-     * @deny (delete): A different user tries to delete this profile.
-     * @principle Enforces document ownership.
+     * @allow create: if isSignedIn() && request.auth.uid == userId
+     * @allow get: if isOwner(userId)
+     * @deny list: if false
+     * @allow update: if isExistingOwner(userId)
+     * @allow delete: if isExistingOwner(userId)
+     * @deny create: if !isSignedIn() || request.auth.uid != userId
+     * @principle Enforces document ownership for user profiles.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if false; // Listing users is not allowed
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow list: if false;
+      allow create: if isSignedIn() && request.auth.uid == userId;
       allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Manages shopping cart items for a user.
+     * @description Restricts access to shopping cart items to the owning user.
      * @path /users/{userId}/shopping_cart_items/{cartItemId}
-     * @allow (get, list): The user can read their own shopping cart items.
-     * @allow (create): The user can create shopping cart items under their own user ID.
-     * @allow (update): The user can update their own shopping cart items.
-     * @allow (delete): The user can delete their own shopping cart items.
-     * @deny (get, list): A different user tries to read these shopping cart items.
-     * @deny (create): A different user tries to create shopping cart items under a different user ID.
-     * @deny (update): A different user tries to update shopping cart items that don't belong to them.
-     * @deny (delete): A different user tries to delete shopping cart items that don't belong to them.
-     * @principle Enforces ownership for shopping cart items.
+     * @allow get: if isOwner(userId)
+     * @allow list: if isOwner(userId)
+     * @allow create: if isOwner(userId) && request.resource.data.userId == userId;
+     * @allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+     * @allow delete: if isExistingOwner(userId);
+     * @principle Enforces document ownership for shopping cart items.
      */
     match /users/{userId}/shopping_cart_items/{cartItemId} {
-      allow get, list: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
       allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows public read access to orders.  Writes are not secured in this prototype.
+     * @description Restricts access to orders.
      * @path /orders/{orderId}
-     * @allow (get, list): Any user can read order data.
-     * @allow (create, update, delete): No user can modify order data without proper authorization (TODO).
-     * @deny (create, update, delete): Any unauthenticated request.
-     * @principle Public read, requires auth for writes.
+     * @deny get, list, create, update, delete: if false
+     * @principle No user access to orders.
      */
     match /orders/{orderId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; // TODO: Secure writes
+      allow get: if false;
+      allow list: if false;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
 
     /**
-     * @description Manages AI outfit suggestions for a user.
+     * @description Restricts access to AI outfit suggestions to the owning user.
      * @path /users/{userId}/ai_outfit_suggestions/{suggestionId}
-     * @allow (get, list): The user can read their own AI outfit suggestions.
-     * @allow (create): The user can create AI outfit suggestions under their own user ID.
-     * @allow (update): The user can update their own AI outfit suggestions.
-     * @allow (delete): The user can delete their own AI outfit suggestions.
-     * @deny (get, list): A different user tries to read these AI outfit suggestions.
-     * @deny (create): A different user tries to create AI outfit suggestions under a different user ID.
-     * @deny (update): A different user tries to update AI outfit suggestions that don't belong to them.
-     * @deny (delete): A different user tries to delete AI outfit suggestions that don't belong to them.
-     * @principle Enforces ownership for AI outfit suggestions.
+     * @allow get: if isOwner(userId)
+     * @allow list: if isOwner(userId)
+     * @allow create: if isOwner(userId) && request.resource.data.userId == userId;
+     * @allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+     * @allow delete: if isExistingOwner(userId);
+     * @principle Enforces document ownership for AI outfit suggestions.
      */
     match /users/{userId}/ai_outfit_suggestions/{suggestionId} {
-      allow get, list: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
       allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows public read access to site settings. Writes are not secured in this prototype.
+     * @description Restricts access to site settings.
      * @path /site_settings/{settingId}
-     * @allow (get, list): Any user can read site settings.
-     * @allow (create, update, delete): No user can modify site settings without proper authorization (TODO).
-     * @deny (create, update, delete): Any unauthenticated request.
-     * @principle Public read, requires auth for writes.
+     * @deny get, list, create, update, delete: if false
+     * @principle No user access to site settings.
      */
     match /site_settings/{settingId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; // TODO: Secure writes
+      allow get: if false;
+      allow list: if false;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
 
-        /**
-     * @description Allows public read access to shipping rates. Writes are not secured in this prototype.
+     /**
+     * @description Allows anyone to read shipping rates data, but restricts writes.
      * @path /shipping_rates
-     * @allow (get, list): Any user can read shipping rates.
-     * @allow (create, update, delete): No user can modify shipping rates without proper authorization (TODO).
-     * @deny (create, update, delete): Any unauthenticated request.
-     * @principle Public read, requires auth for writes.
+     * @allow get, list: if true
+     * @deny create, update, delete: if false
+     * @principle Public read access for shipping rates.
      */
-        match /shipping_rates {
-            allow get, list: if true;
-            allow create, update, delete: if false; // TODO: Secure writes
-        }
+    match /shipping_rates/{shippingRateId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+    }
   }
 }
