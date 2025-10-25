@@ -36,7 +36,7 @@
           "description": "General URLs of the product images, not specific to variants.",
           "items": { "type": "string", "format": "uri" }
         },
-        "availableSizes": {
+        "sizes": {
           "type": "array",
           "description": "Available sizes for the product.",
           "items": {
@@ -106,7 +106,7 @@
         "description",
         "price",
         "imageUrls",
-        "availableSizes",
+        "sizes",
         "variants",
         "categoryId",
         "brand",
