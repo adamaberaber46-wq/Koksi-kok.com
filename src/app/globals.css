@@ -37,7 +37,6 @@
     --sidebar-accent-foreground: 0 0% 9%;
     --sidebar-border: 0 0% 89.8%;
     --sidebar-ring: 0 0% 20%;
-    --logo-blue: 221.2 83.2% 53.3%;
   }
   .dark {
     --background: 0 0% 9%;
@@ -72,7 +71,6 @@
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 14.9%;
     --sidebar-ring: 0 0% 83.1%;
-    --logo-blue: 221.2 83.2% 53.3%;
   }
 }
 

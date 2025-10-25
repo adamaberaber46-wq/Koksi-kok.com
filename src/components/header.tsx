@@ -64,15 +64,10 @@ export default function Header() {
         <div className="flex items-center gap-6">
           <Link
             href="/"
-            className="flex items-center gap-2 text-2xl font-bold font-headline"
+            className="flex items-center gap-2 text-3xl font-bold font-headline"
           >
-            <ShoppingBag className="h-7 w-7" />
-            <span>
-              <span className="text-logo-blue">K</span>o
-              <span className="text-logo-blue">k</span>si{' '}
-              <span className="text-logo-blue">K</span>o
-              <span className="text-logo-blue">k</span>
-            </span>
+            <ShoppingBag className="h-8 w-8" />
+            <span>Koksi Kok</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNav.map((item) => (
