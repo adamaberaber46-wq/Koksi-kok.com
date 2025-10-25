@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -21,10 +22,10 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFirestore, useUser } from '@/firebase';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import type { Order } from '@/lib/types';
+import type { Order, ShippingRate } from '@/lib/types';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -35,7 +36,12 @@ const formSchema = z.object({
   zip: z.string().min(5, { message: 'A valid ZIP code is required.' }),
 });
 
-export default function CheckoutForm() {
+interface CheckoutFormProps {
+    selectedGovernorate: ShippingRate | null;
+    shippingCost: number;
+}
+
+export default function CheckoutForm({ selectedGovernorate, shippingCost }: CheckoutFormProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const { cartItems, cartTotal, clearCart } = useCart();
   const { toast } = useToast();
@@ -55,7 +61,24 @@ export default function CheckoutForm() {
     },
   });
 
+  useEffect(() => {
+    if (user?.displayName) {
+        form.setValue('name', user.displayName);
+    }
+  }, [user, form]);
+
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    
+    if (!selectedGovernorate) {
+        toast({
+            title: 'Shipping Not Selected',
+            description: 'Please select a governorate for shipping.',
+            variant: 'destructive'
+        });
+        return;
+    }
+
     setIsProcessing(true);
     
     if (!firestore) {
@@ -64,11 +87,11 @@ export default function CheckoutForm() {
       return;
     }
 
-    // Generate a more human-readable order ID based on the current date and time
     const now = new Date();
     const orderId = format(now, 'yyMMdd-HHmmss-') + Math.random().toString(36).substring(2, 7);
-
     const orderDocRef = doc(firestore, 'orders', orderId);
+    
+    const finalTotal = cartTotal + shippingCost;
 
     const newOrder: Omit<Order, 'id'> = {
       userId: user?.uid || null,
@@ -79,6 +102,7 @@ export default function CheckoutForm() {
         address: values.address,
         city: values.city,
         zip: values.zip,
+        governorate: selectedGovernorate.governorate,
       },
       items: cartItems.map(item => ({
         id: item.productId,
@@ -88,13 +112,13 @@ export default function CheckoutForm() {
         size: item.size,
         imageUrl: item.imageUrl,
       })),
-      total: cartTotal,
+      total: finalTotal,
+      shippingCost: shippingCost,
       createdAt: serverTimestamp(),
       orderStatus: 'Pending',
     };
 
     try {
-      // Use setDocumentNonBlocking with the new custom ID
       setDocumentNonBlocking(orderDocRef, newOrder, { merge: true });
       
       toast({

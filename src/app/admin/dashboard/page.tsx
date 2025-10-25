@@ -27,7 +27,7 @@ import { collection, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { Separator } from '@/components/ui/separator';
-import type { Category, HeroSection, FooterSettings, SiteSettings } from '@/lib/types';
+import type { Category, HeroSection, FooterSettings, SiteSettings, ShippingRate } from '@/lib/types';
 import { useMemoFirebase, useUser } from '@/firebase/provider';
 import Link from 'next/link';
 import {
@@ -42,6 +42,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useDoc } from '@/firebase/firestore/use-doc';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { EGYPTIAN_GOVERNORATES } from '@/lib/egyptian-governorates';
 
 const categoryFormSchema = z.object({
     id: z.string().min(2, { message: 'Category ID must be at least 2 characters.'}),
@@ -66,11 +68,18 @@ const siteSettingsFormSchema = z.object({
     faviconUrl: z.string().url({ message: "Please enter a valid URL for the favicon."}).optional().or(z.literal('')),
 });
 
+const shippingRateFormSchema = z.object({
+    id: z.string().optional(),
+    governorate: z.string().min(1, { message: "Please select a governorate." }),
+    rate: z.coerce.number().min(0, { message: "Rate must be a positive number." }),
+});
+
 export default function DashboardPage() {
   const [isCategorySubmitting, setIsCategorySubmitting] = useState(false);
   const [isHeroSubmitting, setIsHeroSubmitting] = useState(false);
   const [isFooterSubmitting, setIsFooterSubmitting] = useState(false);
   const [isSiteSettingsSubmitting, setIsSiteSettingsSubmitting] = useState(false);
+  const [isShippingRateSubmitting, setIsShippingRateSubmitting] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
   const router = useRouter();
@@ -91,6 +100,12 @@ export default function DashboardPage() {
   );
   const { data: categories, isLoading: categoriesLoading } = useCollection<Category>(categoriesQuery);
 
+  const shippingRatesQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'shipping_rates') : null),
+    [firestore]
+  );
+  const { data: shippingRates, isLoading: shippingRatesLoading } = useCollection<ShippingRate>(shippingRatesQuery);
+
 
   const heroSectionDocRef = useMemoFirebase(() => (firestore ? doc(firestore, 'site_settings', 'hero') : null), [firestore]);
   const { data: heroSectionData } = useDoc<HeroSection>(heroSectionDocRef);
@@ -108,6 +123,14 @@ export default function DashboardPage() {
       id: '',
       name: '',
       imageUrl: '',
+    },
+  });
+
+  const shippingRateForm = useForm<z.infer<typeof shippingRateFormSchema>>({
+    resolver: zodResolver(shippingRateFormSchema),
+    defaultValues: {
+      governorate: '',
+      rate: 0,
     },
   });
 
@@ -244,6 +267,40 @@ export default function DashboardPage() {
     
     setIsSiteSettingsSubmitting(false);
   }
+  
+  async function onShippingRateSubmit(values: z.infer<typeof shippingRateFormSchema>) {
+    setIsShippingRateSubmitting(true);
+    if (!firestore) {
+      toast({ title: 'Error', description: 'Firestore is not available.', variant: 'destructive' });
+      setIsShippingRateSubmitting(false);
+      return;
+    }
+
+    const rateDocRef = doc(firestore, 'shipping_rates', values.governorate);
+    const dataToSave = { id: values.governorate, governorate: values.governorate, rate: values.rate };
+    
+    setDocumentNonBlocking(rateDocRef, dataToSave, { merge: true });
+
+    toast({
+      title: 'Shipping Rate Saved!',
+      description: `The rate for ${values.governorate} has been saved.`,
+    });
+    
+    setIsShippingRateSubmitting(false);
+    shippingRateForm.reset({ governorate: '', rate: 0});
+  }
+
+  function handleDeleteShippingRate(rateId: string) {
+    if (!firestore) return;
+    const rateDocRef = doc(firestore, 'shipping_rates', rateId);
+    deleteDocumentNonBlocking(rateDocRef);
+    toast({
+      title: 'Shipping Rate Deleted',
+      description: 'The shipping rate has been successfully removed.',
+      variant: 'destructive',
+    });
+  }
+
 
   if (isUserLoading || !isAdmin) {
     return (
@@ -358,6 +415,97 @@ export default function DashboardPage() {
                             </Button>
                         </form>
                     </Form>
+                </CardContent>
+            </Card>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl font-headline">Manage Shipping Rates</CardTitle>
+                    <CardDescription>Set shipping costs for each governorate.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...shippingRateForm}>
+                        <form onSubmit={shippingRateForm.handleSubmit(onShippingRateSubmit)} className="space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
+                                <FormField
+                                    control={shippingRateForm.control}
+                                    name="governorate"
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Governorate</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a governorate" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {EGYPTIAN_GOVERNORATES.map(gov => (
+                                                    <SelectItem key={gov} value={gov}>{gov}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={shippingRateForm.control}
+                                    name="rate"
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Shipping Rate (EGP)</FormLabel>
+                                        <FormControl>
+                                        <Input type="number" placeholder="e.g., 50" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <Button type="submit" className="w-full md:w-auto" disabled={isShippingRateSubmitting}>
+                                {isShippingRateSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Save Shipping Rate
+                            </Button>
+                        </form>
+                    </Form>
+                    <Separator className="my-8" />
+                    <h3 className="text-lg font-medium mb-4">Existing Shipping Rates</h3>
+                    <div className="space-y-2">
+                        {shippingRatesLoading && <p>Loading rates...</p>}
+                        {shippingRates && shippingRates.map(rate => (
+                            <div key={rate.id} className="flex items-center justify-between p-2 border rounded-md">
+                                <div>
+                                    <p className="font-semibold">{rate.governorate}</p>
+                                    <p className="text-sm text-muted-foreground">Rate: {rate.rate} EGP</p>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button variant="ghost" size="sm" onClick={() => shippingRateForm.reset(rate)}>Edit</Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="destructive" size="icon">
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This will permanently delete the shipping rate for "{rate.governorate}".
+                                            </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteShippingRate(rate.id)}>
+                                                Delete
+                                            </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </CardContent>
             </Card>
 
@@ -523,5 +671,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    

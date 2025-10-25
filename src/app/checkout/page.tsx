@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -9,9 +10,32 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import CheckoutForm from '@/components/checkout-form';
+import { useState } from 'react';
+import type { ShippingRate } from '@/lib/types';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { useMemoFirebase } from '@/firebase/provider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function CheckoutPage() {
   const { cartItems, cartTotal } = useCart();
+  const firestore = useFirestore();
+  const [selectedGovernorate, setSelectedGovernorate] = useState<ShippingRate | null>(null);
+
+  const shippingRatesQuery = useMemoFirebase(
+    () => (firestore ? collection(firestore, 'shipping_rates') : null),
+    [firestore]
+  );
+  const { data: shippingRates, isLoading: ratesLoading } = useCollection<ShippingRate>(shippingRatesQuery);
+
+  const handleGovernorateChange = (governorateId: string) => {
+    const rate = shippingRates?.find(r => r.id === governorateId) || null;
+    setSelectedGovernorate(rate);
+  };
+  
+  const shippingCost = selectedGovernorate?.rate ?? 0;
+  const finalTotal = cartTotal + shippingCost;
+
 
   if (cartItems.length === 0) {
     return (
@@ -72,10 +96,31 @@ export default function CheckoutPage() {
                     <span>Subtotal</span>
                     <span>{formatPrice(cartTotal)}</span>
                 </div>
-                <div className="flex justify-between">
+                 <div className="flex justify-between items-center">
                     <span>Shipping</span>
-                    <span>Free</span>
-                </div>
+                    {shippingRates && shippingRates.length > 0 ? (
+                        <Select onValueChange={handleGovernorateChange}>
+                            <SelectTrigger className="w-[200px] h-9">
+                                <SelectValue placeholder="Select Governorate" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {shippingRates.map(rate => (
+                                    <SelectItem key={rate.id} value={rate.id}>
+                                        {rate.governorate}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    ) : (
+                        <span>{ratesLoading ? 'Loading...' : 'N/A'}</span>
+                    )}
+                 </div>
+                 {selectedGovernorate && (
+                    <div className="flex justify-between text-muted-foreground">
+                        <span>Shipping to {selectedGovernorate.governorate}</span>
+                        <span>{formatPrice(shippingCost)}</span>
+                    </div>
+                 )}
                 <div className="flex justify-between">
                     <span>Taxes</span>
                     <span>Calculated at next step</span>
@@ -83,13 +128,13 @@ export default function CheckoutPage() {
                 <Separator className="my-2"/>
                 <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span>{formatPrice(cartTotal)}</span>
+                    <span>{formatPrice(finalTotal)}</span>
                 </div>
                  <p className="text-sm text-destructive text-center pt-2">الشحن من 3 الى سبع ايام</p>
             </div>
           </CardContent>
         </Card>
-        <CheckoutForm />
+        <CheckoutForm selectedGovernorate={selectedGovernorate} shippingCost={shippingCost} />
       </div>
     </div>
   );

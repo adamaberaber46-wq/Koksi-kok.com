@@ -1,5 +1,6 @@
 
 
+
 export const ORDER_STATUSES = ['Pending', 'Shipped', 'Delivered', 'Cancelled'] as const;
 export type OrderStatus = typeof ORDER_STATUSES[number];
 
@@ -63,6 +64,12 @@ export type SiteSettings = {
     faviconUrl?: string;
 }
 
+export type ShippingRate = {
+    id: string;
+    governorate: string;
+    rate: number;
+};
+
 export type Order = {
     id: string;
     userId: string | null;
@@ -73,6 +80,7 @@ export type Order = {
         address: string;
         city: string;
         zip: string;
+        governorate: string;
     };
     items: {
         id: string;
@@ -83,6 +91,7 @@ export type Order = {
         imageUrl: string;
     }[];
     total: number;
+    shippingCost: number;
     createdAt: any; // Firestore Timestamp
     orderStatus: OrderStatus;
 };

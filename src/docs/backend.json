@@ -397,6 +397,27 @@
         }
       },
       "required": ["socialLinks"]
+    },
+    "ShippingRate": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "ShippingRate",
+        "type": "object",
+        "description": "Represents a shipping rate for a specific governorate.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the shipping rate, typically the governorate name."
+          },
+          "governorate": {
+            "type": "string",
+            "description": "The name of the governorate."
+          },
+          "rate": {
+            "type": "number",
+            "description": "The shipping cost for this governorate."
+          }
+        },
+        "required": ["id", "governorate", "rate"]
     }
   },
   "auth": {
@@ -526,8 +547,24 @@
             }
           ]
         }
+      },
+      {
+        "path": "shipping_rates/{governorateId}",
+        "definition": {
+          "entityName": "ShippingRate",
+          "schema": {
+            "$ref": "#/backend/entities/ShippingRate"
+          },
+          "description": "Stores shipping rates for each governorate. The document ID should be the governorate name.",
+          "params": [
+            {
+              "name": "governorateId",
+              "description": "Unique identifier for the governorate, typically its name."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to support the Style Store application's core features. Orders are stored in a top-level collection to allow admins to easily query and list all orders. User-specific data (shopping carts, profiles) remains nested under the user's document to enforce ownership-based security rules. Global site settings like hero content, footer links, and branding are stored in a dedicated `site_settings` collection for easy management from the admin dashboard, using specific document IDs to differentiate between settings types."
+    "reasoning": "The Firestore structure is designed to support the Style Store application's core features. Orders are stored in a top-level collection to allow admins to easily query and list all orders. User-specific data (shopping carts, profiles) remains nested under the user's document to enforce ownership-based security rules. Global site settings like hero content, footer links, and branding are stored in a dedicated `site_settings` collection for easy management from the admin dashboard, using specific document IDs to differentiate between settings types. Shipping rates are stored in their own top-level collection for easy querying on the checkout page."
   }
 }
