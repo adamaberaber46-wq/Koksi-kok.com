@@ -150,7 +150,7 @@ export default function AddProductPage() {
       ...(values.careInstructions && { careInstructions: values.careInstructions }),
     };
     
-    if (values.originalPrice) {
+    if (values.originalPrice && values.originalPrice > 0) {
       newProductData.originalPrice = Number(values.originalPrice);
     } else {
       newProductData.originalPrice = undefined;
@@ -253,7 +253,7 @@ export default function AddProductPage() {
                                 <FormItem>
                                     <FormLabel>Original Price (Optional)</FormLabel>
                                     <FormControl>
-                                    <Input type="number" placeholder="e.g., 399.99" {...field} value={field.value ?? ''} />
+                                    <Input type="number" placeholder="e.g., 399.99" {...field} value={field.value || ''} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -512,5 +512,7 @@ export default function AddProductPage() {
     </div>
   );
 }
+
+    
 
     
