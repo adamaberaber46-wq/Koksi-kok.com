@@ -82,60 +82,62 @@ export function AddToCartDialog({ product, children }: { product: Product, child
             Select your preferred options to add this item to your cart.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-            <div className="space-y-4">
-                <div className="relative aspect-square w-full overflow-hidden rounded-md">
-                    <Image
-                        src={selectedVariant?.imageUrls[0] || product.imageUrls[0] || '/placeholder.svg'}
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                    />
-                </div>
-                <div className="text-2xl font-bold">{formatPrice(priceToShow)}</div>
-
-                <div className="grid gap-2">
-                    <Label htmlFor="size-select">Size</Label>
-                    <Select value={selectedSize} onValueChange={setSelectedSize}>
-                    <SelectTrigger id="size-select" className="w-full">
-                        <SelectValue placeholder="Select a size" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {product.sizes.map((size) => (
-                        <SelectItem key={size} value={size}>
-                            {size}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
-                </div>
-
-                {product.variants && product.variants.length > 0 && (
-                  <div className="grid gap-2">
-                    <Label>Color</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {product.variants.map((variant) => (
-                           <button
-                            key={variant.color}
-                            type="button"
-                            className={cn(
-                              'h-10 w-10 rounded-full border-2 transition-transform transform hover:scale-110 flex items-center justify-center overflow-hidden',
-                              selectedVariant?.color === variant.color ? 'border-primary scale-110' : 'border-border'
-                            )}
-                            onClick={() => handleVariantSelect(variant.color)}
-                            aria-label={`Select color ${variant.color}`}
-                            title={variant.color}
-                          >
-                             <Image src={variant.imageUrls[0]} alt={variant.color} width={40} height={40} className="object-cover" />
-                          </button>
-                      ))}
-                    </div>
+        <ScrollArea className="max-h-[70vh]">
+          <div className="grid gap-4 py-4 pr-6">
+              <div className="space-y-4">
+                  <div className="relative aspect-square w-full overflow-hidden rounded-md">
+                      <Image
+                          src={selectedVariant?.imageUrls[0] || product.imageUrls[0] || '/placeholder.svg'}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                      />
                   </div>
-                )}
-                
-                {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-            </div>
-        </div>
+                  <div className="text-2xl font-bold">{formatPrice(priceToShow)}</div>
+
+                  <div className="grid gap-2">
+                      <Label htmlFor="size-select">Size</Label>
+                      <Select value={selectedSize} onValueChange={setSelectedSize}>
+                      <SelectTrigger id="size-select" className="w-full">
+                          <SelectValue placeholder="Select a size" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {product.sizes.map((size) => (
+                          <SelectItem key={size} value={size}>
+                              {size}
+                          </SelectItem>
+                          ))}
+                      </SelectContent>
+                      </Select>
+                  </div>
+
+                  {product.variants && product.variants.length > 0 && (
+                    <div className="grid gap-2">
+                      <Label>Color</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {product.variants.map((variant) => (
+                            <button
+                              key={variant.color}
+                              type="button"
+                              className={cn(
+                                'h-10 w-10 rounded-full border-2 transition-transform transform hover:scale-110 flex items-center justify-center overflow-hidden',
+                                selectedVariant?.color === variant.color ? 'border-primary scale-110' : 'border-border'
+                              )}
+                              onClick={() => handleVariantSelect(variant.color)}
+                              aria-label={`Select color ${variant.color}`}
+                              title={variant.color}
+                            >
+                              <Image src={variant.imageUrls[0]} alt={variant.color} width={40} height={40} className="object-cover" />
+                            </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+              </div>
+          </div>
+        </ScrollArea>
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
