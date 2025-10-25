@@ -39,24 +39,24 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Switch } from '@/components/ui/switch';
 
 const productVariantSchema = z.object({
-    color: z.string().min(1, 'Color name is required'),
-    imageUrls: z.string().min(1, 'At least one image URL is required.'),
-    price: z.coerce.number().positive('Price must be a positive number'),
+    color: z.string().optional(),
+    imageUrls: z.string().optional(),
+    price: z.coerce.number().optional(),
 });
 
 const productFormSchema = z.object({
   id: z.string().optional(),
-  name: z.string().min(2, { message: 'Product name must be at least 2 characters.' }),
-  description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
-  price: z.coerce.number().positive({ message: 'Base price must be a positive number.' }),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  price: z.coerce.number().optional(),
   originalPrice: z.coerce.number().optional().nullable(),
-  brand: z.string().min(2, { message: 'Brand is required.' }),
-  category: z.string().min(1, { message: 'Category is required.' }),
-  sizes: z.string().min(1, { message: 'At least one size is required.' }),
-  imageUrls: z.string().min(1, { message: 'At least one general image URL is required.' }),
-  material: z.string().min(2, { message: 'Material is required.' }),
-  countryOfOrigin: z.string().min(2, { message: 'Country of origin is required.' }),
-  variants: z.array(productVariantSchema).min(1, "At least one color variant is required."),
+  brand: z.string().optional(),
+  category: z.string().optional(),
+  sizes: z.string().optional(),
+  imageUrls: z.string().optional(),
+  material: z.string().optional(),
+  countryOfOrigin: z.string().optional(),
+  variants: z.array(productVariantSchema).optional(),
   isFeatured: z.boolean().default(false),
   // Optional fields
   tags: z.string().optional(),
@@ -128,21 +128,21 @@ export default function AddProductPage() {
     }
 
     const newProductData: Omit<Product, 'id'> = {
-      name: values.name,
-      description: values.description,
-      price: Number(values.price),
-      brand: values.brand,
-      category: values.category,
-      sizes: values.sizes.split(',').map((s) => s.trim()),
-      imageUrls: values.imageUrls.split(',').map((url) => url.trim()),
-      material: values.material,
-      countryOfOrigin: values.countryOfOrigin,
+      name: values.name || 'Untitled Product',
+      description: values.description || '',
+      price: Number(values.price) || 0,
+      brand: values.brand || '',
+      category: values.category || '',
+      sizes: values.sizes ? values.sizes.split(',').map((s) => s.trim()) : [],
+      imageUrls: values.imageUrls ? values.imageUrls.split(',').map((url) => url.trim()) : [],
+      material: values.material || '',
+      countryOfOrigin: values.countryOfOrigin || '',
       isFeatured: values.isFeatured,
-      variants: values.variants.map(v => ({
-        ...v,
-        price: Number(v.price),
-        imageUrls: v.imageUrls.split(',').map(url => url.trim()),
-      })),
+      variants: values.variants ? values.variants.map(v => ({
+        color: v.color || '',
+        price: Number(v.price) || 0,
+        imageUrls: v.imageUrls ? v.imageUrls.split(',').map(url => url.trim()) : [],
+      })) : [],
       ...(values.tags && { tags: values.tags.split(',').map(t => t.trim()) }),
       ...(values.sku && { sku: values.sku }),
       ...(values.weightGrams && { weightGrams: Number(values.weightGrams) }),
@@ -159,7 +159,7 @@ export default function AddProductPage() {
     await addDocumentNonBlocking(productsCollection, newProductData);
     toast({
         title: 'Product Added!',
-        description: `${values.name} has been successfully added to the store.`,
+        description: `${values.name || 'Untitled Product'} has been successfully added to the store.`,
     });
     
     setIsProductSubmitting(false);
@@ -511,3 +511,5 @@ export default function AddProductPage() {
     </div>
   );
 }
+
+    
