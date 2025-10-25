@@ -76,10 +76,9 @@ export function useCollection<T = any>(
       (error: FirestoreError) => {
         let path = '[unknown path]';
         try {
-          if (memoizedTargetRefOrQuery.type === 'collection') {
+          if ('path' in memoizedTargetRefOrQuery) {
               path = (memoizedTargetRefOrQuery as CollectionReference).path;
-          } else {
-              // This is a robust way to access path for queries
+          } else if ('_query' in memoizedTargetRefOrQuery && (memoizedTargetRefOrQuery as any)._query?.path) {
               path = (memoizedTargetRefOrQuery as any)._query.path.segments.join('/');
           }
         } catch (e) {
