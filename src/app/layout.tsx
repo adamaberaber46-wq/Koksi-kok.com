@@ -1,19 +1,20 @@
+
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/providers';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
-import { Tajawal } from 'next/font/google';
+import { Cairo } from 'next/font/google';
 import { doc, getDoc } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import type { SiteSettings } from '@/lib/types';
 import type { Metadata } from 'next';
 
-const tajawal = Tajawal({
+const cairo = Cairo({
   subsets: ['arabic', 'latin'],
   weight: ['400', '500', '700', '800'],
-  variable: '--font-tajawal',
+  variable: '--font-cairo',
 });
 
 // Helper function to fetch site settings
@@ -112,7 +113,7 @@ export default function RootLayout({
       <body
         className={cn(
           'min-h-screen bg-background font-body antialiased',
-          tajawal.variable
+          cairo.variable
         )}
       >
         <Providers>
