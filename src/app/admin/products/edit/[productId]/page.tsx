@@ -296,7 +296,18 @@ export default function EditProductPage() {
     <FormItem>
       <FormLabel>Original Price (Optional)</FormLabel>
       <FormControl>
-        <Input type="number" placeholder="e.g., 399.99" {...field} value={field.value || ''} />
+        <Input
+          type="number"
+          placeholder="e.g., 399.99"
+          // نخلي القيمة فاضية بدل undefined عشان ما يعملش error
+          {...field}
+          value={field.value ?? ''}
+          onChange={(e) => {
+            const val = e.target.value;
+            // لو المستخدم سابها فاضية نحفظها كـ null مش undefined
+            field.onChange(val === '' ? null : Number(val));
+          }}
+        />
       </FormControl>
       <FormDescription>
         Leave blank if there's no discount.
