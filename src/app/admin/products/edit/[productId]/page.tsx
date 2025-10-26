@@ -289,19 +289,23 @@ export default function EditProductPage() {
                                 </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={productForm.control}
-                                name="originalPrice"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Original Price (Optional)</FormLabel>
-                                    <FormControl>
-                                    <Input type="number" placeholder="e.g., 399.99" {...field} value={field.value || ''} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
+<FormField
+  control={productForm.control}
+  name="originalPrice"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Original Price (Optional)</FormLabel>
+      <FormControl>
+        <Input type="number" placeholder="e.g., 399.99" {...field} value={field.value || ''} />
+      </FormControl>
+      <FormDescription>
+        Leave blank if there's no discount.
+      </FormDescription>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <FormField
