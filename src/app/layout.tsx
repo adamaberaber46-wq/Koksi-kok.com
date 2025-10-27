@@ -105,7 +105,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning>
+<html lang="en" dir="ltr" suppressHydrationWarning>
       <head>
         {/* ✅ Meta Tags for SEO */}
         <meta charSet="UTF-8" />
