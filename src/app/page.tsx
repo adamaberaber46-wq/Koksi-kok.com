@@ -40,12 +40,15 @@ export default function Home() {
   const { data: categories, isLoading: categoriesLoading } =
     useCollection<Category>(categoriesQuery);
 
-  const heroSectionDocRef = useMemoFirebase(() => (firestore ? doc(firestore, 'site_settings', 'hero') : null), [firestore]);
+  const heroSectionDocRef = useMemoFirebase(
+    () => (firestore ? doc(firestore, 'site_settings', 'hero') : null),
+    [firestore]
+  );
   const { data: heroData, isLoading: heroLoading } = useDoc<HeroSection>(heroSectionDocRef);
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* ===== HERO SECTION ===== */}
+      {/* Hero Section */}
       <section className="relative w-full h-[600px] lg:h-screen flex items-center justify-center text-center text-primary-foreground">
         {heroLoading && <Skeleton className="absolute inset-0" />}
         {heroData && heroData.imageUrl && (
@@ -90,30 +93,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== BEST SELLERS ===== */}
-      {!productsLoading && featuredProducts && featuredProducts.length > 0 && (
-        <section className="py-16 md:py-24 bg-card">
-          <div className="container mx-auto px-2 md:px-4">
-            <h2 className="text-3xl md:text-4xl font-headline font-bold text-center mb-10">
+      {/* ✅ Best Sellers Section */}
+      {(!productsLoading && featuredProducts && featuredProducts.length > 0) && (
+        <section className="py-12 md:py-20 bg-card">
+          <div className="container mx-auto px-3 sm:px-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-headline font-bold text-center mb-8 sm:mb-12">
               Best Sellers
             </h2>
 
             <Carousel
               opts={{
-                align: 'center',
+                align: 'center', // تمركز الكروت على الموبايل
                 loop: featuredProducts.length > 3,
               }}
               className="w-full"
             >
-              <CarouselContent className="flex justify-center md:justify-start gap-2 md:gap-3">
+              <CarouselContent className="flex gap-3 sm:gap-4 md:gap-6">
                 {productsLoading &&
                   Array.from({ length: 4 }).map((_, i) => (
                     <CarouselItem
                       key={i}
-                      className="basis-[80%] sm:basis-1/2 lg:basis-1/4"
+                      className="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 flex justify-center"
                     >
-                      <div className="p-0.5">
-                        <div className="flex flex-col gap-1.5">
+                      <div className="p-1">
+                        <div className="flex flex-col gap-2">
                           <Skeleton className="aspect-square w-full" />
                           <Skeleton className="w-3/4 h-6" />
                           <Skeleton className="w-1/2 h-5" />
@@ -127,15 +130,16 @@ export default function Home() {
                   featuredProducts.map((product) => (
                     <CarouselItem
                       key={product.id}
-                      className="basis-[80%] sm:basis-1/2 lg:basis-1/4"
+                      className="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 flex justify-center"
                     >
-                      <div className="p-0.5">
+                      <div className="p-1">
                         <ProductCard product={product} />
                       </div>
                     </CarouselItem>
                   ))}
               </CarouselContent>
 
+              {/* الأسهم */}
               <CarouselPrevious className="hidden md:flex" />
               <CarouselNext className="hidden md:flex" />
             </Carousel>
@@ -143,46 +147,35 @@ export default function Home() {
         </section>
       )}
 
-      {/* ===== SHOP BY CATEGORY ===== */}
+      {/* Categories Section */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="container mx-auto px-2 md:px-4">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold text-center mb-10">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-headline font-bold text-center mb-12">
             Shop by Category
           </h2>
-
-          <Carousel
-            opts={{
-              align: 'center',
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="flex justify-center md:justify-start gap-2 md:gap-3">
+          <Carousel opts={{ align: 'start' }} className="w-full">
+            <CarouselContent>
               {categoriesLoading &&
                 Array.from({ length: 3 }).map((_, i) => (
-                  <CarouselItem
-                    key={i}
-                    className="basis-[80%] sm:basis-1/2 lg:basis-1/3"
-                  >
-                    <div className="p-0.5">
+                  <CarouselItem key={i} className="sm:basis-1/2 lg:basis-1/3">
+                    <div className="p-1">
                       <Skeleton className="aspect-[4/3] w-full" />
                     </div>
                   </CarouselItem>
                 ))}
-
               {!categoriesLoading &&
                 categories &&
                 categories.map((category) => (
                   <CarouselItem
                     key={category.id}
-                    className="basis-[80%] sm:basis-1/2 lg:basis-1/3"
+                    className="sm:basis-1/2 lg:basis-1/3"
                   >
-                    <div className="p-0.5">
+                    <div className="p-1">
                       <CategoryCard category={category} />
                     </div>
                   </CarouselItem>
                 ))}
             </CarouselContent>
-
             <CarouselPrevious className="hidden md:flex" />
             <CarouselNext className="hidden md:flex" />
           </Carousel>
