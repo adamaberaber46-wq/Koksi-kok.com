@@ -93,7 +93,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ✅ Best Sellers Section */}
+      {/* ✅ Best Sellers Section (تم تعديل المسافة إلى 5px فقط) */}
       {(!productsLoading && featuredProducts && featuredProducts.length > 0) && (
         <section className="py-12 md:py-20 bg-card">
           <div className="container mx-auto px-3 sm:px-4">
@@ -108,7 +108,8 @@ export default function Home() {
               }}
               className="w-full"
             >
-              <CarouselContent className="flex gap-3 sm:gap-4 md:gap-6">
+              {/* ✅ هنا قللت المسافة بين الكروت إلى 5px */}
+              <CarouselContent className="flex" style={{ gap: '5px' }}>
                 {productsLoading &&
                   Array.from({ length: 4 }).map((_, i) => (
                     <CarouselItem
@@ -147,7 +148,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* Categories Section */}
+      {/* Categories Section (بدون تغيير) */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-headline font-bold text-center mb-12">
