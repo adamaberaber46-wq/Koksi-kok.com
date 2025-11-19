@@ -83,51 +83,59 @@ export default function ManageProductsPage() {
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {productsLoading && <p>Loading products...</p>}
-            {products && products.map(product => (
-              <div key={product.id} className="flex items-center justify-between p-4 border rounded-md gap-4">
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="relative h-16 w-16 rounded-md overflow-hidden border">
-                        <Image src={product.variants?.[0]?.imageUrls?.[0] || product.imageUrls?.[0] || '/placeholder.svg'} alt={product.name} fill className="object-cover" />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                        <p className="font-semibold truncate">{product.name}</p>
-                        <p className="text-sm text-muted-foreground">{formatPrice(product.price)}</p>
-                    </div>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/admin/products/edit/${product.id}`}>Edit</Link>
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="icon">
-                        <Trash2 className="h-4 w-4" />
+          {productsLoading && <p>Loading products...</p>}
+          {products && products.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {products.map(product => (
+                <div key={product.id} className="flex flex-col border rounded-md overflow-hidden">
+                  <div className="relative aspect-square w-full">
+                    <Image
+                      src={product.variants?.[0]?.imageUrls?.[0] || product.imageUrls?.[0] || '/placeholder.svg'}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-2 flex flex-col gap-1">
+                    <p className="font-semibold truncate">{product.name}</p>
+                    <p className="text-sm text-muted-foreground">{formatPrice(product.price)}</p>
+                    <div className="flex gap-2 mt-1">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/admin/products/edit/${product.id}`}>Edit</Link>
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete the product "{product.name}".
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="sm">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete the product "{product.name}".
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {products?.length === 0 && !productsLoading && (
-              <p className="text-muted-foreground text-center py-4">No products found. <Link href="/admin/products/add" className='underline'>Add one now</Link>.</p>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            !productsLoading && (
+              <p className="text-muted-foreground text-center py-4">
+                No products found. <Link href="/admin/products/add" className='underline'>Add one now</Link>.
+              </p>
+            )
+          )}
         </CardContent>
       </Card>
     </div>
