@@ -46,7 +46,8 @@ export default function ProductGrid({
 
   return (
     <div>
-      <div className="flex flex-wrap justify-center gap-2 mb-[5px]">
+      {/* شريط الفلاتر */}
+      <div className="flex flex-wrap justify-center gap-2 mb-[5px] mt-0 pt-0">
         {categoriesLoading &&
           Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-10 w-24" />
@@ -68,6 +69,7 @@ export default function ProductGrid({
           ))}
       </div>
 
+      {/* شبكة المنتجات */}
       {allProducts.length > 0 ? (
         <div
           className="
