@@ -93,7 +93,7 @@ export default function Home() {
         </div>
       </section>
 
-     {/* ✅ Best Sellers Section */}
+    {/* ✅ Best Sellers Section */}
 {(!productsLoading && featuredProducts && featuredProducts.length > 0) && (
   <section className="py-12 md:py-20 bg-card">
     <div className="container mx-auto px-3 sm:px-4">
@@ -103,18 +103,18 @@ export default function Home() {
 
       <Carousel
         opts={{
-          align: 'center',
+          align: 'start', // خلي البداية من أول الكروت
           loop: featuredProducts.length > 3,
         }}
         className="w-full"
       >
-        {/* 👇 تم تعديل المسافة إلى 0 */}
+        {/* 👇 المسافة بين الكروت معدومة */}
         <CarouselContent className="flex gap-0">
           {productsLoading &&
             Array.from({ length: 4 }).map((_, i) => (
               <CarouselItem
                 key={i}
-                className="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 flex justify-center"
+                className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 flex justify-center"
               >
                 <div className="flex flex-col gap-2 w-full">
                   <Skeleton className="aspect-square w-full" />
@@ -129,7 +129,7 @@ export default function Home() {
             featuredProducts.map((product) => (
               <CarouselItem
                 key={product.id}
-                className="basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 flex justify-center"
+                className="basis-1/2 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 flex justify-center"
               >
                 <ProductCard product={product} />
               </CarouselItem>
