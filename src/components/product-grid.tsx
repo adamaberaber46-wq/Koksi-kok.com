@@ -72,14 +72,17 @@ export default function ProductGrid({
         <div
           className="
             grid 
-            grid-cols-2         <!-- موبايل = 2 -->
+            grid-cols-2          /* موبايل = 2 */
             sm:grid-cols-2       
-            md:grid-cols-3       <!-- تابلت = 3 -->
-            lg:grid-cols-4       <!-- شاشة كبيرة = 4 -->
-            xl:grid-cols-5       <!-- شاشات أكبر = 5 -->
+            md:grid-cols-3       /* تابلت = 3 */
+            lg:grid-cols-4       /* لابتوب = 4 */
+            xl:grid-cols-5       /* شاشات كبيرة = 5 */
             gap-4
             w-full
             place-items-center
+
+            [&>*]:scale-[0.8]       /* صغر حجم الكارت في الموبايل */
+            sm:[&>*]:scale-100      /* من أول تابلت يرجع طبيعي */
           "
         >
           {allProducts.map((product) => (
