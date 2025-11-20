@@ -46,7 +46,7 @@ export default function ProductGrid({
 
   return (
     <div>
-      <div className="flex flex-wrap justify-center gap-2 mb-8">
+      <div className="flex flex-wrap justify-center gap-2 mb-[5px]">
         {categoriesLoading &&
           Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-10 w-24" />
