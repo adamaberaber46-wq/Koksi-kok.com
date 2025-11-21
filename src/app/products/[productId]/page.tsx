@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useDoc } from '@/firebase/firestore/use-doc';
@@ -92,7 +90,6 @@ export default function ProductDetailPage() {
     }
   };
 
-
   if (isLoading || !productId) {
     return <ProductPageSkeleton />;
   }
@@ -119,9 +116,7 @@ export default function ProductDetailPage() {
     const [count, setCount] = useState(0)
 
     useEffect(() => {
-        if (!api) {
-            return
-        }
+        if (!api) return;
 
         setCount(api.scrollSnapList().length)
         setCurrent(api.selectedScrollSnap())
@@ -131,17 +126,15 @@ export default function ProductDetailPage() {
         })
     }, [api])
 
-
     const handleThumbnailClick = (index: number) => {
-        if (!api) {
-            return
-        }
+        if (!api) return;
         setActiveImage(galleryImages[index]);
         api.scrollTo(index)
     }
 
     return (
         <div className="flex flex-col gap-4 md:sticky md:top-24">
+            {/* Carousel Mobile */}
             <Carousel setApi={setApi} className="md:hidden">
               <CarouselContent>
                 {galleryImages.length > 0 ? (
@@ -183,14 +176,15 @@ export default function ProductDetailPage() {
               )}
             </Carousel>
 
-            <div className="relative aspect-square w-full overflow-hidden rounded-lg border hidden md:block">
+            {/* Desktop Main Image */}
+            <div className="relative w-[300px] h-[300px] overflow-hidden rounded-lg border hidden md:block mx-auto">
               {activeImage ? (
                 <Image
                   src={activeImage}
                   alt={product.name}
-                  fill
-                  className="object-cover"
-                  sizes="50vw"
+                  width={300}
+                  height={300}
+                  className="object-contain"
                   priority
                 />
               ) : (
@@ -200,6 +194,7 @@ export default function ProductDetailPage() {
               )}
             </div>
 
+            {/* Thumbnails */}
             {galleryImages.length > 1 && (
               <div className="hidden md:grid grid-cols-4 gap-2">
                 {galleryImages.map((imageUrl, index) => (
