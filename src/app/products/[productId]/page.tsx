@@ -177,12 +177,12 @@ export default function ProductDetailPage() {
             </Carousel>
 
             {/* Desktop Main Image */}
-            <div className="relative w-[400px] h-[400px] overflow-hidden rounded-lg border hidden md:block mx-auto">
+            <div className="relative w-[600px] h-[400px] overflow-hidden rounded-lg border hidden md:block mx-auto">
               {activeImage ? (
                 <Image
                   src={activeImage}
                   alt={product.name}
-                  width={400}
+                  width={600}
                   height={400}
                   className="object-contain"
                   priority
